@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sony_bravia">Sony Bravia</string>
+    <string name="hello">Hello World, Main!</string>
+    <string name="app_name">Bluetooth Srewdriver</string>
+
+<string name="BT_NOT_ENABLED">What am I your mom? Turn on bluetooth!</string>
+<string name="BT_SERVER_CONNECT_FAILED">Bluetooth server not in range or not running.</string>
+<string name="vip1200">vip1200</string>
+<string name="CONNECTING_TO_BT_SERVER">Connecting...</string>
+<string name="bthid">Bluetooth HID</string>
+<string name="HID_DEVICE_STATUS">Checking HID Device Status...</string>
+<string name="BT_SERVER_COMM_FAILURE">Error communicating with Bluetooth Server</string>
+<string name="HID_HOSTS">Retreiving list of HID Hosts...</string>
+<string name="HID_HOST_DIALOG_TITLE">Know HID Hosts</string>
+<string name="ENTER_PAIR_MODE">Pair with new HID Host</string>
+<string name="WAITING_FOR_PIN_REQUEST">Pair Device with Host now</string>
+<string name="SERVER_VERSION_MISMATCH">The device version is not valid</string>
+<string name="PINCODE_DIALOG_TITLE">Enter Pincode</string>
+<string name="HID_HOST_VALIDATING_PIN">Validating PIN...</string>
+<string name="PAIR_MODE_CANCEL">Device exiting Pair Mode..</string>
+<string name="HID_HOST_CONNECTING_TITLE">Connecting to HID Host</string>
+<string name="HID_HOST_CONNECT_MESSAGE">Connecting to </string>
+<string name="HID_HOST_CONNECT_CANCEL">Canceling...</string>
+<string name="mce">mce</string>
+<string name="MCE_NOT_CONNECTED">You must be connected to a HID Host</string>
+<string name="remotePrototype">remotePrototype</string>
+<string name="directionPrototype">directionPrototype</string>
+<string name="ROOT_ACTIVITY">Root Activity</string>
+<string name="MENU_DIALOG_TITLE">Select a Menu</string>
+</resources>

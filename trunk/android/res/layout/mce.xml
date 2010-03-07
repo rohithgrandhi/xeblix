@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbsoluteLayout android:id="@+id/AbsoluteLayout01"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceStart"
+		android:text="Start" android:layout_y="190dip" android:layout_x="120dip" android:minWidth="75px" android:minHeight="60px"></Button>
+
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceUp"
+		android:text="Up" android:layout_y="5dip" android:layout_x="120dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceDown"
+		android:text="Down" android:layout_y="125dip" android:layout_x="120dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceLeft"
+		android:text="Left" android:layout_y="65dip" android:layout_x="40dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceRight"
+		android:text="Right" android:layout_y="65dip" android:layout_x="200dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceEnter"
+		android:text="Enter" android:layout_y="65dip" android:layout_x="120dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceVolUp"
+		android:text="   Vol Up  " android:layout_y="160dip" android:layout_x="35dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceVolDown"
+		android:text="Vol Down" android:layout_y="220dip" android:layout_x="35dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceChUp"
+		android:text="   Ch Up  " android:layout_y="160dip" android:layout_x="200dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceChDown"
+		android:text="Ch Down" android:layout_y="220dip" android:layout_x="200dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceBack"
+		android:text="Back" android:layout_y="5dip" android:layout_x="15dip" android:minWidth="75px" android:minHeight="60px"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mcePlay"
+		android:text="Play" android:layout_y="370dip" android:layout_x="120dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mcePause"
+		android:text="Pause" android:layout_y="310dip" android:layout_x="120dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceStop"
+		android:text="Stop" android:layout_y="250dip" android:layout_x="120dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceFF"
+		android:text="FF" android:layout_y="290dip" android:layout_x="200dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceRW"
+		android:text="RW" android:layout_y="290dip" android:layout_x="40dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceSKF"
+		android:text="Skip F" android:layout_y="350dip" android:layout_x="200dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/mceSKR"
+		android:text="Skip B" android:layout_y="350dip" android:layout_x="40dip" android:minWidth="75px" android:minHeight="60px"></Button>
+</AbsoluteLayout>

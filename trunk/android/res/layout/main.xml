@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<Button android:id="@+id/SonyButton" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="24sp"
+		android:fadingEdge="vertical" android:layout_weight="1"
+		android:text="Sony Bravia 40" />
+	<Button android:id="@+id/MotorolaUverse" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="24sp"
+		android:fadingEdge="vertical" android:layout_weight="1"
+		android:text="Motorola U-Verse" />
+	<Button android:id="@+id/HID" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="24sp"
+		android:fadingEdge="vertical" android:layout_weight="1"
+		android:text="Bluetooth HID" />
+	<Button android:id="@+id/MCE" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="24sp"
+		android:fadingEdge="vertical" android:layout_weight="1"
+		android:text="Media Center" />
+	<Button android:id="@+id/RemotePrototype" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="24sp"
+		android:fadingEdge="vertical" android:layout_weight="1"
+		android:text="Prototype" />
+	<Button android:id="@+id/RootActivity" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="24sp"
+		android:fadingEdge="vertical" android:layout_weight="1"
+		android:text="Root" />
+</LinearLayout>

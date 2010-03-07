@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical">
+	
+	<LinearLayout
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:layout_weight="2">
+
+		<LinearLayout 
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:layout_weight="2"
+			android:orientation="vertical">
+			
+			<TextView  
+				android:id="@+id/GS1"
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:textColor="#ffffff"
+				android:background="@drawable/btn_remote"
+				android:layout_weight="2"
+				android:gravity="center"></TextView>
+				
+			<TextView 
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:layout_weight="1"
+				android:gravity="top"></TextView>
+		</LinearLayout>
+		
+		<TextView 
+			android:id="@+id/GS6"
+			android:layout_width="wrap_content"
+			android:background="@drawable/arrow_up"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+			
+		<LinearLayout 
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:layout_weight="2"
+			android:orientation="vertical">
+			
+			<TextView  
+				android:id="@+id/GS2"
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:textColor="#ffffff"
+				android:background="@drawable/btn_remote"
+				android:layout_weight="2"
+				android:gravity="center"></TextView>
+				
+			<TextView 
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:layout_weight="1"
+				android:gravity="top"></TextView>
+		</LinearLayout>
+	</LinearLayout>
+	
+	<LinearLayout 
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:layout_weight="3">
+		
+		<TextView 
+			android:id="@+id/GS10"
+			android:layout_width="fill_parent"
+			android:layout_weight="3" 
+			android:background="@drawable/arrow_left"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+		
+		<LinearLayout android:id="@+id/TapForEnterLayout"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:background="@drawable/btn_remote"
+			android:layout_gravity="center">
+			
+			<TextView android:text="Tap for" 
+				android:id="@+id/GS3"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:textColor="#ffffff"
+				android:gravity="center"></TextView>
+			<TextView  
+				android:id="@+id/GS3_5"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:textColor="#ffffff"
+				android:layout_gravity="center"></TextView>
+		</LinearLayout>
+		<TextView 
+			android:id="@+id/GS12"
+			android:layout_width="fill_parent"
+			android:layout_weight="3" 
+			android:background="@drawable/arrow_right"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+	</LinearLayout>
+	
+	<LinearLayout 
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:layout_weight="2">
+
+		<LinearLayout 
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:layout_weight="2"
+			android:orientation="vertical">
+			
+			<TextView 
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:layout_weight="1"
+				android:gravity="top"></TextView>
+			
+			<TextView
+				android:id="@+id/GS4"
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:textColor="#ffffff"
+				android:background="@drawable/btn_remote"
+				android:layout_weight="2"
+				android:gravity="center"></TextView>
+				
+			
+		</LinearLayout>
+		
+		<TextView 
+			android:id="@+id/GS8"
+			android:layout_width="wrap_content"
+			android:background="@drawable/arrow_down"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+			
+		<LinearLayout 
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:layout_weight="2"
+			android:orientation="vertical">
+			
+			<TextView 
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:layout_weight="1"
+				android:gravity="top"></TextView>
+			
+			<TextView  
+				android:id="@+id/GS5"
+				android:layout_height="fill_parent"
+				android:layout_width="fill_parent"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:textColor="#ffffff"
+				android:background="@drawable/btn_remote"
+				android:layout_weight="2"
+				android:gravity="center"></TextView>
+				
+			
+		</LinearLayout>
+	</LinearLayout>
+</LinearLayout>
