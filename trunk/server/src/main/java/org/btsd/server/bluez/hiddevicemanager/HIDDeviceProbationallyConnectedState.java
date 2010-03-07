@@ -185,8 +185,8 @@ public final class HIDDeviceProbationallyConnectedState implements
 			//if hostInfo is not null then we have a new connection so store it
 			if(deviceManager.getHostInfo() != null){
 				deviceManager.addHIDHost(deviceManager.getHostInfo());
-				deviceManager.setHostInfo(null);
 				deviceManager.setConnectedHostInfo(deviceManager.getHostInfo());
+				deviceManager.setHostInfo(null);
 			}
 			
 			deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
