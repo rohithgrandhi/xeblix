@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/LinearLayout01"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical">
+
+	<LinearLayout android:id="@+id/LinearLayout02"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:gravity="center_vertical"
+		android:layout_weight="1">
+
+		<TextView android:text="OK" 
+			android:id="@+id/Button01"
+			android:layout_height="fill_parent"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:layout_weight="1"
+			android:gravity="center"></TextView>
+		
+		<TextView android:text="Power" 
+			android:id="@+id/Button02"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1" 
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+	</LinearLayout>
+	
+	<LinearLayout android:id="@+id/LinearLayout03"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:gravity="center_vertical"
+		android:layout_weight="1">
+
+		<TextView android:text="Back" 
+			android:id="@+id/Button03"
+			android:layout_height="fill_parent"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1"
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"
+			></TextView>
+		
+		<TextView android:text="Menu" 
+			android:id="@+id/Button04"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1" 
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+	</LinearLayout>
+	
+	<LinearLayout android:id="@+id/LinearLayout04"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:gravity="center_vertical"
+		android:layout_weight="1">
+
+		<TextView android:text="Direction" 
+			android:id="@+id/directionButton"
+			android:layout_height="fill_parent"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1"
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"
+			></TextView>
+		
+		<TextView android:text="Speed" 
+			android:id="@+id/Button06"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1" 
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+	</LinearLayout>
+	
+	<LinearLayout android:id="@+id/LinearLayout05"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:gravity="center_vertical"
+		android:layout_weight="1">
+
+		<TextView android:text="Volume" 
+			android:id="@+id/Button07"
+			android:layout_height="fill_parent"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1"
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"
+			></TextView>
+		
+		<TextView android:text="Channel" 
+			android:id="@+id/Button08"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1" 
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"
+			android:layout_height="fill_parent"></TextView>
+	</LinearLayout>
+	
+	<LinearLayout android:id="@+id/LinearLayout06"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:gravity="center_vertical"
+		android:layout_weight="1">
+
+		<TextView android:text="T-9" 
+			android:id="@+id/Button09"
+			android:layout_height="fill_parent"
+			android:layout_width="fill_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_weight="1"
+			android:background="@drawable/btn_remote"
+			android:textColor="#ffffff"
+			android:gravity="center"></TextView>
+	</LinearLayout>
+</LinearLayout>

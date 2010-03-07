@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbsoluteLayout android:id="@+id/AbsoluteLayout01"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Power"
+		android:text="Power" android:layout_y="10dip" android:layout_x="240dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200RecordedTV"
+		android:text="Recorded TV" android:layout_y="10dip" android:layout_x="20dip" android:minWidth="75px" android:minHeight="60px"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200FastForward"
+		android:text="FF" android:minWidth="75px" android:minHeight="60px" android:layout_y="80dip" android:layout_x="170dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Rewind"
+		android:text="RW" android:minWidth="75px" android:minHeight="60px" android:layout_y="80dip" android:layout_x="90dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Play"
+		android:text="Play" android:minWidth="75px" android:minHeight="60px" android:layout_y="140dip" android:layout_x="170dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Pause"
+		android:text="Pause" android:minWidth="75px" android:minHeight="60px" android:layout_y="140dip" android:layout_x="90dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Stop"
+		android:text="Stop" android:minWidth="75px" android:minHeight="60px" android:layout_x="15dip" android:layout_y="110dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200VideoOnDemand"
+		android:text="On Demand" android:minHeight="60px" android:layout_x="130dip" android:layout_y="10dip" android:minWidth="80px"></Button>
+	
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Up"
+		android:text="Up" android:minHeight="60px" android:layout_x="130dip" android:minWidth="80px" android:layout_y="210dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Down"
+		android:text="Down" android:minHeight="60px" android:layout_x="130dip" android:minWidth="80px" android:layout_y="330dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Left"
+		android:minHeight="60px" android:minWidth="80px" android:layout_y="270dip" android:layout_x="50dip" android:text="Left"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Right"
+		android:minHeight="60px" android:minWidth="80px" android:layout_y="270dip" android:layout_x="210dip" android:text="Right"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Enter"
+		android:text="OK" android:minHeight="60px" android:layout_x="130dip" android:minWidth="80px" android:layout_y="270dip"></Button>		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Back"
+		android:text="Back" android:minHeight="60px" android:minWidth="80px" android:layout_x="15dip" android:layout_y="200dip"></Button>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Info"
+		android:text="Info" android:minHeight="60px" android:minWidth="80px" android:layout_y="200dip" android:layout_x="230dip"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200ExitToTV"
+		android:text="Back to TV" android:minHeight="60px" android:minWidth="80px" android:layout_x="15dip" android:layout_y="370dip"></Button>
+		
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:id="@+id/vip1200Zoom"
+		android:text="Zoom" android:minHeight="60px" android:minWidth="80px" android:layout_x="235dip" android:layout_y="370dip"></Button>
+</AbsoluteLayout>
