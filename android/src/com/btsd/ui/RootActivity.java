@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,7 +42,6 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	private RemoteConfiguration remoteConfiguration;
 	private String remoteName;
 	private AlertDialog menuDialog;
-	private AlertDialog alertDialog;
 	private int selectedMenu;
 	
 	private int selectedRemoteIndex = 0;
@@ -361,26 +359,19 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	}
 	
 	@Override
-	public void onBTSDMessage(String message) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
 	protected void onRemoteMessage(MessagesEnum messagesEnum, Object message) {
-		// TODO Auto-generated method stub
 		
+		if(messagesEnum == MessagesEnum.MESSAGE_FROM_SERVER){
+			JSONObject serverMessage =  remoteConfiguration.
+				serverInteraction((JSONObject)message, 
+				getBTSDApplication().getRemoteCache(), this);
+			if(serverMessage != null){
+				getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+			}
+		}else{
+			throw new IllegalArgumentException("Unexpected Message: " + messagesEnum.getId());
+		}
 	}
 	
-	@Override
-	public void showCancelableDialog(int title, String message) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public Activity getActivity() {
-		return this;
-	}
 	
 }

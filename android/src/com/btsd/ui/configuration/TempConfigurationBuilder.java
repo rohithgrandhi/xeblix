@@ -113,7 +113,7 @@ public final class TempConfigurationBuilder {
 		
 		RemoteConfiguration toReturn = new HIDRemoteConfiguration();
 		
-		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,UserInputTargetEnum.REMOTE_NAME,"00:02:72:15:9B:71", "MEDIA-PC"));
+		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,UserInputTargetEnum.REMOTE_NAME,"000272159B71", "MEDIA-PC"));
 		
 		//ROOT Screen Configuration
 		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT, UserInputTargetEnum.ROOT_POWER, 

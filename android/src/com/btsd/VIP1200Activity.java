@@ -3,6 +3,7 @@ package com.btsd;
 import java.util.Date;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -101,24 +102,14 @@ public class VIP1200Activity extends AbstractRemoteActivity {
 	}
 	
 	@Override
-	public void onBTSDMessage(String message) {
-		Log.e(TAG, "Received message from BTSD Server: " + message);
-	}
-	
-	@Override
 	protected void onRemoteMessage(MessagesEnum messagesEnum, Object message) {
 		// TODO Auto-generated method stub
 		
 	}
 	
 	@Override
-	public void showCancelableDialog(int title, String message) {
-		// TODO Auto-generated method stub
+	public void onClick(DialogInterface dialog, int which) {
+		throw new IllegalArgumentException("Implement me");
 		
-	}
-	
-	@Override
-	public Activity getActivity() {
-		return this;
 	}
 }

@@ -5,13 +5,10 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
+import android.util.Log;
 
-import com.btsd.BTScrewDriverAlert;
-import com.btsd.BTScrewDriverCallbackHandler;
 import com.btsd.CallbackActivity;
 import com.btsd.Main;
-import com.btsd.R;
 import com.btsd.ServerMessages;
 import com.btsd.ui.ButtonConfiguration;
 import com.btsd.ui.HIDRemoteState;
@@ -21,32 +18,49 @@ import com.btsd.ui.UserInputTargetEnum;
 
 public class HIDRemoteConfiguration extends RemoteConfiguration {
 
-	private static final String CURRENT_STATE_KEY = "HID_REMOTE_CURRENT_STATE_KEY";
-	private static final String CACHED_HID_COMMAND_KEY = "CACHED_HID_COMMAND_KEY";
-	private static final String CACHED_HID_ALERT = "CACHED_HID_ALERT";
+	private static final String TAG = HIDRemoteConfiguration.class.getSimpleName();
+	
+	public static final String CURRENT_STATE_KEY = "HID_REMOTE_CURRENT_STATE_KEY";
+	public static final String CURRENT_HOST_ADDRESS = "HID_HOST_ADDRESS"; 
+	public static final String CACHED_HID_COMMAND_KEY = "CACHED_HID_COMMAND_KEY";
+	//public static final String CACHED_HID_ALERT = "CACHED_HID_ALERT";
 	
 	@Override
 	public JSONObject getCommand(ButtonConfiguration buttonConfiguration,
 		Map<String, Object> remoteCache, CallbackActivity activity) {
 		
-		validateState(remoteCache, activity);
-		
 		int[] keycodes = (int[])buttonConfiguration.getCommand();
 		
-		return ServerMessages.getKeycodes(keycodes);
+		JSONObject toReturn = ServerMessages.getKeycodes(keycodes);
+		JSONObject serverMessage =  validateState(remoteCache, activity);
+		//if not in the correct state, cache the command and send the command
+		//from the validateState method 
+		if(serverMessage != null){
+			remoteCache.put(CACHED_HID_COMMAND_KEY, toReturn);
+			return serverMessage;
+		}
+		
+		return toReturn;
 	}
 	
 	@Override
 	public JSONObject getCommand(ScreensEnum screen, UserInputTargetEnum target,
 		Map<String, Object> remoteCache, CallbackActivity activity) {
 		
-		validateState(remoteCache, activity);
-		
 		ButtonConfiguration buttonConfiguration = getButtonConfiguration(screen, target);
-		
 		int[] keycodes = (int[])buttonConfiguration.getCommand();
+		 
+		JSONObject toReturn = ServerMessages.getKeycodes(keycodes);
+		JSONObject serverMessage =  validateState(remoteCache, activity);
 		
-		return ServerMessages.getKeycodes(keycodes);
+		//if not in the correct state, cache the command and send the command
+		//from the validateState method 
+		if(serverMessage != null){
+			remoteCache.put(CACHED_HID_COMMAND_KEY, toReturn);
+			return serverMessage;
+		}
+		
+		return toReturn;
 	}
 	
 	private JSONObject validateState(Map<String, Object> remoteCache, 
@@ -54,20 +68,11 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 		
 		HIDRemoteState hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
 		if(hidState == null){
-			remoteCache.put(CURRENT_STATE_KEY, InitialState.getInstance());
+			InitialState.getInstance().transitionTo(remoteCache, this, activity);
+			hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
 		}
 		
-		hidState.validateState(this, activity);
-		
-		/*	BTScrewDriverCallbackHandler.sendPauseAlert(activity, new BTScrewDriverAlert(
-					R.string.HID_DEVICE_STATUS, false));
-			return ServerMessages.getHidStatus();
-		}else if(hidState == WaitingForStatusResponse.getInstance()){
-			throw new IllegalStateException("Should not have received any messages " +
-				"while in state: WAITING_FOR_STATUS_RESPONSE");
-		}*/
-		
-		return null;
+		return hidState.validateState(remoteCache, this, activity);
 	}
 	
 	@Override
@@ -75,46 +80,34 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 			Map<String, Object> remoteCache, CallbackActivity activity) {
 		
 		try{
-			States hidState = (States)remoteCache.get(CURRENT_STATE_KEY);
+			HIDRemoteState hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
 			if(hidState == null){
-				//not expecting any messages
-				return null;
-			}else if(hidState == States.WAITING_FOR_STATUS_RESPONSE){
-				BTScrewDriverCallbackHandler.cancelAlert(activity);
-				String status = (String)messageFromServer.get(Main.STATUS);
-				if("disconnected".equalsIgnoreCase(status)){
-					
-					ButtonConfiguration remoteName = getButtonConfiguration(ScreensEnum.ROOT, 
-							UserInputTargetEnum.REMOTE_NAME);
-					String address = remoteName.getCommand().toString();
-					
-					Activity currentActivity = (Activity)activity;
-					activity.showCancelableDialog(R.string.HID_HOST_CONNECTING_TITLE, 
-							currentActivity.getString(R.string.HID_HOST_CONNECT_MESSAGE) + 
-							" " + remoteName.getLabel());
-					remoteCache.put(CURRENT_STATE_KEY, States.CONNECTING_TO_HOST);
-					return ServerMessages.getConnectToHost(address);
-					
-				}else if("connected".equalsIgnoreCase(status)){
-					/*BTScrewDriverCallbackHandler.cancelAlert(this);
-					state = States.CONNECTED;*/
-					return null;
-				}else if("PAIR_MODE".equalsIgnoreCase(status)){
-					
-					/*pairModeDialog =  new AlertDialog.Builder(this).
-						setTitle(R.string.WAITING_FOR_PIN_REQUEST).
-						setNegativeButton(android.R.string.cancel, this).
-						setMessage(R.string.WAITING_FOR_PIN_REQUEST).
-						create();
-	    	   
-					pairModeDialog.show();
-					state= States.WAITING_FOR_PIN_REQUEST;*/
-					return null;
-				}else{
-					throw new IllegalArgumentException("Unknown response");
-				}
+				InitialState.getInstance().transitionTo(remoteCache, this, activity);
 			}
-			return null;
+			
+			String type = (String)messageFromServer.get(Main.TYPE);
+			JSONObject toReturn = null;
+			if(Main.TYPE_STATUS.equalsIgnoreCase(type)){
+				toReturn = hidState.statusResponse(remoteCache, this, messageFromServer,activity);
+			}else if(Main.TYPE_RESULT.equalsIgnoreCase(type)){
+				String value = (String)messageFromServer.get(Main.VALUE);
+				if(Main.RESULT_SUCCESS.equalsIgnoreCase(value)){
+					toReturn = hidState.successResponse(remoteCache, this, messageFromServer,activity);
+				}else if(Main.RESULT_FAILED.equalsIgnoreCase(value)){
+					toReturn = hidState.failedResponse(remoteCache, this, messageFromServer,activity);
+				}
+			}else if(Main.TYPE_VERSION_REQUEST.equalsIgnoreCase(type)){
+				//do nothing for now
+				Log.i(TAG, "Received version request value: " + messageFromServer.get(Main.VALUE));
+			}else if(Main.TYPE_UNRECOGNIZED_COMMAND.equalsIgnoreCase(type)){
+				toReturn = hidState.unrecognizedCommand(remoteCache, this, messageFromServer,activity);
+			}else if(Main.TYPE_PINCODE_REQUEST.equalsIgnoreCase(type)){
+				toReturn = hidState.pincodeRequest(remoteCache, this, messageFromServer,activity);
+			}else{
+				throw new IllegalArgumentException("Unexpected message type: " + type);
+			}
+
+			return toReturn;
 		}catch(JSONException ex){
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
@@ -124,22 +117,19 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 	@Override
 	public void alertCanceled(Map<String, Object> remoteCache,
 			CallbackActivity activity) {
-		
-		
-		
+		//do nothing for now
 	}
 	
-	/*private static enum States{
-		
-		INITIAL_STATE(),
-		WAITING_FOR_STATUS_RESPONSE(),
-		WAITING_FOR_HID_HOST_RESPONSE(),
-		PIN_DIALOG_SHOWN(),
-		CONNECTED(),
-		CONNECTING_TO_HOST(),
-		CONNECTING_TO_HOST_CANCEL(),
-		CANCELING_PAIR_MODE(),
-		WAITING_FOR_PIN_VALIDATION(),
-		WAITING_FOR_PIN_REQUEST();
-	}*/
+	public String getHostAddress(){
+		ButtonConfiguration remoteName = getButtonConfiguration(ScreensEnum.ROOT,
+			UserInputTargetEnum.REMOTE_NAME);
+		return remoteName.getCommand().toString();
+	}
+	
+	public String getName(){
+		ButtonConfiguration remoteName = getButtonConfiguration(ScreensEnum.ROOT,
+			UserInputTargetEnum.REMOTE_NAME);
+		return remoteName.getLabel();
+	}
+	
 }

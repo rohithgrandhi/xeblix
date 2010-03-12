@@ -150,12 +150,6 @@ public class BluetoothHIDActivity extends AbstractRemoteActivity  implements Dia
 	}
 
 	@Override
-	public void onBTSDMessage(String message) {
-		
-		Log.d(TAG, "Received message from BTSD Server: " + message);
-	}
-
-	@Override
 	protected void onRemoteMessage(MessagesEnum messagesEnum, Object message) {
 		if(messagesEnum  == MessagesEnum.MESSAGE_FROM_SERVER){
 			try{
@@ -532,7 +526,7 @@ public class BluetoothHIDActivity extends AbstractRemoteActivity  implements Dia
 	}
 	
 	@Override
-	public void showCancelableDialog(int title, String message) {
+	public void showCancelableDialog(int title, int message) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -580,5 +574,16 @@ public class BluetoothHIDActivity extends AbstractRemoteActivity  implements Dia
 	@Override
 	public Activity getActivity() {
 		return this;
+	}
+	
+	@Override
+	public void hideCancelableDialog() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void showCancelableDialog(int title, String message) {
+		throw new IllegalArgumentException("Implement me");
 	}
 }

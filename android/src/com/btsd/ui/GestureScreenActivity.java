@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,7 +23,7 @@ import com.btsd.AbstractRemoteActivity;
 import com.btsd.R;
 import com.btsd.util.MessagesEnum;
 
-public class GestureScreenActivity extends AbstractRemoteActivity implements OnGestureListener{
+public class GestureScreenActivity extends AbstractRemoteActivity implements OnGestureListener,DialogInterface.OnClickListener{
 
 	private static final String TAG = "GestureScreenActivity";
 	
@@ -211,22 +212,33 @@ public class GestureScreenActivity extends AbstractRemoteActivity implements OnG
 	
 	@Override
 	protected void onRemoteMessage(MessagesEnum messagesEnum, Object message) {
-		// TODO Auto-generated method stub
-
+		if(messagesEnum == MessagesEnum.MESSAGE_FROM_SERVER){
+			JSONObject serverMessage =  remoteConfiguration.
+				serverInteraction((JSONObject)message, 
+				getBTSDApplication().getRemoteCache(), this);
+			if(serverMessage != null){
+				getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+			}
+		}else{
+			throw new IllegalArgumentException("Unexpected Message: " + messagesEnum.getId());
+		}
 	}
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
+		
 
 	}
 
 	@Override
-	public void onBTSDMessage(String message) {
-		// TODO Auto-generated method stub
-
+	public void onClick(DialogInterface dialog, int which) {
+		if(dialog == alertDialog){
+			if(which == DialogInterface.BUTTON2){
+				remoteConfiguration.alertCanceled(getBTSDApplication().getRemoteCache(), this);
+			}
+		}
 	}
-
+	
 	@Override
 	public boolean onDown(MotionEvent e) {
 		Log.e(TAG, "onDown");
@@ -409,14 +421,4 @@ public class GestureScreenActivity extends AbstractRemoteActivity implements OnG
 		
 	}
 	
-	@Override
-	public void showCancelableDialog(int title, String message) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public Activity getActivity() {
-		return this;
-	}
 }

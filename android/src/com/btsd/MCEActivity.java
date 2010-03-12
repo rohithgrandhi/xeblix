@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -138,12 +139,6 @@ public class MCEActivity extends AbstractRemoteActivity {
 	}
 
 	@Override
-	public void onBTSDMessage(String message) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	protected void onRemoteMessage(MessagesEnum messagesEnum, Object message) {
 		
 		if(messagesEnum  == MessagesEnum.MESSAGE_FROM_SERVER){
@@ -188,13 +183,8 @@ public class MCEActivity extends AbstractRemoteActivity {
 	}
 	
 	@Override
-	public void showCancelableDialog(int title, String message) {
-		// TODO Auto-generated method stub
+	public void onClick(DialogInterface dialog, int which) {
+		throw new IllegalArgumentException("Implement me");
 		
-	}
-	
-	@Override
-	public Activity getActivity() {
-		return this;
 	}
 }
