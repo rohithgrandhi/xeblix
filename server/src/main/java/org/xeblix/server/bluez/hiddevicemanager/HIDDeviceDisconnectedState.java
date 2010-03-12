@@ -64,6 +64,8 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
 		
+		System.out.println("Received request to Connect to host: " + hostAddress);
+		
 		//validate the hostAddress
 		ArrayList<HIDHostInfo> hidHosts = deviceManager.getHidHosts();
 		HIDHostInfo hostToConnect = null;
@@ -75,11 +77,14 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 		}
 		
 		if(hostToConnect == null){
+			System.out.println("Unable to connect to address: " + hostAddress + 
+					". Failed to find a matching HIDHost");
 			deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
 				message.getRemoteDeviceAddress(),HIDDeviceManagerHelper.getFailedResponse(STATUS)));
 			return;
 		}
 		
+		System.out.println("Connecting to HIDHost: " + hostAddress);
 		deviceManager.setConnectedHostInfo(hostToConnect);
 		connectoToHost(deviceManager, message.getRemoteDeviceAddress(), hostAddress);
 		

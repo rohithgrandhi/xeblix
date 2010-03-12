@@ -97,7 +97,7 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 
 	}
 
-		public void clientMessagePinCodeResponse(HIDDeviceManager deviceManager,
+	public void clientMessagePinCodeResponse(HIDDeviceManager deviceManager,
 			HIDFromClientMessage message) {
 		
 		System.out.println("Invalid state to received client message: " + message.getHidCommand() + 
@@ -156,8 +156,9 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 			toReturn.put(FromClientResponseMessage.HOST_NAME, hidHostInfo.getName());
 			toReturn.put(FromClientResponseMessage.HOST_ADDRESS, hidHostInfo.getAddress());
 		}catch(JSONException ex){
-			
+			ex.printStackTrace();
+			throw new RuntimeException();
 		}
-		return HIDDeviceManagerHelper.getStatus(STATUS);
+		return toReturn;
 	}
 }

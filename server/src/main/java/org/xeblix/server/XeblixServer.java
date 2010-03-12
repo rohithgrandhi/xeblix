@@ -31,7 +31,7 @@ import org.xeblix.server.util.ActiveThread;
 import org.xeblix.server.util.MessagesEnum;
 import org.xeblix.server.util.ShutdownException;
 
-public class BluetoothScrewdriverServer {
+public class XeblixServer {
 
 	private static final DBusManagerImpl dbusManager = new DBusManagerImpl();
 	

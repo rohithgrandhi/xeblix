@@ -483,7 +483,8 @@ public class HIDDeviceProbationallyConnectedTest {
 			assertEquals(HIDDeviceConnectedState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
 			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-			assertEquals("{\"status\":\"Connected\",\"type\":\"status\"}", message.getReponse());
+			assertEquals("{\"address\":\"12345678910\",\"status\":\"Connected\"," +
+					"\"hostName\":\"Test Host\",\"type\":\"status\"}", message.getReponse());
 			assertTrue(message.isBroadcastMessage());
 			assertEquals(2, hidFactory.getSocketCount());
 			assertEquals(1, hidFactory.getWriterCount());
@@ -519,7 +520,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			//wait for the validateMessage to be consumed, since getting to pairmode killing
 			//any connections are recreating them , reset the hidFactory counts
 			hidFactory.resetCount();
-			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(75);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDevicePairModeState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
@@ -652,7 +653,8 @@ public class HIDDeviceProbationallyConnectedTest {
 			assertEquals(HIDDeviceConnectedState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
 			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-			assertEquals("{\"status\":\"Connected\",\"type\":\"status\"}", message.getReponse());
+			assertEquals("{\"address\":\"12345678910\",\"status\":\"Connected\"," +
+					"\"hostName\":\"Test Host\",\"type\":\"status\"}", message.getReponse());
 			assertTrue(message.isBroadcastMessage());
 			assertEquals(2, hidFactory.getSocketCount());
 			assertEquals(1, hidFactory.getWriterCount());

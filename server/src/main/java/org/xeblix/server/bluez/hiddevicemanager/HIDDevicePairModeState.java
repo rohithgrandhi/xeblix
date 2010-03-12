@@ -70,7 +70,8 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 	public void clientMessagePairMode(HIDDeviceManager deviceManager,
 			HIDFromClientMessage message) {
 		
-		//already in pair mode so do nothing except send response requesting client (rather than every client)
+		//already in pair mode so do nothing except send response to the requesting client 
+		//(rather than every client)
 		deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
 			message.getRemoteDeviceAddress(),HIDDeviceManagerHelper.getStatus(HIDDevicePairModeState.STATUS)));
 	}

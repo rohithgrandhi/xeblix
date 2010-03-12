@@ -76,6 +76,9 @@ public final class HIDDeviceManager extends ActiveThread{
 	@Override
 	public void handleMessage(Message msg) {
 		
+		System.out.println("State:" + state.getClass().getSimpleName() + 
+				" handling message.");
+		
 		if(msg.getType() == MessagesEnum.HID_CONNECT_TO_PRIMARY_HOST){
 			state.hidConnectToPrimaryHost(this, (HIDConnectToPrimaryHostMessage)msg);
 		}else if(msg.getType() == MessagesEnum.MESSAGE_FROM_CLIENT){
@@ -100,6 +103,8 @@ public final class HIDDeviceManager extends ActiveThread{
 				state.clientMessageConnectToHostCancel(this, clientMessage);
 			}else if(clientMessage.getHidCommand() == HIDCommands.KEYCODE){
 				state.clientMessageKeyCode(this, clientMessage);
+			}else if(clientMessage.getHidCommand() == HIDCommands.DISCONNECTED_FROM_HOST){
+				state.hidHostDisconnect(this, new HIDHostDisconnect());
 			}else{
 				throw new UnsupportedOperationException("Implement me");
 			}

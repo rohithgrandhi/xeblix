@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Archiver-Version: Plexus Archiver
 Created-By: 11.2-b01 (Sun Microsystems Inc.)
-Main-Class: org.btsd.server.BluetoothScrewdriverServer
+Main-Class: org.xeblix.server.XeblixServer

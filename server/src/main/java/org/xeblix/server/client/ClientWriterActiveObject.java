@@ -47,6 +47,8 @@ public class ClientWriterActiveObject extends ActiveThread {
 			FromClientResponseMessage responseMessage = (FromClientResponseMessage)msg;
 			
 			String messageToClient = responseMessage.getReponse();
+			
+			System.out.println("Client Response: " + messageToClient);
 			try{
 				//let the client know we got a response
 				if(messageToClient == null){
