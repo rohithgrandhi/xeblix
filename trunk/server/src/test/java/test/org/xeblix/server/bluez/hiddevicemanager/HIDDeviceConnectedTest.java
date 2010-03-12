@@ -77,7 +77,8 @@ public class HIDDeviceConnectedTest {
 				deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
 			message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-			assertEquals("{\"status\":\"Connected\",\"type\":\"status\"}", message.getReponse());
+			assertEquals("{\"address\":\"12345678910\",\"status\":\"Connected\"," +
+				"\"hostName\":\"Test Host\",\"type\":\"status\"}", message.getReponse());
 			
 			//######################################
 			//hidConnectToPrimaryHost
@@ -365,7 +366,8 @@ public class HIDDeviceConnectedTest {
 		assertEquals("{\"status\":\"ProbationallyConnected\",\"type\":\"status\"}", message.getReponse());
 		assertTrue(message.isBroadcastMessage());
 		message = (FromClientResponseMessage)mainThread.getMessages().get(1);
-		assertEquals("{\"status\":\"Connected\",\"type\":\"status\"}", message.getReponse());
+		assertEquals("{\"address\":\"12345678910\",\"status\":\"Connected\",\"hostName\":" +
+				"\"Test Host\",\"type\":\"status\"}", message.getReponse());
 		assertTrue(message.isBroadcastMessage());
 		
 	}

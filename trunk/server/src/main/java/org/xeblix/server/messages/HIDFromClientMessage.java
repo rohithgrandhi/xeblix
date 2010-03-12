@@ -54,6 +54,7 @@ public final class HIDFromClientMessage extends FromClientMessage {
 		CONNECT_TO_HOST("CONNECT_TO_HOST"),
 		CONNECT_TO_HOST_CANCEL("CONNECT_TO_HOST_CANCEL"),
 		KEYCODE("KEYCODE"),
+		DISCONNECTED_FROM_HOST("DISCONNECT_FROM_HOST"),
 		CLIENT_PINCODE_RESPONSE("PINCODE_RESPONSE");
 		
 		private String command;
@@ -86,8 +87,10 @@ public final class HIDFromClientMessage extends FromClientMessage {
 				return CONNECT_TO_HOST;
 			}else if(CONNECT_TO_HOST_CANCEL.getCommand().equalsIgnoreCase(command)){
 				return CONNECT_TO_HOST_CANCEL;
-			}else if(KEYCODE.getCommand().equalsIgnoreCase("KEYCODE")){
+			}else if(KEYCODE.getCommand().equalsIgnoreCase(command)){
 				return KEYCODE;
+			}else if(DISCONNECTED_FROM_HOST.getCommand().equalsIgnoreCase(command)){
+				return DISCONNECTED_FROM_HOST;
 			}else{
 				return null;
 			}
