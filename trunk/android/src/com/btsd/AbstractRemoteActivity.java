@@ -1,6 +1,8 @@
 package com.btsd;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Message;
 import android.view.View.OnClickListener;
@@ -8,11 +10,13 @@ import android.view.View.OnClickListener;
 import com.btsd.BTScrewDriverStateMachine.States;
 import com.btsd.util.MessagesEnum;
 
-public abstract class AbstractRemoteActivity extends Activity implements OnClickListener,/*OnGestureListener,*/CallbackActivity{
+public abstract class AbstractRemoteActivity extends Activity implements OnClickListener,/*OnGestureListener,*/CallbackActivity,DialogInterface.OnClickListener{
 
 	private static final String TAG = "AbstractRemote";
 	
 	protected BTScrewDriverCallbackHandler callbackHandler;
+	
+	protected AlertDialog alertDialog;
 	
 	@Override
 	protected void onResume() {
@@ -69,4 +73,46 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 	}
 	
 	protected abstract void onRemoteMessage(MessagesEnum messagesEnum, Object message);
+	
+	@Override
+	public void showCancelableDialog(int title, int message) {
+		
+		String messageString = getString(message);
+		showCancelableDialog(title, messageString);
+		
+	}
+	
+	@Override
+	public void hideCancelableDialog() {
+		AlertDialog alertDialog = this.alertDialog;
+		if(alertDialog != null && alertDialog.isShowing()){
+			alertDialog.hide();
+		}
+	}
+	
+	@Override
+	public void showCancelableDialog(int title, String message) {
+		AlertDialog alertDialog = this.alertDialog;
+		
+		if(alertDialog == null){
+			alertDialog = new AlertDialog.Builder(this)
+		        .setTitle(title)
+		        .setNegativeButton(android.R.string.cancel, this).
+		        setMessage(message).create();
+			this.alertDialog = alertDialog;
+		}else{
+			if(alertDialog.isShowing()){
+				alertDialog.hide();
+			}
+			alertDialog.setTitle(title);
+			alertDialog.setMessage(message);
+		}
+		
+		alertDialog.show();
+	}
+	
+	@Override
+	public Activity getActivity() {
+		return this;
+	}
 }

@@ -28,4 +28,7 @@
 <string name="directionPrototype">directionPrototype</string>
 <string name="ROOT_ACTIVITY">Root Activity</string>
 <string name="MENU_DIALOG_TITLE">Select a Menu</string>
+<string name="SERVER_IN_PAIR_MODE">Server is Pairing with new Host</string>
+<string name="SERVER_IN_PROBATIONALLY_CONNECTED_MODE">Server is connecting to an unknown host.</string>
+<string name="INFO">Info</string>
 </resources>

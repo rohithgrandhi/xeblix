@@ -10,13 +10,15 @@ import com.btsd.ui.hidremote.HIDRemoteConfiguration;
 public interface HIDRemoteState {
 
 	/**
-	 * Response from server to a HIDHosts request. 
+	 * This method should be called to transition into the subclasses state. 
+	 * @param remoteCache
 	 * @param remoteConfiguration
-	 * @param serverMessage
+	 * @param callbackActivity
+	 * @return
 	 */
-	public JSONObject hidHostsResponse(Map<String, Object> remoteCache,
-		HIDRemoteConfiguration remoteConfiguration, 
-		JSONObject serverMessage);
+	public JSONObject transitionTo(Map<String, Object> remoteCache, 
+			HIDRemoteConfiguration remoteConfiguration, 
+			CallbackActivity callbackActivity);
 	
 	/**
 	 * Response from server indicating the last request was successful
@@ -25,7 +27,7 @@ public interface HIDRemoteState {
 	 */
 	public JSONObject successResponse(Map<String, Object> remoteCache,
 			HIDRemoteConfiguration remoteConfiguration, 
-			JSONObject serverMessage);
+			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
 	 * Response from server indicating the last request failed.
@@ -34,7 +36,7 @@ public interface HIDRemoteState {
 	 */
 	public JSONObject failedResponse(Map<String, Object> remoteCache,
 			HIDRemoteConfiguration remoteConfiguration, 
-			JSONObject serverMessage);
+			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
 	 * Response to a status request. A Status indicates what state the server is in
@@ -43,7 +45,7 @@ public interface HIDRemoteState {
 	 */
 	public JSONObject statusResponse(Map<String, Object> remoteCache,
 			HIDRemoteConfiguration remoteConfiguration, 
-			JSONObject serverMessage);
+			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
 	 * Called when connecting to a new host and a pincode has been requested.
@@ -52,7 +54,7 @@ public interface HIDRemoteState {
 	 */
 	public JSONObject pincodeRequest(Map<String, Object> remoteCache,
 			HIDRemoteConfiguration remoteConfiguration, 
-			JSONObject serverMessage);
+			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
 	 * Called when the server had problems interpreting the last request
@@ -61,7 +63,7 @@ public interface HIDRemoteState {
 	 */
 	public JSONObject unrecognizedCommand(Map<String, Object> remoteCache,
 			HIDRemoteConfiguration remoteConfiguration, 
-			JSONObject serverMessage);
+			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
 	 * Called when a user interacts with a HID remote. This method checks if the 

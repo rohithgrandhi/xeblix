@@ -2,6 +2,7 @@ package com.btsd.prototype;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -284,12 +285,6 @@ public final class DirectionPrototype extends AbstractRemoteActivity implements 
 	}
 	
 	@Override
-	public void onBTSDMessage(String message) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		
@@ -302,13 +297,8 @@ public final class DirectionPrototype extends AbstractRemoteActivity implements 
 	}
 	
 	@Override
-	public void showCancelableDialog(int title, String message) {
-		// TODO Auto-generated method stub
+	public void onClick(DialogInterface dialog, int which) {
+		throw new IllegalArgumentException("Implement me");
 		
-	}
-	
-	@Override
-	public Activity getActivity() {
-		return this;
 	}
 }

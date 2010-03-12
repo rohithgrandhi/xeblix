@@ -42,6 +42,10 @@ public final class ServerMessages {
 		return toReturn;
 	}
 	
+	public static JSONObject getDisconnectFromHost(){
+		return createHIDJSONObject("DISCONNECT_FROM_HOST");
+	}
+	
 	public static JSONObject getKeyCode(Integer keyCode){
 		JSONObject toReturn = createHIDJSONObject("KEYCODE");
 		try{
