@@ -16,3 +16,6 @@ Bluez can return lists of Paired bluetooth devices, use this instead of relying 
 
 *Move remote configuration to Server and JSON format*
 Right now configuration is in code on the client, move to server and parse from file. Use JSON format in file.
+
+*Add Keyboard/Mouse Activity*
+Need to port over the old BluetoohHIDActivity to the new UI. Need to add ability to specify an intent in the RemoteConfiguration.
