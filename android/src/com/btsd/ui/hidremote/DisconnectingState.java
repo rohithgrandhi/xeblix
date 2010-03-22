@@ -7,8 +7,9 @@ import org.json.JSONObject;
 import com.btsd.CallbackActivity;
 import com.btsd.R;
 import com.btsd.ServerMessages;
+import com.btsd.ui.RemoteConfiguration;
 
-public class DisconnectingState extends AbstractHIDRemoteState {
+public final class DisconnectingState extends AbstractHIDRemoteState {
 
 	private static DisconnectingState instance = null;
 	
@@ -25,16 +26,16 @@ public class DisconnectingState extends AbstractHIDRemoteState {
 	
 	@Override
 	public JSONObject transitionTo(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
-		
+		HIDRemoteConfiguration hidRemoteConfig = (HIDRemoteConfiguration)remoteConfiguration;
 		String dialog = callbackActivity.getActivity().getString(
 				R.string.HID_HOST_CONNECT_MESSAGE);
 		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
-				dialog + remoteConfiguration.getName());
+				dialog + hidRemoteConfig.getName());
 		return ServerMessages.getDisconnectFromHost();
 	}
-
+	
 }

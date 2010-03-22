@@ -5,8 +5,9 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import com.btsd.CallbackActivity;
+import com.btsd.ui.RemoteConfiguration;
 
-public class ConnectedState extends AbstractHIDRemoteState {
+public final class ConnectedState extends AbstractHIDRemoteState {
 
 	private static ConnectedState instance = null;
 	
@@ -23,16 +24,17 @@ public class ConnectedState extends AbstractHIDRemoteState {
 	
 	@Override
 	public JSONObject transitionTo(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
 		
+		HIDRemoteConfiguration hidRemoteConfig = (HIDRemoteConfiguration)remoteConfiguration;
 		remoteCache.put(HIDRemoteConfiguration.CURRENT_HOST_ADDRESS, 
-			remoteConfiguration.getHostAddress());
+			hidRemoteConfig.getHostAddress());
 		
 		//just in case there is an alert, clear it
-		callbackActivity.hideCancelableDialog();
+		callbackActivity.hideDialog();
 		
 		JSONObject cachedCommand = (JSONObject)remoteCache.get(
 			HIDRemoteConfiguration.CACHED_HID_COMMAND_KEY); 
@@ -45,7 +47,7 @@ public class ConnectedState extends AbstractHIDRemoteState {
 
 	@Override
 	public JSONObject validateState(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
 		String currentHostAddress = (String)remoteCache.get(
@@ -54,7 +56,8 @@ public class ConnectedState extends AbstractHIDRemoteState {
 		//if the user switched to another HID host on the root screen
 		//then the expected hostAddress will be different from the 
 		//currentHostAddress
-		if(!remoteConfiguration.getHostAddress().equalsIgnoreCase(
+		HIDRemoteConfiguration hidRemoteConfig = (HIDRemoteConfiguration)remoteConfiguration;
+		if(!hidRemoteConfig.getHostAddress().equalsIgnoreCase(
 			currentHostAddress)){
 			
 			return DisconnectingState.getInstance().transitionTo(remoteCache, 
@@ -63,5 +66,5 @@ public class ConnectedState extends AbstractHIDRemoteState {
 		
 		return null;
 	}
-
+	
 }

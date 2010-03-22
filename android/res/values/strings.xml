@@ -31,4 +31,12 @@
 <string name="SERVER_IN_PAIR_MODE">Server is Pairing with new Host</string>
 <string name="SERVER_IN_PROBATIONALLY_CONNECTED_MODE">Server is connecting to an unknown host.</string>
 <string name="INFO">Info</string>
+<string name="ADD_HID_HOST">Add HID Host</string>
+<string name="REMOVE_HID_HOST">Remove HID Host</string>
+<string name="ENTERING_PAIR_MODE">Waiting for server to enter pair mode</string>
+<string name="DISCONNECTING_FROM_HID_HOST">Waiting for server to disconnect from current host</string>
+<string name="RETRIEVING_CONFIGURATION">Retrieving Remote Config</string>
+<string name="CONNECTION_FAILED">Unable to connect to </string>
+<string name="CANCELLING_PAIR_MODE">Exiting Pair Mode </string>
+<string name="PIN_CONFIRMATION">Pin:</string>
 </resources>

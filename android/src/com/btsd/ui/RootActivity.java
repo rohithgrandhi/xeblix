@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
@@ -14,13 +15,18 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
 import com.btsd.AbstractRemoteActivity;
+import com.btsd.BTSDApplication;
+import com.btsd.Main;
 import com.btsd.R;
+import com.btsd.ServerMessages;
 import com.btsd.util.MessagesEnum;
 
 public class RootActivity extends AbstractRemoteActivity implements DialogInterface.OnClickListener{
@@ -34,7 +40,7 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			true, true, true, true, true, true};
 	private int[][] textViewsLocations = new int[10][4];
 	private final TextView[] textViews = new TextView[10];
-	//this is used to figure out when to caluculate textview locations, don't
+	//this is used to figure out when to calculate textview locations, don't
 	//want to calculate if we simply lost focus due to popup or lock screen
 	private boolean onResumeCalled = false;
 	private Vibrator vibrator = null;
@@ -46,6 +52,9 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	
 	private int selectedRemoteIndex = 0;
 	private List<ButtonConfiguration> configuredRemotes;
+	
+	private final static int ADD_HID_HOST_ID = Menu.FIRST;
+	private final static int REMOVE_HID_HOST_ID = Menu.FIRST + 1;
 	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -91,6 +100,28 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			textViews[i] = (TextView)findViewById(textViewIds[i]);
 		}
 		
+		AlertDialog alertDialog = new AlertDialog.Builder(this)
+	        .setTitle(R.string.INFO)
+	        .setCancelable(false)
+	        //.setNegativeButton(android.R.string.cancel, this).
+	        .setMessage(R.string.RETRIEVING_CONFIGURATION).create();
+		this.alertDialog = alertDialog;
+		alertDialog.show();
+		
+		getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getHidHosts());
+		
+		//setRootButtonText(UserInputTargetEnum.ROOT_FREE, vip1200,textViews[9]);
+	}
+
+	private void getRemoteConfiguration() {
+		
+		AlertDialog alertDialog = this.alertDialog;
+		if(alertDialog != null && alertDialog.isShowing()){
+			alertDialog.dismiss();
+			this.alertDialog = null;
+			alertDialog = null; 
+		}
+		
 		this.configuredRemotes = getBTSDApplication().getRemoteConfigurationNames();
 		ButtonConfiguration selectedRemote = this.configuredRemotes.get(
 			this.selectedRemoteIndex);
@@ -100,9 +131,6 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 		this.remoteConfiguration = remoteConfiguration;
 		
 		initRootButtons(selectedRemote);
-		
-		
-		//setRootButtonText(UserInputTargetEnum.ROOT_FREE, vip1200,textViews[9]);
 	}
 
 	private void initRootButtons(ButtonConfiguration selectedRemote) {
@@ -351,8 +379,10 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 				selectedMenu = which;
 			}
 		}else if(dialog == alertDialog){
-			if(which == DialogInterface.BUTTON2){
-				remoteConfiguration.alertCanceled(getBTSDApplication().getRemoteCache(), this);
+			JSONObject serverMessage = remoteConfiguration.alertClicked(which, getBTSDApplication().getRemoteCache(), 
+				this);
+			if(serverMessage != null){
+				getBTSDApplication().getStateMachine().messageToServer(serverMessage);
 			}
 		}
 		
@@ -362,16 +392,88 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	protected void onRemoteMessage(MessagesEnum messagesEnum, Object message) {
 		
 		if(messagesEnum == MessagesEnum.MESSAGE_FROM_SERVER){
-			JSONObject serverMessage =  remoteConfiguration.
-				serverInteraction((JSONObject)message, 
-				getBTSDApplication().getRemoteCache(), this);
-			if(serverMessage != null){
-				getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+			
+			//TODO: hack! intercept HIDHost messages
+			JSONObject serverJSONMessage = (JSONObject)message;
+			
+			try{
+				String type = (String)serverJSONMessage.get(Main.TYPE);
+				if(Main.TYPE_HID_HOSTS.equalsIgnoreCase(type)){
+					getBTSDApplication().updateRemoteConfiguration(serverJSONMessage);
+					getRemoteConfiguration();
+				}else{
+					JSONObject serverMessage =  remoteConfiguration.
+						serverInteraction(serverJSONMessage, 
+						getBTSDApplication().getRemoteCache(), this);
+					if(serverMessage != null){
+						getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+					}
+				}
+			}catch(JSONException ex){
+				throw new RuntimeException(ex);
 			}
 		}else{
 			throw new IllegalArgumentException("Unexpected Message: " + messagesEnum.getId());
 		}
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(Menu.NONE, ADD_HID_HOST_ID, 0, R.string.ADD_HID_HOST);
+		menu.add(Menu.NONE, REMOVE_HID_HOST_ID, 0, R.string.REMOVE_HID_HOST);
+		return true;
+	}
 	
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		
+		switch (item.getItemId()) {
+		case ADD_HID_HOST_ID:
+			enterPairMode();
+			break;
+		case REMOVE_HID_HOST_ID:
+			break;
+		}
+		
+		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	private void enterPairMode(){
+		
+		this.remoteConfiguration = getBTSDApplication().getRemoteConfiguration(
+			BTSDApplication.ADD_HID_HOST_CONFIGURATION_NAME);
+		
+		JSONObject serverMessage = remoteConfiguration.getCommand(ScreensEnum.ROOT, 
+				UserInputTargetEnum.ROOT_ADD_HID_HOST, getBTSDApplication().getRemoteCache(), 
+				this);
+		getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+		
+		//put the server into pair mode
+		/*getBTSDApplication().getStateMachine().messageToServer(
+				ServerMessages.getPairMode());*/
+		
+	}
+	
+	@Override
+	public void refreshConfiguredRemotes() {
+		
+		//TODO: hack for now, just get the hid hosts
+		getBTSDApplication().getStateMachine().messageToServer(
+			ServerMessages.getHidHosts());
+	}
+	
+	@Override
+	public void returnToPreviousRemoteConfiguration() {
+		
+		//TODO: right now this just goes back to the first remoteConfiguration
+		//need to update to go to the previous config
+		selectedRemoteIndex = 0;
+		getRemoteConfiguration();
+	}
+	
+	@Override
+	public void selectConfiguredRemote(String name) {
+		throw new IllegalArgumentException("Implement me");
+	}
 }

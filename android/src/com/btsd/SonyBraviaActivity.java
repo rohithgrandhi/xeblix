@@ -207,4 +207,24 @@ public class SonyBraviaActivity extends AbstractRemoteActivity {
 		throw new IllegalArgumentException("Implement me");
 		
 	}
+	
+	@Override
+	public void showPinCodeDialog() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void refreshConfiguredRemotes() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void returnToPreviousRemoteConfiguration() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void selectConfiguredRemote(String name) {
+		throw new IllegalArgumentException("Implement me");
+	}
 }

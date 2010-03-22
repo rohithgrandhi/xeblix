@@ -1,4 +1,4 @@
-package com.btsd.ui.hidremote;
+package com.btsd.ui.managehidhosts;
 
 
 public final class InitialState extends AbstractHIDRemoteState {
@@ -15,5 +15,6 @@ public final class InitialState extends AbstractHIDRemoteState {
 		
 		return instance;
 	}
+	
 	
 }

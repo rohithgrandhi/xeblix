@@ -349,7 +349,6 @@ public class BluetoothHIDActivity extends AbstractRemoteActivity  implements Dia
 	        .setPositiveButton(android.R.string.ok, this)
 	        .setNegativeButton(android.R.string.cancel, this).
 	        setView(pincodeView).create();
-    	   
 		pincodeDialog.show();
     }
 	
@@ -577,13 +576,38 @@ public class BluetoothHIDActivity extends AbstractRemoteActivity  implements Dia
 	}
 	
 	@Override
-	public void hideCancelableDialog() {
+	public void hideDialog() {
 		// TODO Auto-generated method stub
 		
 	}
 	
 	@Override
 	public void showCancelableDialog(int title, String message) {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void showPinCodeDialog() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+    public String getPincode() {
+    	throw new IllegalArgumentException("Implement me");
+    }
+	
+	@Override
+	public void refreshConfiguredRemotes() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void returnToPreviousRemoteConfiguration() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void selectConfiguredRemote(String name) {
 		throw new IllegalArgumentException("Implement me");
 	}
 }

@@ -179,10 +179,18 @@ public abstract class RemoteConfiguration {
 			CallbackActivity activity);
 	
 	/**
+	 * This method is called when the Remote Configuration is refreshed. This allows 
+	 * RemoteConfigurations to select new configurations or to be notified they 
+	 * have been removed. 
+	 */
+	public abstract void remoteConfigurationRefreshed(List<ButtonConfiguration> remoteConfigNames, 
+			Map<String,Object> remoteCache, CallbackActivity activity);
+	
+	/**
 	 * Callback method that is invoked when a user cancels an alert dialog this RemoteConfiguration
 	 * displayed
 	 * @param remoteCache
 	 * @param activity
 	 */
-	public abstract void alertCanceled(Map<String,Object> remoteCache, CallbackActivity activity) ;
+	public abstract JSONObject alertClicked(int button, Map<String,Object> remoteCache, CallbackActivity activity) ;
 }

@@ -233,9 +233,8 @@ public class GestureScreenActivity extends AbstractRemoteActivity implements OnG
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		if(dialog == alertDialog){
-			if(which == DialogInterface.BUTTON2){
-				remoteConfiguration.alertCanceled(getBTSDApplication().getRemoteCache(), this);
-			}
+			remoteConfiguration.alertClicked(which, getBTSDApplication().getRemoteCache(), 
+				this);
 		}
 	}
 	
@@ -421,4 +420,23 @@ public class GestureScreenActivity extends AbstractRemoteActivity implements OnG
 		
 	}
 	
+	@Override
+	public void showPinCodeDialog() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void refreshConfiguredRemotes() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void returnToPreviousRemoteConfiguration() {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void selectConfiguredRemote(String name) {
+		throw new IllegalArgumentException("Implement me");
+	}
 }

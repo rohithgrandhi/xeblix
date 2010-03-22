@@ -1,4 +1,4 @@
-package com.btsd.ui.hidremote;
+package com.btsd.ui.managehidhosts;
 
 import java.util.List;
 import java.util.Map;
@@ -15,21 +15,27 @@ import com.btsd.ui.RemoteConfiguration;
 public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 
 	@Override
+	public JSONObject alertDialogClicked(Map<String, Object> remoteCache,
+			RemoteConfiguration remoteConfiguration, int selectedButton,
+			CallbackActivity callbackActivity) {
+		return null;
+	}
+
+	@Override
 	public JSONObject failedResponse(Map<String, Object> remoteCache,
-			RemoteConfiguration remoteConfiguration,
-			JSONObject serverMessage, CallbackActivity callbackActivity) {
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage,
+			CallbackActivity callbackActivity) {
 		
-		return HIDRemoteStateHelper.handleStatus(remoteCache, remoteConfiguration, 
+		return AddHIDHostStateHelper.handleStatus(remoteCache, remoteConfiguration, 
 				serverMessage, callbackActivity);
 	}
 
 	@Override
 	public JSONObject pincodeRequest(Map<String, Object> remoteCache,
-			RemoteConfiguration remoteConfiguration,
-			JSONObject serverMessage, CallbackActivity callbackActivity) {
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage,
+			CallbackActivity callbackActivity) {
 		
-		//server must be in PairMode
-		return PairModeState.getInstance().transitionTo(remoteCache, 
+		return WaitingForUserResponseState.getInstance().transitionTo(remoteCache, 
 				remoteConfiguration, callbackActivity);
 	}
 
@@ -37,25 +43,26 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 	public JSONObject pinconfirmationRequest(Map<String, Object> remoteCache,
 			RemoteConfiguration remoteConfiguration, JSONObject serverMessage,
 			CallbackActivity callbackActivity) {
+		ShowingPinConfirmationState.getInstance().transitionTo(
+			remoteCache, remoteConfiguration, callbackActivity);
 		
-		//server must be in PairMode
-		return PairModeState.getInstance().transitionTo(remoteCache, 
-				remoteConfiguration, callbackActivity);
+		return ShowingPinConfirmationState.getInstance().pinconfirmationRequest(
+			remoteCache, remoteConfiguration, serverMessage, callbackActivity);
 	}
 	
 	@Override
 	public JSONObject statusResponse(Map<String, Object> remoteCache,
-			RemoteConfiguration remoteConfiguration,
-			JSONObject serverMessage, CallbackActivity callbackActivity) {
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage,
+			CallbackActivity callbackActivity) {
 		
-		return HIDRemoteStateHelper.handleStatus(remoteCache, remoteConfiguration, 
+		return AddHIDHostStateHelper.handleStatus(remoteCache, remoteConfiguration, 
 				serverMessage, callbackActivity);
 	}
 
 	@Override
 	public JSONObject successResponse(Map<String, Object> remoteCache,
-			RemoteConfiguration remoteConfiguration,
-			JSONObject serverMessage, CallbackActivity callbackActivity) {
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage,
+			CallbackActivity callbackActivity) {
 		
 		//have not sent anything to warrant a response
 		Log.i(getClass().getSimpleName(), "Unexpected call to successResponse");
@@ -66,15 +73,14 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 	public JSONObject transitionTo(Map<String, Object> remoteCache,
 			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
-		
-		remoteCache.put(HIDRemoteConfiguration.CURRENT_STATE_KEY,this);
+		remoteCache.put(AddHIDHostConfiguration.CURRENT_ADD_HID_STATE,this);
 		return null;
 	}
 
 	@Override
 	public JSONObject unrecognizedCommand(Map<String, Object> remoteCache,
-			RemoteConfiguration remoteConfiguration,
-			JSONObject serverMessage, CallbackActivity callbackActivity) {
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage,
+			CallbackActivity callbackActivity) {
 		
 		//have not sent anything to warrant a response
 		Log.i(getClass().getSimpleName(), "Unexpected call to unrecognizedCommand");
@@ -86,22 +92,10 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
-		//most states always have a Dialog presented to the user so should not
-		//get to this method unless the user "canceled" the dialog and potentially went to
-		//another remote screen, so we may have missed any server responses. We have no idea
-		//what state we are in, so send the sever a Status request
-		return WaitingForStatusState.getInstance().transitionTo(remoteCache,
-			remoteConfiguration, callbackActivity);
+		return WaitingForStatusState.getInstance().transitionTo(remoteCache, 
+				remoteConfiguration, callbackActivity);
 	}
 
-	@Override
-	public JSONObject alertDialogClicked(Map<String, Object> remoteCache,
-			RemoteConfiguration remoteConfiguration, int selectedButton,
-			CallbackActivity callbackActivity) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	@Override
 	public void remoteConfigurationsRefreshed(
 			List<ButtonConfiguration> remoteConfigNames,
@@ -109,22 +103,7 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
-		//check if this remote has been removed
-		HIDRemoteConfiguration hidRemote = (HIDRemoteConfiguration)remoteConfiguration;
-		String connectedAddress = hidRemote.getHostAddress();
-		
-		boolean foundCurrentRemote = false;
-		for(ButtonConfiguration buttonConfig: remoteConfigNames){
-			String hostAddress = buttonConfig.getCommand().toString();
-			if(connectedAddress.equalsIgnoreCase(hostAddress)){
-				foundCurrentRemote = true;
-			}
-		}
-		
-		if(!foundCurrentRemote){
-			callbackActivity.returnToPreviousRemoteConfiguration();
-		}
-		
+		callbackActivity.returnToPreviousRemoteConfiguration();
 	}
 	
 	@Override
