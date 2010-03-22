@@ -2,12 +2,12 @@ package org.xeblix.server.bluez.hiddevicemanager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager.HIDHostInfo;
+import org.xeblix.server.bluez.DeviceInfo;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.HIDInitMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
@@ -88,6 +88,15 @@ public final class HIDDeviceProbationallyConnectedState implements
 
 	}
 
+	public void hidHostPinCodeCancel(HIDDeviceManager deviceManager,
+			HIDHostCancelPinRequestMessage message) {
+		
+		System.out.println("Invalid state to received client message: " + 
+			message.getType().getDescription() + ". Currently in state: " + 
+			getClass().getSimpleName());
+		
+	}
+	
 	public void clientMessagePinCodeCancel(HIDDeviceManager deviceManager,
 			HIDFromClientMessage message) {
 		
@@ -116,14 +125,6 @@ public final class HIDDeviceProbationallyConnectedState implements
 
 	}
 
-	public void hidConnectToPrimaryHost(HIDDeviceManager deviceManager,
-			HIDConnectToPrimaryHostMessage message) {
-		
-		//ignore
-		HIDDeviceManagerHelper.ignoringMessage(message, this);
-
-	}
-
 	public void hidConnectionResult(HIDDeviceManager deviceManager,
 			HIDConnectionInitResultMessage message) {
 		
@@ -144,9 +145,7 @@ public final class HIDDeviceProbationallyConnectedState implements
 			//if this is a new connection, else it must be a re-connect
 			if(message.isNewConnection()){
 				deviceManager.getDbusManager().setDeviceNotDiscoverable();
-				
-				deviceManager.setHostInfo(new HIDHostInfo(message.getAddress(), 
-						message.getFriendlyName(), false));
+				deviceManager.setPossibleHidHostAddress(message.getAddress());
 			}
 			
 		}else if(message.getUuid() == HIDDeviceManager.CONTROL_UUID){
@@ -174,19 +173,25 @@ public final class HIDDeviceProbationallyConnectedState implements
 			ValidateHIDConnection message) {
 		
 		System.out.println("Validating connection with HID Host");
+		
 		if(deviceManager.getInputHIDSocketActiveObject() != null && 
 			deviceManager.getInputHIDSocketActiveObject().isAlive() && 
 			deviceManager.getControlHIDSocketActiveObject() != null && 
 			deviceManager.getControlHIDSocketActiveObject().isAlive() && 
 			deviceManager.getBtHIDWriterActiveObject() != null && 
-			deviceManager.getBtHIDWriterActiveObject().isAlive()){
+			deviceManager.getBtHIDWriterActiveObject().isAlive() && 
+			//finally check if this is a new connection, if so make sure 
+			//the device is a valid paired device
+			(deviceManager.getPossibleHidHostAddress() == null ||  
+				deviceManager.isPairedDevice(deviceManager.getPossibleHidHostAddress())) ){
 			
 			System.out.println("Connected to HID Host");
 			//if hostInfo is not null then we have a new connection so store it
-			if(deviceManager.getHostInfo() != null){
-				deviceManager.addHIDHost(deviceManager.getHostInfo());
-				deviceManager.setConnectedHostInfo(deviceManager.getHostInfo());
-				deviceManager.setHostInfo(null);
+			if(deviceManager.getPossibleHidHostAddress() != null){
+				DeviceInfo connectedDevice = deviceManager.addHIDHost(
+						deviceManager.getPossibleHidHostAddress());
+				deviceManager.setConnectedHostInfo(connectedDevice);
+				deviceManager.setPossibleHidHostAddress(null);
 			}
 			
 			deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
@@ -220,7 +225,7 @@ public final class HIDDeviceProbationallyConnectedState implements
 		//kill all HID connections then go to previous state
 		HIDDeviceManagerHelper.disconnectFromHost(deviceManager);
 		//clear any hostInfo
-		deviceManager.setHostInfo(null);
+		deviceManager.setPossibleHidHostAddress(null);
 		
 		//need to figure out how we got to this state, if we were in the PairMode then go back there
 		//else go to disconnected

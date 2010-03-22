@@ -1,5 +1,7 @@
 package org.xeblix.server.bluez;
 
+import java.util.List;
+
 import org.xeblix.server.util.ActiveThread;
 
 public interface DBusManager {
@@ -15,4 +17,11 @@ public interface DBusManager {
 	public BluezAuthenticationAgent getAgent();
 	
 	public void registerSDPRecord();
+	
+	/**
+	 * Returns a list of all bluetooth devices the host knows about. 
+	 * This will return Xeblix clients and HIDHosts 
+	 * @return
+	 */
+	public List<DeviceInfo> listDevices();
 }

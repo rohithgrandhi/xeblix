@@ -167,8 +167,6 @@ public final class BluetoothHIDSocketActiveObject extends ActiveThread {
 			}
 		}
 		
-		
-		
 		initMessage.getActiveThread().addMessage(new HIDConnectionInitResultMessage(
 			initMessage.getPsm(),initMessage.getUuid(), connection, address, name, server));
 		

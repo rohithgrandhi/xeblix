@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.bluetooth.L2CAPConnection;
 
+import junit.framework.Assert;
+
 import org.bluez.Error.Canceled;
 import org.bluez.Error.Rejected;
 import org.freedesktop.dbus.Path;
@@ -16,6 +18,8 @@ import org.freedesktop.dbus.UInt32;
 import org.junit.Test;
 import org.xeblix.server.bluez.BluezAuthenticationAgent;
 import org.xeblix.server.bluez.DBusManager;
+import org.xeblix.server.bluez.DeviceInfo;
+import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceConnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceDisconnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDevicePairModeState;
@@ -23,10 +27,11 @@ import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceProbationallyConnectedS
 import org.xeblix.server.bluez.mock.MockActiveObject;
 import org.xeblix.server.bluez.mock.MockHIDFactory;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
+import org.xeblix.server.messages.PinConfirmationMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
 import org.xeblix.server.util.ActiveThread;
 
@@ -35,6 +40,7 @@ public class HIDDevicePairModeTest {
 	@Test
 	public void testNoTransitionMessages(){
 		
+		//Assert.fail("Test pin confirmation");
 		
 		MockActiveObject mainThread = null;
 		HIDDeviceManager deviceManager = null;
@@ -61,6 +67,7 @@ public class HIDDevicePairModeTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , new MockHIDFactory());
 			deviceManager.start();
 
@@ -128,17 +135,6 @@ public class HIDDevicePairModeTest {
 			assertEquals("{\"status\":\"PAIR_MODE\",\"type\":\"status\"}", message.getReponse());
 			
 			//############################################
-			//hidConnectToPrimaryHost
-			//this message will be ignored
-			mainThread.getMessages().clear();
-			deviceManager.addMessage(new HIDConnectToPrimaryHostMessage());
-			
-			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
-			
-			assertEquals(HIDDevicePairModeState.getInstance(), deviceManager.getDeviceManagerState());
-			assertEquals(0, mainThread.getMessages().size());
-			
-			//############################################
 			//validateHIDConnection
 			//this message will be ignored
 			mainThread.getMessages().clear();
@@ -182,6 +178,7 @@ public class HIDDevicePairModeTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , new MockHIDFactory());
 			deviceManager.start();
 
@@ -272,6 +269,7 @@ public class HIDDevicePairModeTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , new MockHIDFactory());
 			deviceManager.start();
 
@@ -292,7 +290,7 @@ public class HIDDevicePairModeTest {
 			deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
 					ServerMessages.getPairModeCancel()));
 			
-			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(75);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
@@ -330,6 +328,7 @@ public class HIDDevicePairModeTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , new MockHIDFactory());
 			deviceManager.start();
 
@@ -390,6 +389,7 @@ public class HIDDevicePairModeTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 
@@ -474,6 +474,7 @@ public class HIDDevicePairModeTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 
@@ -499,6 +500,129 @@ public class HIDDevicePairModeTest {
 			assertEquals(1, mainThread.getMessages().size());
 			message = (FromClientResponseMessage)mainThread.getMessages().get(0);
 			assertEquals("{\"status\":\"disconnected\",\"type\":\"status\"}", message.getReponse());
+			
+		}finally{
+			HIDDeviceDisconnectTest.cleanup(mainThread, deviceManager);
+		}
+	}
+	
+	@Test
+	public void testPincodeCancel(){
+		
+		
+		MockActiveObject mainThread = null;
+		HIDDeviceManager deviceManager = null;
+		try{
+		
+			MockHIDFactory hidFactory = new MockHIDFactory();
+			mainThread = new MockActiveObject();
+			mainThread.start();
+			deviceManager = new HIDDeviceManager(new DBusManager(){
+				public BluezAuthenticationAgent getAgent() {return new BluezAuthenticationAgent(){
+					public String getPinCode() {return null;}
+					public void setPinCode(String pinCode) {}
+					public void Authorize(Path device, String uuid)throws Rejected, Canceled {}
+					public void Cancel() {}
+					public void ConfirmModeChange(String mode) throws Rejected,Canceled {}
+					public void DisplayPasskey(Path device, UInt32 passkey,byte entered) {}
+					public void Release() {}
+					public void RequestConfirmation(Path device, UInt32 passkey)throws Rejected, Canceled {}
+					public UInt32 RequestPasskey(Path device) throws Rejected,Canceled {return null;}
+					public String RequestPinCode(Path device) throws Rejected,Canceled {return null;}
+					public boolean isRemote() {return false;}
+				};}
+				public void registerAgent(ActiveThread mainActiveObject) {}
+				public void registerSDPRecord() {}
+				public void setDeviceDiscoverable() {}
+				public void setDeviceHidden() {}
+				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
+			}, mainThread , hidFactory);
+			deviceManager.start();
+
+			//first get it in pair mode
+			deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
+					ServerMessages.getPairMode()));
+			
+			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDevicePairModeState.getInstance(), deviceManager.getDeviceManagerState());
+			assertEquals(1, mainThread.getMessages().size());
+			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
+			assertEquals("{\"status\":\"PAIR_MODE\",\"type\":\"status\"}", message.getReponse());
+			
+			//#####################################
+			//Now send a HIDHostPincodeCancel, verify goes to disconnected state
+			mainThread.getMessages().clear();
+			deviceManager.addMessage(new HIDHostCancelPinRequestMessage());
+			
+			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDeviceDisconnectedState.getInstance(), 
+					deviceManager.getDeviceManagerState());
+			assertEquals(1, mainThread.getMessages().size());
+			message = (FromClientResponseMessage)mainThread.getMessages().get(0);
+			assertEquals("{\"status\":\"disconnected\",\"type\":\"status\"}", message.getReponse());
+		}finally{
+			HIDDeviceDisconnectTest.cleanup(mainThread, deviceManager);
+		}
+	}
+	
+	@Test
+	public void testPinConfirmation(){
+		MockActiveObject mainThread = null;
+		HIDDeviceManager deviceManager = null;
+		try{
+		
+			MockHIDFactory hidFactory = new MockHIDFactory();
+			mainThread = new MockActiveObject();
+			mainThread.start();
+			deviceManager = new HIDDeviceManager(new DBusManager(){
+				public BluezAuthenticationAgent getAgent() {return new BluezAuthenticationAgent(){
+					public String getPinCode() {return null;}
+					public void setPinCode(String pinCode) {}
+					public void Authorize(Path device, String uuid)throws Rejected, Canceled {}
+					public void Cancel() {}
+					public void ConfirmModeChange(String mode) throws Rejected,Canceled {}
+					public void DisplayPasskey(Path device, UInt32 passkey,byte entered) {}
+					public void Release() {}
+					public void RequestConfirmation(Path device, UInt32 passkey)throws Rejected, Canceled {}
+					public UInt32 RequestPasskey(Path device) throws Rejected,Canceled {return null;}
+					public String RequestPinCode(Path device) throws Rejected,Canceled {return null;}
+					public boolean isRemote() {return false;}
+				};}
+				public void registerAgent(ActiveThread mainActiveObject) {}
+				public void registerSDPRecord() {}
+				public void setDeviceDiscoverable() {}
+				public void setDeviceHidden() {}
+				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
+			}, mainThread , hidFactory);
+			deviceManager.start();
+
+			//first get it in pair mode
+			deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
+					ServerMessages.getPairMode()));
+			
+			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDevicePairModeState.getInstance(), deviceManager.getDeviceManagerState());
+			assertEquals(1, mainThread.getMessages().size());
+			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
+			assertEquals("{\"status\":\"PAIR_MODE\",\"type\":\"status\"}", message.getReponse());
+			
+			//#####################################
+			//Now send a PinConfirmationMessage,
+			mainThread.getMessages().clear();
+			deviceManager.addMessage(new PinConfirmationMessage("TestPIN"));
+			
+			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDevicePairModeState.getInstance(), 
+					deviceManager.getDeviceManagerState());
+			assertEquals(0, mainThread.getMessages().size());
+			
+			
 			
 		}finally{
 			HIDDeviceDisconnectTest.cleanup(mainThread, deviceManager);

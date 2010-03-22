@@ -5,6 +5,7 @@ import java.util.concurrent.Semaphore;
 import org.freedesktop.dbus.Path;
 import org.freedesktop.dbus.UInt32;
 import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
+import org.xeblix.server.messages.PinConfirmationMessage;
 import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.util.ActiveThread;
 
@@ -22,34 +23,39 @@ public final class BluezAuthenticationAgentImpl implements BluezAuthenticationAg
 	}
 	
 	public void DisplayPasskey(Path device, UInt32 passkey, byte entered) {
-		System.out.println("DisplayPasskey");
+		System.out.println("\n\n###########DisplayPasskey###############\n\n");
 	}
 	
 	public void Authorize(Path device, String uuid) {
-		System.out.println("authorize");
+		System.out.println("\n\n###########authorize###############\n\n");
 	}
 
 	public void Cancel() {
-		System.out.println("cancel");
+		System.out.println("HID Host has requested to cancel pairing");
 		this.mainActiveObject.addMessage(new HIDHostCancelPinRequestMessage());
 		this.available.release();
 	}
 
 	public void ConfirmModeChange(String mode) {
-		System.out.println("confirmModeChange");
+		System.out.println("\n\n###########confirmModeChange###############\n\n");
 	}
 
 	public void Release() {
-		System.out.println("Release");
+		System.out.println("\n\n###########Release###############\n\n");
 	}
 
 	public void RequestConfirmation(Path device, UInt32 passkey) {
-		System.out.println("RequestConfirmation");
+		
+		System.out.println("RequestConfirmation " + passkey + " device: " + device.getPath());
+		
+		this.mainActiveObject.addMessage(new PinConfirmationMessage(passkey + ""));
+		
 	}
 
 	public UInt32 RequestPasskey(Path device) {
 		
-		System.out.println("Passkey request from " + device.getPath() + " :");
+		System.out.println("\n\n###########Passkey request from " + device.getPath() + 
+				" :###############\n\n");
 		return null;
 		
 		/*String passkey = null;
@@ -71,7 +77,7 @@ public final class BluezAuthenticationAgentImpl implements BluezAuthenticationAg
 		this.mainActiveObject.addMessage(new PinRequestMessage());
 		
 		try{
-			//it is possible to have setPinCode and Cancel called be different
+			//it is possible to have setPinCode and Cancel called by different
 			//threads thus causing an extra permit, drain any permits before
 			//calling acquire
 			this.available.drainPermits();
@@ -88,7 +94,7 @@ public final class BluezAuthenticationAgentImpl implements BluezAuthenticationAg
 	}
 
 	public boolean isRemote() {
-		System.out.println("isRemote");
+		System.out.println("\n\n###########isRemote###############\n\n");
 		return false;
 	}
 
