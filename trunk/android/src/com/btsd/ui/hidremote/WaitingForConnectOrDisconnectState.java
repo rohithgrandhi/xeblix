@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import com.btsd.CallbackActivity;
 import com.btsd.R;
+import com.btsd.ui.RemoteConfiguration;
 
 /**
  * Server is in ProbationallyConnected state, need to wait to get connected so we know
@@ -13,7 +14,7 @@ import com.btsd.R;
  * @author klewelling
  *
  */
-public class WaitingForConnectOrDisconnectState extends AbstractHIDRemoteState{
+public final class WaitingForConnectOrDisconnectState extends AbstractHIDRemoteState{
 
 	private static WaitingForConnectOrDisconnectState instance = null;
 	
@@ -30,7 +31,7 @@ public class WaitingForConnectOrDisconnectState extends AbstractHIDRemoteState{
 	
 	@Override
 	public JSONObject transitionTo(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);

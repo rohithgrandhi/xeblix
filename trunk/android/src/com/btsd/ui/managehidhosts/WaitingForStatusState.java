@@ -1,4 +1,4 @@
-package com.btsd.ui.hidremote;
+package com.btsd.ui.managehidhosts;
 
 import java.util.Map;
 
@@ -9,7 +9,7 @@ import com.btsd.R;
 import com.btsd.ServerMessages;
 import com.btsd.ui.RemoteConfiguration;
 
-public final class WaitingForStatusState extends AbstractHIDRemoteState{
+public final class WaitingForStatusState extends AbstractHIDRemoteState {
 
 	private static WaitingForStatusState instance = null;
 	
@@ -30,7 +30,6 @@ public final class WaitingForStatusState extends AbstractHIDRemoteState{
 			CallbackActivity callbackActivity) {
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
-		
 		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
 				R.string.HID_DEVICE_STATUS);
 		return ServerMessages.getHidStatus();

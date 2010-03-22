@@ -13,6 +13,8 @@ public enum UserInputTargetEnum {
 	ROOT_CHANNEL("Channel", true, false),
 	ROOT_NUMPAD("Numpad", true, false),
 	ROOT_FREE("Free", true, false),
+	ROOT_ADD_HID_HOST("Add HID Host", true, false),
+	ROOT_REMOVE_HID_HOST("Remove HID Host", true, false),
 	NUMPAD_0("Numpad 0", true, false),
 	NUMPAD_1("Numpad 1", true, false),
 	NUMPAD_2("Numpad 2", true, false),

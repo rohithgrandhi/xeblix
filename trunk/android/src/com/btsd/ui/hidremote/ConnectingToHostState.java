@@ -9,9 +9,9 @@ import com.btsd.CallbackActivity;
 import com.btsd.Main;
 import com.btsd.R;
 import com.btsd.ServerMessages;
-import com.btsd.ui.HIDRemoteStateHelper;
+import com.btsd.ui.RemoteConfiguration;
 
-public class ConnectingToHostState extends AbstractHIDRemoteState{
+public final class ConnectingToHostState extends AbstractHIDRemoteState{
 
 	private static ConnectingToHostState instance = null;
 	
@@ -28,7 +28,7 @@ public class ConnectingToHostState extends AbstractHIDRemoteState{
 	
 	@Override
 	public JSONObject statusResponse(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			JSONObject serverMessage, CallbackActivity callbackActivity) {
 		
 		//if we get a status result of ProbationallyConnected its just 
@@ -40,9 +40,12 @@ public class ConnectingToHostState extends AbstractHIDRemoteState{
 			throw new RuntimeException(ex);
 		}
 		
-		callbackActivity.hideCancelableDialog();
+		//if this line is uncommented, uncomment the showConnectingDialog
+		//for STATUS_PROBATIONALLY_CONNECTED
+		//callbackActivity.hideDialog();
 		
 		if(Main.STATUS_PROBATIONALLY_CONNECTED.equalsIgnoreCase(status)){
+			//showConnectingDialog(remoteConfiguration, callbackActivity);
 			return null;
 		}
 		
@@ -53,16 +56,23 @@ public class ConnectingToHostState extends AbstractHIDRemoteState{
 
 	@Override
 	public JSONObject transitionTo(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
-		
-		String dialog = callbackActivity.getActivity().getString(R.string.HID_HOST_CONNECT_MESSAGE);
-		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
-				dialog + remoteConfiguration.getName());
-		return ServerMessages.getConnectToHost(remoteConfiguration.getHostAddress());
+		HIDRemoteConfiguration hidRemoteConfig = showConnectingDialog(
+				remoteConfiguration, callbackActivity);
+		return ServerMessages.getConnectToHost(hidRemoteConfig.getHostAddress());
 	}
 
-
+	private HIDRemoteConfiguration showConnectingDialog(
+			RemoteConfiguration remoteConfiguration,
+			CallbackActivity callbackActivity) {
+		HIDRemoteConfiguration hidRemoteConfig = (HIDRemoteConfiguration)remoteConfiguration;
+		String dialog = callbackActivity.getActivity().getString(R.string.HID_HOST_CONNECT_MESSAGE);
+		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
+				dialog + " " + hidRemoteConfig.getName());
+		return hidRemoteConfig;
+	}
+	
 }

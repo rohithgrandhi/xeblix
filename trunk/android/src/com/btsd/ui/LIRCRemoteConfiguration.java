@@ -1,5 +1,6 @@
 package com.btsd.ui;
 
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -50,9 +51,16 @@ public final class LIRCRemoteConfiguration extends RemoteConfiguration {
 	}
 	
 	@Override
-	public void alertCanceled(Map<String, Object> remoteCache,
+	public JSONObject alertClicked(int button, Map<String, Object> remoteCache,
 			CallbackActivity activity) {
-		// TODO Auto-generated method stub
+		
+		return null;
+	}
+	
+	@Override
+	public void remoteConfigurationRefreshed(
+			List<ButtonConfiguration> remoteConfigNames,
+			Map<String, Object> remoteCache, CallbackActivity activity) {
 		
 	}
 }

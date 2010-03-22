@@ -10,6 +10,7 @@ import com.btsd.ui.RemoteConfiguration;
 import com.btsd.ui.ScreensEnum;
 import com.btsd.ui.UserInputTargetEnum;
 import com.btsd.ui.hidremote.HIDRemoteConfiguration;
+import com.btsd.ui.managehidhosts.AddHIDHostConfiguration;
 
 public final class TempConfigurationBuilder {
 
@@ -111,9 +112,14 @@ public final class TempConfigurationBuilder {
 	
 	public static final RemoteConfiguration getMediaPCConfiguration(){
 		
+		return getHIDHostConfiguration("000272159B71", "MEDIA-PC");
+	}
+	
+	public static final RemoteConfiguration getHIDHostConfiguration(String address, String name){
+		
 		RemoteConfiguration toReturn = new HIDRemoteConfiguration();
 		
-		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,UserInputTargetEnum.REMOTE_NAME,"000272159B71", "MEDIA-PC"));
+		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,UserInputTargetEnum.REMOTE_NAME,address, name));
 		
 		//ROOT Screen Configuration
 		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT, UserInputTargetEnum.ROOT_POWER, 
@@ -206,6 +212,7 @@ public final class TempConfigurationBuilder {
 		toReturn.lockConfiguration();
 		return toReturn;
 	}
+	
 	
 	/*
 	 * toReturn.addButtonConfiguration(UserInputTargetEnum.GESTURE_SCREEN_1, "", "");

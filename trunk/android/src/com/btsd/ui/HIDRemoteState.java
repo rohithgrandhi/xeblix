@@ -1,11 +1,11 @@
 package com.btsd.ui;
 
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
 
 import com.btsd.CallbackActivity;
-import com.btsd.ui.hidremote.HIDRemoteConfiguration;
 
 public interface HIDRemoteState {
 
@@ -17,7 +17,7 @@ public interface HIDRemoteState {
 	 * @return
 	 */
 	public JSONObject transitionTo(Map<String, Object> remoteCache, 
-			HIDRemoteConfiguration remoteConfiguration, 
+			RemoteConfiguration remoteConfiguration, 
 			CallbackActivity callbackActivity);
 	
 	/**
@@ -26,7 +26,7 @@ public interface HIDRemoteState {
 	 * @param serverMessage
 	 */
 	public JSONObject successResponse(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration, 
+			RemoteConfiguration remoteConfiguration, 
 			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
@@ -35,7 +35,7 @@ public interface HIDRemoteState {
 	 * @param serverMessage
 	 */
 	public JSONObject failedResponse(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration, 
+			RemoteConfiguration remoteConfiguration, 
 			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
@@ -44,7 +44,7 @@ public interface HIDRemoteState {
 	 * @param serverMessage
 	 */
 	public JSONObject statusResponse(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration, 
+			RemoteConfiguration remoteConfiguration, 
 			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
@@ -53,7 +53,33 @@ public interface HIDRemoteState {
 	 * @param serverMessage
 	 */
 	public JSONObject pincodeRequest(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration, 
+			RemoteConfiguration remoteConfiguration, 
+			JSONObject serverMessage, CallbackActivity callbackActivity);
+	
+	/**
+	 * Called when connecting to a new host and a pincode confirmation has been requested
+	 * @param remoteCache
+	 * @param remoteConfiguration
+	 * @param serverMessage
+	 * @param callbackActivity
+	 * @return
+	 */
+	public JSONObject pinconfirmationRequest(Map<String, Object> remoteCache,
+			RemoteConfiguration remoteConfiguration, 
+			JSONObject serverMessage, CallbackActivity callbackActivity);
+	
+	/**
+	 * Called when a user cancels the pin request from the HID Host.
+	 * TODO: this will probably be removed, the server isn't handling the hidhost pincode cancel
+	 * correctly, the server should return to pair mode and send out a status
+	 * @param remoteCache
+	 * @param remoteConfiguration
+	 * @param serverMessage
+	 * @param callbackActivity
+	 * @return
+	 */
+	public JSONObject hidHostPincodeCancel(Map<String, Object> remoteCache,
+			RemoteConfiguration remoteConfiguration, 
 			JSONObject serverMessage, CallbackActivity callbackActivity);
 	
 	/**
@@ -62,8 +88,22 @@ public interface HIDRemoteState {
 	 * @param serverMessage
 	 */
 	public JSONObject unrecognizedCommand(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration, 
+			RemoteConfiguration remoteConfiguration, 
 			JSONObject serverMessage, CallbackActivity callbackActivity);
+	
+	/**
+	 * When a user clicks a button on a dialog a RemoteConfiguration created, 
+	 * then this method will be called. This method is useful to stop the server 
+	 * from connecting to a hid host, or canceling PairMode,etc.
+	 * @param remoteCache
+	 * @param remoteConfiguration
+	 * @param selectedButton
+	 * @param callbackActivity
+	 * @return
+	 */
+	public JSONObject alertDialogClicked(Map<String, Object> remoteCache, 
+			RemoteConfiguration remoteConfiguration, int selectedButton, 
+			CallbackActivity callbackActivity);
 	
 	/**
 	 * Called when a user interacts with a HID remote. This method checks if the 
@@ -72,6 +112,19 @@ public interface HIDRemoteState {
 	 * @param serverMessage
 	 */
 	public JSONObject validateState(Map<String, Object> remoteCache, 
-			HIDRemoteConfiguration remoteConfiguration, 
+			RemoteConfiguration remoteConfiguration, 
 			CallbackActivity callbackActivity);
+	
+	/**
+	 * Called when the remoteConfigurations have been refreshed. This can be used to
+	 * notify HIDRemotes that new HID Remotes have been added or that this hidRemote
+	 * has been removed.  
+	 * @param remoteCache
+	 * @param remoteConfiguration
+	 * @param callbackActivity
+	 */
+	public void remoteConfigurationsRefreshed(List<ButtonConfiguration> remoteConfigNames, 
+			Map<String, Object> remoteCache, RemoteConfiguration remoteConfiguration, 
+			CallbackActivity callbackActivity);
+	
 }

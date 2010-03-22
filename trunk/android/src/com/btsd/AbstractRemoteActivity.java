@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Message;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 
 import com.btsd.BTScrewDriverStateMachine.States;
 import com.btsd.util.MessagesEnum;
@@ -17,6 +18,7 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 	protected BTScrewDriverCallbackHandler callbackHandler;
 	
 	protected AlertDialog alertDialog;
+	private EditText pincodeView = null;
 	
 	@Override
 	protected void onResume() {
@@ -83,16 +85,32 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 	}
 	
 	@Override
-	public void hideCancelableDialog() {
+	public void hideDialog() {
 		AlertDialog alertDialog = this.alertDialog;
-		if(alertDialog != null && alertDialog.isShowing()){
-			alertDialog.hide();
+		if(alertDialog != null){
+			if(alertDialog.isShowing()){
+				alertDialog.dismiss();
+			}
+			alertDialog = null;
+			this.alertDialog = null;
+		}
+		
+		if(pincodeView != null){
+			pincodeView = null;
 		}
 	}
 	
 	@Override
 	public void showCancelableDialog(int title, String message) {
 		AlertDialog alertDialog = this.alertDialog;
+		
+		if(alertDialog != null){
+			if(alertDialog.isShowing()){
+				alertDialog.dismiss();
+			}
+			alertDialog = null;
+			this.alertDialog = null;
+		}
 		
 		if(alertDialog == null){
 			alertDialog = new AlertDialog.Builder(this)
@@ -110,6 +128,43 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 		
 		alertDialog.show();
 	}
+	
+	@Override
+	public void showPinCodeDialog() {
+		
+		if(pincodeView == null){
+			pincodeView = new EditText(this);
+		}
+		
+		if(alertDialog != null){
+			if(alertDialog.isShowing()){
+				alertDialog.dismiss();
+			}
+			alertDialog = null;
+		}
+		alertDialog = new AlertDialog.Builder(this)
+			.setCancelable(false)
+	        .setTitle(R.string.PINCODE_DIALOG_TITLE)
+	        .setPositiveButton(android.R.string.ok, this)
+	        .setNegativeButton(android.R.string.cancel, this).
+	        setView(pincodeView).create();
+		alertDialog.show();
+		
+	}
+	
+	@Override
+    public String getPincode() {
+    	if(pincodeView != null){
+    		String toReturn = pincodeView.getText().toString();
+    		if(toReturn.trim().equals("")){
+    			return null;
+    		}else{
+    			return toReturn;
+    		}
+    	}
+    	
+    	return null;
+    }
 	
 	@Override
 	public Activity getActivity() {

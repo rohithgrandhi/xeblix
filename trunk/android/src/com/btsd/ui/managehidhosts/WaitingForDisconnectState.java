@@ -1,4 +1,4 @@
-package com.btsd.ui.hidremote;
+package com.btsd.ui.managehidhosts;
 
 import java.util.Map;
 
@@ -9,20 +9,21 @@ import com.btsd.R;
 import com.btsd.ServerMessages;
 import com.btsd.ui.RemoteConfiguration;
 
-public final class WaitingForStatusState extends AbstractHIDRemoteState{
+public final class WaitingForDisconnectState extends AbstractHIDRemoteState {
 
-	private static WaitingForStatusState instance = null;
+	private static WaitingForDisconnectState instance = null;
 	
-	private WaitingForStatusState(){}
+	private WaitingForDisconnectState(){}
 	
-	public static synchronized WaitingForStatusState getInstance(){
+	public static synchronized WaitingForDisconnectState getInstance(){
 		
 		if(instance == null){
-			instance = new WaitingForStatusState();
+			instance = new WaitingForDisconnectState();
 		}
 		
 		return instance;
 	}
+
 	
 	@Override
 	public JSONObject transitionTo(Map<String, Object> remoteCache,
@@ -31,9 +32,9 @@ public final class WaitingForStatusState extends AbstractHIDRemoteState{
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
 		
-		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
-				R.string.HID_DEVICE_STATUS);
-		return ServerMessages.getHidStatus();
+		callbackActivity.showCancelableDialog(R.string.INFO, 
+				R.string.DISCONNECTING_FROM_HID_HOST);
+		return ServerMessages.getDisconnectFromHost();
 	}
-
+	
 }

@@ -1,6 +1,8 @@
 package com.btsd.ui.hidremote;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,13 +18,15 @@ import com.btsd.ui.RemoteConfiguration;
 import com.btsd.ui.ScreensEnum;
 import com.btsd.ui.UserInputTargetEnum;
 
-public class HIDRemoteConfiguration extends RemoteConfiguration {
+public final class HIDRemoteConfiguration extends RemoteConfiguration {
 
 	private static final String TAG = HIDRemoteConfiguration.class.getSimpleName();
 	
 	public static final String CURRENT_STATE_KEY = "HID_REMOTE_CURRENT_STATE_KEY";
 	public static final String CURRENT_HOST_ADDRESS = "HID_HOST_ADDRESS"; 
 	public static final String CACHED_HID_COMMAND_KEY = "CACHED_HID_COMMAND_KEY";
+	public static final String SESSION_ID = "HID_REMOTE_SESSION_ID";
+	public static final String CONNECT_ID = "HID_REMOTE_CONNECT_ID";
 	//public static final String CACHED_HID_ALERT = "CACHED_HID_ALERT";
 	
 	@Override
@@ -66,12 +70,8 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 	private JSONObject validateState(Map<String, Object> remoteCache, 
 			CallbackActivity activity){
 		
-		HIDRemoteState hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
-		if(hidState == null){
-			InitialState.getInstance().transitionTo(remoteCache, this, activity);
-			hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
-		}
-		
+		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
+		remoteCache.put(SESSION_ID, UUID.randomUUID().toString());
 		return hidState.validateState(remoteCache, this, activity);
 	}
 	
@@ -80,10 +80,7 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 			Map<String, Object> remoteCache, CallbackActivity activity) {
 		
 		try{
-			HIDRemoteState hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
-			if(hidState == null){
-				InitialState.getInstance().transitionTo(remoteCache, this, activity);
-			}
+			HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
 			
 			String type = (String)messageFromServer.get(Main.TYPE);
 			JSONObject toReturn = null;
@@ -103,6 +100,10 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 				toReturn = hidState.unrecognizedCommand(remoteCache, this, messageFromServer,activity);
 			}else if(Main.TYPE_PINCODE_REQUEST.equalsIgnoreCase(type)){
 				toReturn = hidState.pincodeRequest(remoteCache, this, messageFromServer,activity);
+			}else if(Main.TYPE_PINCONFIRMATION_REQUEST.equalsIgnoreCase(type)){
+				toReturn = hidState.pinconfirmationRequest(remoteCache, this, messageFromServer,activity);
+			}else if(Main.TYPE_HID_HOST_PIN_CANCEL.equalsIgnoreCase(type)){
+				toReturn = hidState.hidHostPincodeCancel(remoteCache, this, messageFromServer, activity);
 			}else{
 				throw new IllegalArgumentException("Unexpected message type: " + type);
 			}
@@ -115,9 +116,12 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 	}
 	
 	@Override
-	public void alertCanceled(Map<String, Object> remoteCache,
+	public JSONObject alertClicked(int which, Map<String, Object> remoteCache,
 			CallbackActivity activity) {
-		//do nothing for now
+		
+		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
+		
+		return hidState.alertDialogClicked(remoteCache, this, which, activity);
 	}
 	
 	public String getHostAddress(){
@@ -132,4 +136,25 @@ public class HIDRemoteConfiguration extends RemoteConfiguration {
 		return remoteName.getLabel();
 	}
 	
+	private HIDRemoteState getCurrentRemoteState(Map<String, Object> remoteCache ,
+		CallbackActivity activity) {
+		
+		HIDRemoteState hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
+		if(hidState == null){
+			InitialState.getInstance().transitionTo(remoteCache, this, activity);
+			hidState = (HIDRemoteState)remoteCache.get(CURRENT_STATE_KEY);
+		}
+		return hidState;
+	}
+	
+	@Override
+	public void remoteConfigurationRefreshed(
+			List<ButtonConfiguration> remoteConfigNames,
+			Map<String, Object> remoteCache, CallbackActivity activity) {
+		
+		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
+		hidState.remoteConfigurationsRefreshed(remoteConfigNames, remoteCache, 
+			this, activity);
+		
+	}
 }

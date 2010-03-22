@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.btsd.CallbackActivity;
 import com.btsd.R;
+import com.btsd.ui.RemoteConfiguration;
 
 /**
  * While in PairModeState, we are basically waiting for the server to
@@ -16,7 +17,7 @@ import com.btsd.R;
  * @author klewelling
  *
  */
-public class PairModeState extends AbstractHIDRemoteState{
+public final class PairModeState extends AbstractHIDRemoteState{
 
 	private static PairModeState instance = null;
 	
@@ -33,7 +34,7 @@ public class PairModeState extends AbstractHIDRemoteState{
 
 	@Override
 	public JSONObject pincodeRequest(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			JSONObject serverMessage, CallbackActivity callbackActivity) {
 		
 		//pincode request is sent to all clients, didn't put the server into pairmode
@@ -44,7 +45,7 @@ public class PairModeState extends AbstractHIDRemoteState{
 
 	@Override
 	public JSONObject transitionTo(Map<String, Object> remoteCache,
-			HIDRemoteConfiguration remoteConfiguration,
+			RemoteConfiguration remoteConfiguration,
 			CallbackActivity callbackActivity) {
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
