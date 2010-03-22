@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.bluetooth.L2CAPConnection;
@@ -15,17 +16,18 @@ import org.apache.commons.lang.SerializationUtils;
 import org.junit.Test;
 import org.xeblix.server.bluez.BluezAuthenticationAgentImpl;
 import org.xeblix.server.bluez.DBusManager;
+import org.xeblix.server.bluez.DeviceInfo;
+import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceConnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceDisconnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDevicePairModeState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceProbationallyConnectedState;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager.HIDHostInfo;
 import org.xeblix.server.bluez.mock.MockActiveObject;
 import org.xeblix.server.bluez.mock.MockHIDFactory;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.ValidateHIDConnection;
 import org.xeblix.server.util.ActiveThread;
@@ -48,6 +50,7 @@ public class HIDDeviceDisconnectTest {
 			public void setDeviceDiscoverable() {}
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
+			public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 		}, mainThread , new MockHIDFactory());
 		deviceManager.start();
 		
@@ -122,6 +125,7 @@ public class HIDDeviceDisconnectTest {
 			public void setDeviceDiscoverable() {}
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
+			public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 		}, mainThread , new MockHIDFactory());
 		deviceManager.start();
 		
@@ -181,113 +185,23 @@ public class HIDDeviceDisconnectTest {
 		message = (FromClientResponseMessage)mainThread.getMessages().get(0);
 		assertEquals("{\"status\":\"disconnected\",\"value\":\"FAILED\",\"type\":\"result\"}", message.getReponse());
 		
+		//#######################################
+		//test pinCodeCancel, should be ignored
+		mainThread.getMessages().clear();
+		deviceManager.addMessage(new HIDHostCancelPinRequestMessage());
+		
+		try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+		
+		assertEquals(HIDDeviceDisconnectedState.getInstance(), 
+				deviceManager.getDeviceManagerState());
+		assertEquals(0, mainThread.getMessages().size());
+		
 		}finally{
 			cleanup(mainThread, deviceManager);
 		}
 		
 	}
 	
-	@Test
-	public void testHidConnectToPrimaryHost(){
-
-		MockActiveObject mainThread = null;
-		HIDDeviceManager deviceManager = null;
-		try{
-		//##########################################
-		//hidConnectToPrimaryHost
-		
-		//add a non-primary hidHost, verify no connection is started
-		ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-		hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-		saveHIDHosts(hidHosts);
-		
-		mainThread = new MockActiveObject();
-		mainThread.start();
-		deviceManager = new HIDDeviceManager(new DBusManager(){
-			public BluezAuthenticationAgentImpl getAgent() {return null;}
-			public void registerAgent(ActiveThread mainActiveObject) {}
-			public void registerSDPRecord() {}
-			public void setDeviceDiscoverable() {}
-			public void setDeviceHidden() {}
-			public void setDeviceNotDiscoverable() {}
-		}, mainThread , new MockHIDFactory());
-		deviceManager.start();
-		
-		assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
-		assertEquals(0, mainThread.getMessages().size());
-
-		//verify the non-primary hidHost was found
-		mainThread.getMessages().clear();
-		deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
-				ServerMessages.getHidHosts()));
-		
-		try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
-		
-		assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
-		assertEquals(1, mainThread.getMessages().size());
-		FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-		assertEquals("{\"value\":[{\"address\":\"12345678910\",\"primary\":false,\"name\":\"Test Host\"}]," +
-			"\"type\":\"HIDHosts\"}", message.getReponse());
-		
-		//now send a connect to primary message and verify it was ignored
-		mainThread.getMessages().clear();
-		deviceManager.addMessage(new HIDConnectToPrimaryHostMessage());
-		
-		try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
-		
-		assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
-		assertEquals(0, mainThread.getMessages().size());
-		
-		cleanup(mainThread, deviceManager);
-		
-		//#########################################
-		//now add a primary hidHost
-		hidHosts.clear();
-		hidHosts.add(new HIDHostInfo("12345678910","Test Host",true));
-		saveHIDHosts(hidHosts);
-		
-		mainThread = new MockActiveObject();
-		mainThread.start();
-		deviceManager = new HIDDeviceManager(new DBusManager(){
-			public BluezAuthenticationAgentImpl getAgent() {return null;}
-			public void registerAgent(ActiveThread mainActiveObject) {}
-			public void registerSDPRecord() {}
-			public void setDeviceDiscoverable() {}
-			public void setDeviceHidden() {}
-			public void setDeviceNotDiscoverable() {}
-		}, mainThread , new MockHIDFactory());
-		deviceManager.start();
-		
-		assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
-		assertEquals(0, mainThread.getMessages().size());
-		
-		//verify the primary hidHost was found
-		mainThread.getMessages().clear();
-		deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test",
-				ServerMessages.getHidHosts()));
-		
-		try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
-		
-		assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
-		assertEquals(1, mainThread.getMessages().size());
-		message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-		assertEquals("{\"value\":[{\"address\":\"12345678910\",\"primary\":true,\"name\":" +
-			"\"Test Host\"}],\"type\":\"HIDHosts\"}", message.getReponse());
-		
-		//now send a connect to primary message and verify a connection was started
-		mainThread.getMessages().clear();
-		deviceManager.addMessage(new HIDConnectToPrimaryHostMessage());
-		
-		try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
-		
-		assertEquals(HIDDeviceProbationallyConnectedState.getInstance(), deviceManager.getDeviceManagerState());
-		assertEquals(0, mainThread.getMessages().size());
-		
-		}finally{
-			cleanup(mainThread, deviceManager);
-		}
-	}
-
 	@Test
 	public void testClientMessageConnectToHost(){
 		
@@ -296,9 +210,12 @@ public class HIDDeviceDisconnectTest {
 		try{
 			//##########################################
 			//clientMessageConnectToHost
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			saveHIDHosts(hidHosts);
+			final ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
+			
 			
 			//start with an invalid address
 			mainThread = new MockActiveObject();
@@ -310,6 +227,10 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {
+					System.out.println("Returning HIDHosts: " + hidHosts.size());
+					return hidHosts;
+					}
 			}, mainThread , new MockHIDFactory());
 			deviceManager.start();
 			
@@ -324,7 +245,8 @@ public class HIDDeviceDisconnectTest {
 			assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
 			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-			assertEquals("{\"status\":\"disconnected\",\"value\":\"FAILED\",\"type\":\"result\"}", message.getReponse());
+			assertEquals("{\"status\":\"disconnected\",\"value\":\"FAILED\",\"type\":\"result\"}", 
+					message.getReponse());
 			
 			
 			//now try valid address
@@ -334,10 +256,12 @@ public class HIDDeviceDisconnectTest {
 			
 			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
 			
-			assertEquals(HIDDeviceProbationallyConnectedState.getInstance(), deviceManager.getDeviceManagerState());
+			assertEquals(HIDDeviceProbationallyConnectedState.getInstance(), 
+					deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
 			message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-			assertEquals("{\"status\":\"ProbationallyConnected\",\"type\":\"status\"}", message.getReponse());
+			assertEquals("{\"status\":\"ProbationallyConnected\",\"type\":\"status\"}", 
+					message.getReponse());
 			assertTrue(message.isBroadcastMessage());
 			
 		}finally{
@@ -364,6 +288,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			
@@ -407,6 +332,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			
@@ -450,6 +376,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceDiscoverable() {}
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			
@@ -477,13 +404,13 @@ public class HIDDeviceDisconnectTest {
 		if(deviceManager != null){
 			deviceManager.interrupt();
 		}
-		saveHIDHosts(new ArrayList<HIDHostInfo>());
+		saveHIDHosts(new HashSet<String>());
 	}
 	
-	public static void saveHIDHosts(ArrayList<HIDHostInfo> hidHosts){
+	public static void saveHIDHosts(HashSet<String> hidHostAddresses){
 		
 		try{
-			SerializationUtils.serialize(hidHosts, new FileOutputStream(new File(HIDHostInfo.class.getName())));
+			SerializationUtils.serialize(hidHostAddresses, new FileOutputStream(new File("HIDHosts")));
 		}catch(IOException ex){
 			throw new RuntimeException(ex.getMessage(), ex);
 		}

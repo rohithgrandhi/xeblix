@@ -1,7 +1,12 @@
 package org.xeblix.server.bluez;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.bluez.dbus.DBusProperties;
 import org.bluez.v4.Adapter;
+import org.bluez.v4.Device;
 import org.bluez.v4.Manager;
 import org.bluez.v4.Service;
 import org.freedesktop.dbus.DBusConnection;
@@ -562,6 +567,31 @@ public final class DBusManagerImpl implements DBusManager{
 			throw new RuntimeException(ex);
 		}
 		System.out.println("Adapter is now set to hidden. Hosts will be unable to discover this device.");
+	}
+	
+	public List<DeviceInfo> listDevices(){
+		Path adaptorLocation = manager.DefaultAdapter();
+		List<DeviceInfo> toReturn = new ArrayList<DeviceInfo>();
+		try {
+			Adapter adapter = conn.getRemoteObject("org.bluez", adaptorLocation
+					.getPath(), Adapter.class);
+			Path[] devicePaths = adapter.ListDevices();
+			for(Path devicePath: devicePaths){
+				
+				Device device = conn.getRemoteObject("org.bluez", devicePath.getPath(), Device.class);
+				Map<String, Variant<?>> properties = device.GetProperties();
+				String  name = DBusProperties.getStringValue(properties, Device.Properties.Name);
+				String address = DBusProperties.getStringValue(properties, Device.Properties.Address);
+				boolean paired = DBusProperties.getBooleanValue(properties, Device.Properties.Paired);
+				boolean connected = DBusProperties.getBooleanValue(properties, Device.Properties.Connected);
+				toReturn.add(new DeviceInfo(name, address, paired, connected));
+			}
+			
+			return toReturn;
+		} catch (DBusException ex) {
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		}
 	}
 	
 	public void setDeviceDiscoverable(){

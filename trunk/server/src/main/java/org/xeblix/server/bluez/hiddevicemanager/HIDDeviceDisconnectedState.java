@@ -1,15 +1,15 @@
 package org.xeblix.server.bluez.hiddevicemanager;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager.HIDHostInfo;
+import org.xeblix.server.bluez.DeviceInfo;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.ValidateHIDConnection;
 import org.xeblix.server.util.ActiveThread;
@@ -32,28 +32,6 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 		return instance;
 	}
 	
-	public void hidConnectToPrimaryHost(HIDDeviceManager deviceManager,
-			HIDConnectToPrimaryHostMessage message) {
-		
-		HIDHostInfo primaryHost = null;
-		for(HIDHostInfo hostInfo: deviceManager.getHidHosts()){
-			if(hostInfo.isPrimary()){
-				primaryHost = hostInfo;
-				break;
-			}
-		}
-		
-		if(primaryHost == null){
-			System.out.println("No primary host found. Unable to connect to primary host.");
-			return;
-		}
-		
-		System.out.println("Attempting to connect to Primary Host with address: " + 
-			primaryHost.getAddress() + " name: " + primaryHost.getName());
-		deviceManager.setConnectedHostInfo(primaryHost);
-		connectoToHost(deviceManager, null, primaryHost.getAddress());
-	}
-
 	public void clientMessageConnectToHost(HIDDeviceManager deviceManager,
 			HIDFromClientMessage message) {
 		String hostAddress = null;
@@ -67,9 +45,10 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 		System.out.println("Received request to Connect to host: " + hostAddress);
 		
 		//validate the hostAddress
-		ArrayList<HIDHostInfo> hidHosts = deviceManager.getHidHosts();
-		HIDHostInfo hostToConnect = null;
-		for(HIDHostInfo hostInfo: hidHosts){
+		List<DeviceInfo> hidHosts = deviceManager.getHidHosts();
+		DeviceInfo hostToConnect = null;
+		System.out.println("HIDHosts size: " + hidHosts.size());
+		for(DeviceInfo hostInfo: hidHosts){
 			if(hostInfo.getAddress().equalsIgnoreCase(hostAddress)){
 				hostToConnect = hostInfo;
 				break;
@@ -176,6 +155,15 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 				message.getRemoteDeviceAddress(), HIDDeviceManagerHelper.getFailedResponse(STATUS)));
 	}
 
+	public void hidHostPinCodeCancel(HIDDeviceManager deviceManager,
+			HIDHostCancelPinRequestMessage message) {
+		
+		System.out.println("Invalid state to received client message: " + 
+				message.getType().getDescription() + ". Currently in state: " + 
+				getClass().getSimpleName());
+		
+	}
+	
 	public void clientMessagePinCodeResponse(HIDDeviceManager deviceManager,
 			HIDFromClientMessage message) {
 		

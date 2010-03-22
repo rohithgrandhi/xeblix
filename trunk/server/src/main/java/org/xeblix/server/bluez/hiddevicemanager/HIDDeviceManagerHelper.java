@@ -1,11 +1,11 @@
 package org.xeblix.server.bluez.hiddevicemanager;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager.HIDHostInfo;
+import org.xeblix.server.bluez.DeviceInfo;
 import org.xeblix.server.messages.FromClientResponseMessage;
 import org.xeblix.server.messages.Message;
 import org.xeblix.server.messages.ShutdownMessage;
@@ -59,16 +59,16 @@ public final class HIDDeviceManagerHelper {
 		
 	}
 	
-	public static void sendHIDHosts(ArrayList<HIDHostInfo> hidHosts, ActiveThread ao, 
+	public static void sendHIDHosts(List<DeviceInfo> hidHosts, ActiveThread ao, 
 			String remoteDeviceAddress){
-		
+
 		JSONArray hidHostsArray = new JSONArray();
-		for(HIDHostInfo hostInfo: hidHosts){
+		for(DeviceInfo hostInfo: hidHosts){
 			JSONObject hidHost = new JSONObject();
 			try{
 				hidHost.put("address", hostInfo.getAddress());
 				hidHost.put("name", hostInfo.getName());
-				hidHost.put("primary", hostInfo.isPrimary());
+				hidHost.put("connected", hostInfo.isConnected());
 			}catch(JSONException ex){
 				//will never get here
 				throw new IllegalStateException(ex.getMessage(), ex);

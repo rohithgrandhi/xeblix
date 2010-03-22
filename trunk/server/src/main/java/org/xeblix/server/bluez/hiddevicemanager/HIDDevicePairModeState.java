@@ -2,11 +2,10 @@ package org.xeblix.server.bluez.hiddevicemanager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager.HIDHostInfo;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.HIDInitMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
@@ -87,7 +86,7 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 		
 		deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
 			HIDDeviceManagerHelper.getStatus(HIDDeviceDisconnectedState.STATUS)));
-		
+		deviceManager.setPossibleHidHostAddress(null);
 		deviceManager.updateState(HIDDeviceDisconnectedState.getInstance());
 	}
 
@@ -108,6 +107,11 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 		}
 	}
 
+	public void hidHostPinCodeCancel(HIDDeviceManager deviceManager,
+			HIDHostCancelPinRequestMessage message) {
+		clientMessagePairModeCancel(deviceManager, null);
+	}
+	
 	private void sendPincodeResponse(HIDDeviceManager deviceManager, String remoteDeviceAddress, String pincode){
 		
 		deviceManager.getDbusManager().getAgent().setPinCode(pincode);
@@ -136,14 +140,6 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 			message.getRemoteDeviceAddress(),getStatus()));
 	}
 
-	public void hidConnectToPrimaryHost(HIDDeviceManager deviceManager,
-			HIDConnectToPrimaryHostMessage message) {
-		
-		//ignore
-		HIDDeviceManagerHelper.ignoringMessage(message, this);
-
-	}
-
 	public void hidConnectionResult(HIDDeviceManager deviceManager,
 			HIDConnectionInitResultMessage message) {
 		
@@ -162,8 +158,22 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 			deviceManager.getDbusManager().setDeviceNotDiscoverable();
 			
 			//store the hostInfo, we will need it later if we get connected
-			deviceManager.setHostInfo(new HIDHostInfo(message.getAddress(), 
-					message.getFriendlyName(), false));
+			deviceManager.setPossibleHidHostAddress(message.getAddress());
+			
+			//asdf;
+			if(deviceManager.isReceivedPinconfirmation()){
+				//don't need to wait for a pincode response, the host just displayed
+				//a pin code to confirm. Skip past probationallyConnected as quickly as possible
+				//send message to all clients about the state change
+				deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
+						HIDDeviceManagerHelper.getStatus(HIDDeviceProbationallyConnectedState.STATUS)));
+				//if authentication fails there is no message from HID Host, so schedule
+				//a failed message. If we have not heard from the HID Host then assume failure, 
+				//else we have heard from the HID Host and the message can be ignored.
+				deviceManager.addMessage(new ValidateHIDConnection(), 100);
+				deviceManager.updateState(HIDDeviceProbationallyConnectedState.getInstance());	
+				
+			}
 			
 		}else if(message.getUuid() == HIDDeviceManager.CONTROL_UUID){
 			System.out.println("New ControlHID Connection. ");
@@ -180,7 +190,7 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 		
 		deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
 			HIDDeviceManagerHelper.getStatus(HIDDeviceDisconnectedState.STATUS)));
-		
+		deviceManager.setPossibleHidHostAddress(null);
 		deviceManager.updateState(HIDDeviceDisconnectedState.getInstance());
 	}
 

@@ -6,6 +6,8 @@ import static junit.framework.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.bluetooth.L2CAPConnection;
@@ -17,18 +19,18 @@ import org.freedesktop.dbus.UInt32;
 import org.junit.Test;
 import org.xeblix.server.bluez.BluezAuthenticationAgent;
 import org.xeblix.server.bluez.DBusManager;
+import org.xeblix.server.bluez.DeviceInfo;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceConnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceDisconnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDevicePairModeState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceProbationallyConnectedState;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager.HIDHostInfo;
 import org.xeblix.server.bluez.mock.MockActiveObject;
 import org.xeblix.server.bluez.mock.MockHIDFactory;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.util.ActiveThread;
 
@@ -41,14 +43,17 @@ public class HIDDeviceProbationallyConnectedTest {
 		HIDDeviceManager deviceManager = null;
 		try{
 		
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE);
+			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE, 
+					hidHosts);
 			
 			transitionViaDisconnected(mainThread, deviceManager, hidFactory);
 			
@@ -64,7 +69,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
 			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-			assertEquals("{\"value\":[{\"address\":\"12345678910\",\"primary\":false,\"name\":\"Test Host\"}]," +
+			assertEquals("{\"value\":[{\"address\":\"12345678910\",\"connected\":false,\"name\":\"Test Host\"}]," +
 					"\"type\":\"HIDHosts\"}", message.getReponse());
 			
 			//###############################################
@@ -81,17 +86,6 @@ public class HIDDeviceProbationallyConnectedTest {
 			message = (FromClientResponseMessage)mainThread.getMessages().get(0);
 			assertEquals("{\"status\":\"ProbationallyConnected\",\"type\":\"status\"}", message.getReponse());
 			
-			//################################################
-			//hidConnectToPrimaryHost
-			//this message should be ignored
-			mainThread.getMessages().clear();
-			deviceManager.addMessage(new HIDConnectToPrimaryHostMessage());
-			
-			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
-			
-			assertEquals(HIDDeviceProbationallyConnectedState.getInstance(), 
-					deviceManager.getDeviceManagerState());
-			assertEquals(0, mainThread.getMessages().size());
 		}finally{
 			HIDDeviceDisconnectTest.cleanup(mainThread, deviceManager);
 		}
@@ -104,14 +98,17 @@ public class HIDDeviceProbationallyConnectedTest {
 		HIDDeviceManager deviceManager = null;
 		try{
 		
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE);
+			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE,
+					hidHosts);
 			
 			transitionViaDisconnected(mainThread, deviceManager, hidFactory);
 			
@@ -209,6 +206,17 @@ public class HIDDeviceProbationallyConnectedTest {
 			assertEquals("{\"status\":\"ProbationallyConnected\",\"value\":\"FAILED\",\"type\":\"result\"}", 
 					message.getReponse());
 			
+			//#######################################
+			//test pinCodeCancel, should be ignored
+			mainThread.getMessages().clear();
+			deviceManager.addMessage(new HIDHostCancelPinRequestMessage());
+			
+			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDeviceProbationallyConnectedState.getInstance(), 
+					deviceManager.getDeviceManagerState());
+			assertEquals(0, mainThread.getMessages().size());
+			
 		}finally{
 			HIDDeviceDisconnectTest.cleanup(mainThread, deviceManager);
 		}
@@ -236,14 +244,17 @@ public class HIDDeviceProbationallyConnectedTest {
 		HIDDeviceManager deviceManager = null;
 		try{
 		
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE);
+			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE,
+					hidHosts);
 		
 			transitionViaDisconnected(mainThread, deviceManager, hidFactory);
 			
@@ -336,14 +347,17 @@ public class HIDDeviceProbationallyConnectedTest {
 		HIDDeviceManager deviceManager = null;
 		try{
 		
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, 75);
+			deviceManager = createDeviceManager(mainThread, hidFactory, 75,
+					hidHosts);
 		
 			transitionViaDisconnected(mainThread, deviceManager, hidFactory);
 			
@@ -368,14 +382,17 @@ public class HIDDeviceProbationallyConnectedTest {
 
 		try{
 			
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, 125);
+			deviceManager = createDeviceManager(mainThread, hidFactory, 125,
+					hidHosts);
 		
 			transitionViaDisconnected(mainThread, deviceManager, hidFactory);
 			
@@ -422,14 +439,18 @@ public class HIDDeviceProbationallyConnectedTest {
 		
 		try{
 			
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			hidHosts.add(new DeviceInfo("Test Host 2","10987654321",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, 175);
+			deviceManager = createDeviceManager(mainThread, hidFactory, 175,
+					hidHosts);
 		
 			transitionViaDisconnected(mainThread, deviceManager, hidFactory);
 			
@@ -449,7 +470,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				public int receive(byte[] inBuf) throws IOException {return 0;}
 				public void send(byte[] data) throws IOException {}
 				public void close() throws IOException {}
-			}, "12345678910", "Test Host", false));
+			}, "10987654321", "Test Host 2", false));
 			
 			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
 			
@@ -501,14 +522,17 @@ public class HIDDeviceProbationallyConnectedTest {
 		HIDDeviceManager deviceManager = null;
 		try{
 		
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, 75);
+			deviceManager = createDeviceManager(mainThread, hidFactory, 75,
+					hidHosts);
 		
 			transitionViaPairMode(mainThread, deviceManager, hidFactory);
 			
@@ -536,14 +560,17 @@ public class HIDDeviceProbationallyConnectedTest {
 
 		try{
 			
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, 125);
+			deviceManager = createDeviceManager(mainThread, hidFactory, 125,
+					hidHosts);
 		
 			transitionViaPairMode(mainThread, deviceManager, hidFactory);
 			
@@ -592,14 +619,18 @@ public class HIDDeviceProbationallyConnectedTest {
 		
 		try{
 			
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			hidHosts.add(new DeviceInfo("Test Host 2","10987654321",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, 175);
+			deviceManager = createDeviceManager(mainThread, hidFactory, 175,
+					hidHosts);
 		
 			transitionViaPairMode(mainThread, deviceManager, hidFactory);
 			
@@ -619,7 +650,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				public int receive(byte[] inBuf) throws IOException {return 0;}
 				public void send(byte[] data) throws IOException {}
 				public void close() throws IOException {}
-			}, "12345678910", "Test Host", true));
+			}, "10987654321", "Test Host 2", true));
 			
 			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
 			
@@ -637,7 +668,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				public int receive(byte[] inBuf) throws IOException {return 0;}
 				public void send(byte[] data) throws IOException {}
 				public void close() throws IOException {}
-			}, "12345678910", "Test Host", true));
+			}, "10987654321", "Test Host 2", true));
 			
 			try{Thread.sleep(25);}catch(InterruptedException ex){ex.printStackTrace();}
 			
@@ -648,13 +679,13 @@ public class HIDDeviceProbationallyConnectedTest {
 			assertEquals(1, hidFactory.getWriterCount());
 			
 			//wait for the validateMessage to be consumed 
-			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(100);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDeviceConnectedState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
 			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
-			assertEquals("{\"address\":\"12345678910\",\"status\":\"Connected\"," +
-					"\"hostName\":\"Test Host\",\"type\":\"status\"}", message.getReponse());
+			assertEquals("{\"address\":\"10987654321\",\"status\":\"Connected\"," +
+					"\"hostName\":\"Test Host 2\",\"type\":\"status\"}", message.getReponse());
 			assertTrue(message.isBroadcastMessage());
 			assertEquals(2, hidFactory.getSocketCount());
 			assertEquals(1, hidFactory.getWriterCount());
@@ -714,7 +745,8 @@ public class HIDDeviceProbationallyConnectedTest {
 	}
 
 	private HIDDeviceManager createDeviceManager(MockActiveObject mainThread,
-			MockHIDFactory hidFactory, int validateConnectionTimeout) {
+			MockHIDFactory hidFactory, int validateConnectionTimeout, 
+			final List<DeviceInfo> hidHosts) {
 		HIDDeviceManager deviceManager;
 		deviceManager = new HIDDeviceManager(new DBusManager(){
 			public BluezAuthenticationAgent getAgent() {return new BluezAuthenticationAgent(){
@@ -735,6 +767,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			public void setDeviceDiscoverable() {}
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
+			public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
 		}, mainThread , hidFactory,validateConnectionTimeout);
 		deviceManager.start();
 		return deviceManager;
@@ -799,14 +832,17 @@ public class HIDDeviceProbationallyConnectedTest {
 		HIDDeviceManager deviceManager = null;
 		try{
 		
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE);
+			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE,
+					hidHosts);
 		
 			transitionViaDisconnected(mainThread, deviceManager, hidFactory);
 			
@@ -846,14 +882,17 @@ public class HIDDeviceProbationallyConnectedTest {
 		HIDDeviceManager deviceManager = null;
 		try{
 		
-			ArrayList<HIDHostInfo> hidHosts = new ArrayList<HIDHostInfo>();
-			hidHosts.add(new HIDHostInfo("12345678910","Test Host",false));
-			HIDDeviceDisconnectTest.saveHIDHosts(hidHosts);
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
 			
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE);
+			deviceManager = createDeviceManager(mainThread, hidFactory, Integer.MAX_VALUE,
+					hidHosts);
 		
 			transitionViaPairMode(mainThread, deviceManager, hidFactory);
 			

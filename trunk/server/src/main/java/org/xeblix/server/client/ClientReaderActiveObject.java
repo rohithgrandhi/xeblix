@@ -12,7 +12,6 @@ import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManagerHelper;
 import org.xeblix.server.messages.ClientDisconnectMessage;
 import org.xeblix.server.messages.ClientInitMessage;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.LIRCFromClientMessage;
 import org.xeblix.server.messages.Message;
@@ -51,10 +50,6 @@ public class ClientReaderActiveObject extends ActiveThread {
 				btsdActiveObject.addMessage(new ServiceFailureMessage(
 					getClass().getSimpleName()));
 			}
-			
-			//got a connection to a client, make sure we are connected to the primary host if
-			//one exists
-			btsdActiveObject.addMessage(new HIDConnectToPrimaryHostMessage());
 			
 			try{
 				handleClient();

@@ -2,11 +2,11 @@ package org.xeblix.server.bluez.hiddevicemanager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager.HIDHostInfo;
+import org.xeblix.server.bluez.DeviceInfo;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.ValidateHIDConnection;
 
@@ -97,6 +97,14 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 
 	}
 
+	public void hidHostPinCodeCancel(HIDDeviceManager deviceManager,
+			HIDHostCancelPinRequestMessage message) {
+		
+		System.out.println("Invalid state to received client message: " + 
+				message.getType().getDescription() + ". Currently in state: " + 
+				getClass().getSimpleName());
+	}
+	
 	public void clientMessagePinCodeResponse(HIDDeviceManager deviceManager,
 			HIDFromClientMessage message) {
 		
@@ -113,14 +121,6 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 		
 		deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
 				message.getRemoteDeviceAddress(), getStatus(deviceManager.getConnectedHostInfo())));
-
-	}
-
-	public void hidConnectToPrimaryHost(HIDDeviceManager deviceManager,
-			HIDConnectToPrimaryHostMessage message) {
-		
-		//ignore
-		HIDDeviceManagerHelper.ignoringMessage(message, this);
 
 	}
 
@@ -150,7 +150,7 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 
 	}
 
-	public static JSONObject getStatus(HIDHostInfo hidHostInfo){
+	public static JSONObject getStatus(DeviceInfo hidHostInfo){
 		JSONObject toReturn =HIDDeviceManagerHelper.getStatus(STATUS);
 		try{
 			toReturn.put(FromClientResponseMessage.HOST_NAME, hidHostInfo.getName());

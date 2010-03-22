@@ -1,21 +1,13 @@
 package org.xeblix.server.bluez.hiddevicemanager;
 
-import org.xeblix.server.messages.HIDConnectToPrimaryHostMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
+import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.ValidateHIDConnection;
 
 public interface HIDDeviceManagerState {
 
-	/**
-	 * Called when the HIDDeviceManager receives the HIDConnectToPrimaryHostMessage message.
-	 * @param deviceManager
-	 * @param message
-	 */
-	public void hidConnectToPrimaryHost(HIDDeviceManager deviceManager, 
-		HIDConnectToPrimaryHostMessage message);
-	
 	/**
 	 * Called when the HIDDeviceManager receives the client HIDFromClientMessage.
 	 * @param deviceManager
@@ -99,4 +91,11 @@ public interface HIDDeviceManagerState {
 	 * @param message
 	 */
 	public void hidHostDisconnect(HIDDeviceManager deviceManager, HIDHostDisconnect message);
+	
+	/**
+	 * Called when the HID Host we are trying to pair with cancels the pincode request.
+	 * @param deviceManager
+	 * @param message
+	 */
+	public void hidHostPinCodeCancel(HIDDeviceManager deviceManager, HIDHostCancelPinRequestMessage message);
 }

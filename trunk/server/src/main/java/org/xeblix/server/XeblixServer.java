@@ -18,11 +18,11 @@ import org.xeblix.server.messages.ClientInitMessage;
 import org.xeblix.server.messages.ClientManagerInitMessage;
 import org.xeblix.server.messages.FromClientMessage;
 import org.xeblix.server.messages.FromClientResponseMessage;
-import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.LircInit;
 import org.xeblix.server.messages.Message;
 import org.xeblix.server.messages.NewClientConnectionMessage;
+import org.xeblix.server.messages.PinConfirmationMessage;
 import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.messages.ServiceFailureMessage;
 import org.xeblix.server.messages.ShutdownMessage;
@@ -56,7 +56,7 @@ public class XeblixServer {
 			//private BTHIDWriterActiveObject btHIDWriterActiveObject;
 			private HIDDeviceManager hidDeviceManager;
 			
-			private ActiveThread hidHost;
+			//private ActiveThread hidHost;
 			
 			@Override
 			public void handleMessage(Message msg) {
@@ -147,10 +147,6 @@ public class XeblixServer {
 								getRemoteDeviceAddress()+ " from ClientWriters.");
 					}
 					
-				}else if(msg.getType() == MessagesEnum.HID_CONNECT_TO_PRIMARY_HOST){
-					
-					hidDeviceManager.addMessage(msg);
-					
 				}else if(msg.getType() == MessagesEnum.MESSAGE_FROM_CLIENT){
 					
 					FromClientMessage clientMessage = (FromClientMessage)msg;
@@ -188,6 +184,18 @@ public class XeblixServer {
 								responseMessage.getRemoteDeviceAddress());
 						}
 					}
+				}else if(msg.getType() == MessagesEnum.AUTH_AGENT_PIN_CONFIRMATION){
+					
+					//let the HIDDeviceManager know if it gets two connections its connected
+					hidDeviceManager.addMessage(msg);
+					
+					//send confirmation to all clients
+					PinConfirmationMessage message  = (PinConfirmationMessage)msg;
+					for(String address: clientWriters.keySet()){
+						ActiveThread clientWriter = clientWriters.get(address);
+						clientWriter.addMessage(new FromClientResponseMessage(address, 
+								message.getMessage()));
+					}
 					
 				}else if(msg.getType() == MessagesEnum.AUTH_AGENT_PIN_REQUEST){
 					
@@ -200,13 +208,16 @@ public class XeblixServer {
 					}
 				}else if(msg.getType() == MessagesEnum.AUTH_AGENT_HID_HOST_CANCEL_PIN_REQUEST){
 					
+					hidDeviceManager.addMessage(msg);
+					
 					//send the cancel pin request to all clients
-					HIDHostCancelPinRequestMessage message  = (HIDHostCancelPinRequestMessage)msg;
+					//TODO: delete me
+					/*HIDHostCancelPinRequestMessage message  = (HIDHostCancelPinRequestMessage)msg;
 					for(String address: clientWriters.keySet()){
 						ActiveThread clientWriter = clientWriters.get(address);
 						clientWriter.addMessage(new FromClientResponseMessage(address, 
 								message.getMessage()));
-					}
+					}*/
 					
 				}else if(msg.getType() == MessagesEnum.HID_HOST_DISCONNECT){
 					
@@ -253,6 +264,7 @@ public class XeblixServer {
 		
 		//finally set the whole thing in motion
 		managerActiveThread.addMessage(new StartupMessage());
+		
 	}
 
 	

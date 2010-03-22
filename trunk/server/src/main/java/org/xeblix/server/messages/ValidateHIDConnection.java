@@ -6,14 +6,17 @@ public class ValidateHIDConnection implements Message {
 
 	private static final long serialVersionUID = -2799107981448213444L;
 
-	private String remtoeDeviceAddress;
+	private String remoteDeviceAddress;
+	
+	public ValidateHIDConnection(){
+	}
 	
 	public ValidateHIDConnection(String remoteDeviceAddress){
-		this.remtoeDeviceAddress = remoteDeviceAddress;
+		this.remoteDeviceAddress = remoteDeviceAddress;
 	}
 	
 	public String getRemoteDeviceAddress(){
-		return remtoeDeviceAddress;
+		return remoteDeviceAddress;
 	}
 	
 	public MessagesEnum getType() {
