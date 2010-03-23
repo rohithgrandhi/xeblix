@@ -367,7 +367,8 @@ public class BluetoothHIDActivity extends AbstractRemoteActivity  implements Dia
 				
 				String address = jsonObject.getString("address");
 				String hostName = jsonObject.getString("name");
-				boolean primary = jsonObject.getBoolean("primary");
+				//boolean primary = jsonObject.getBoolean("primary");
+				boolean primary = false;
 				
 				if(hostName != null && primary){
 					hidHostsToDisplay.add(i + 1, hostName + " (Primary)");
