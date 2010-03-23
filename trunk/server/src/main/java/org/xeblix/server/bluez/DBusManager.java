@@ -24,4 +24,10 @@ public interface DBusManager {
 	 * @return
 	 */
 	public List<DeviceInfo> listDevices();
+	
+	/**
+	 * Un pairs the specified address and returns true if successful or false otherwise.
+	 * @param address
+	 */
+	public boolean removePairedDevice(String address);
 }

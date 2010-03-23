@@ -405,6 +405,7 @@ public class HIDDeviceConnectedTest {
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
 			public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
+			public boolean removePairedDevice(String address) {return true;}
 		}, mainThread , hidFactory,25);
 		deviceManager.start();
 		return deviceManager;

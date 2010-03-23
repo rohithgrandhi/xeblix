@@ -212,6 +212,13 @@ public final class HIDDeviceManager extends ActiveThread{
 
 	void setPossibleHidHostAddress(String possibleHidHostAddress) {
 		this.possibleHidHostAddress = possibleHidHostAddress;
+		
+		//need to check if the specified address is already "known"
+		//if so then need to forget it
+		if(possibleHidHostAddress != null && isPairedDevice(possibleHidHostAddress)){
+			removePairedDevice(possibleHidHostAddress);
+		}
+		
 	}
 
 	boolean isReceivedPinconfirmation() {
@@ -223,7 +230,7 @@ public final class HIDDeviceManager extends ActiveThread{
 	}
 
 
-	synchronized DeviceInfo  addHIDHost(String address){
+	synchronized DeviceInfo addHIDHost(String address){
 		
 		Set<String> oldHidHostAddresses = getHIDHostAddressesFromFile();
 		
@@ -295,6 +302,59 @@ public final class HIDDeviceManager extends ActiveThread{
 		return foundAddress;
 	}
 	
+	/**
+	 * This method is called to remove a paired device. This is usually called when the
+	 * device to remove is being re-paired
+	 * @param address
+	 */
+	private void removePairedDevice(String address){
+		Set<String> oldHidHostAddresses = getHIDHostAddressesFromFile();
+		
+		System.out.println("Removing Paired Device: " + address);
+		
+		if(!oldHidHostAddresses.contains(address)){
+			//throw exception to help find any bugs
+			throw new IllegalStateException("Failed to remove HID Host with address: " + 
+				address + ". The HID Host is not a known HID Host.");
+		}
+		
+		Set<String> newHIDHostAddresses = new HashSet<String>(oldHidHostAddresses.size() - 1);
+		for(String pairedAddress: oldHidHostAddresses){
+			if(!address.equalsIgnoreCase(pairedAddress)){
+				newHIDHostAddresses.add(pairedAddress);
+			}
+		}
+		
+		dbusManager.removePairedDevice(address);
+		
+		List<DeviceInfo> devices = getValidListOfHIDHosts(this.dbusManager, 
+			newHIDHostAddresses);
+		
+		//validate the address is not in the list of devices
+		for(DeviceInfo deviceInfo: devices){
+			if(deviceInfo.getAddress().equalsIgnoreCase(address)){
+				throw new IllegalStateException("Device with address: " + 
+					address + " was un-paired, but is still being returned by " +
+					"dbus as paired.");
+			}
+		}
+		
+		try{
+			//try to backup the file
+			File oldFile = new File("HIDHosts");
+			if(oldFile.exists()){
+				SimpleDateFormat ds = new SimpleDateFormat("MM-dd-yyyy-HH-mm-ss");
+				oldFile.renameTo(new File("HIDHosts-" + ds.format(new Date()) + ".old"));
+			}
+			SerializationUtils.serialize((HashSet<String>)newHIDHostAddresses, 
+				new FileOutputStream(new File("HIDHosts")));
+		}catch(IOException ex){
+			throw new RuntimeException(ex.getMessage(), ex);
+		}
+		//update the list of hidHosts
+		this.hidHosts = devices;
+	}
+	
 	//TODO: recover from corrupted HIDHosts file using backup files
 	private Set<String> getHIDHostAddressesFromFile(){
 		Set<String> hidHostAddressess = null;
@@ -308,6 +368,7 @@ public final class HIDDeviceManager extends ActiveThread{
 		if(hidHostAddressess == null){
 			hidHostAddressess = new HashSet<String>();
 		}
+		
 		return Collections.unmodifiableSet(hidHostAddressess);
 	}
 	
@@ -328,6 +389,11 @@ public final class HIDDeviceManager extends ActiveThread{
 		}
 		List<DeviceInfo> tempHIDHosts = new ArrayList<DeviceInfo>();
 		for(String hidHostAddress: hidHostAddressess){
+			
+			if(hidHostAddress == null){
+				throw new IllegalArgumentException("Null address");
+			}
+			
 			System.out.println("Looking for: " + hidHostAddress);
 			DeviceInfo deviceInfo = devicesByAddress.get(hidHostAddress);
 			if(deviceInfo == null){
