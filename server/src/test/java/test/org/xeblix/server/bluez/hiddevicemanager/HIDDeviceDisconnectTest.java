@@ -51,6 +51,7 @@ public class HIDDeviceDisconnectTest {
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
 			public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
+			public boolean removePairedDevice(String address) {return true;}
 		}, mainThread , new MockHIDFactory());
 		deviceManager.start();
 		
@@ -126,6 +127,7 @@ public class HIDDeviceDisconnectTest {
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
 			public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
+			public boolean removePairedDevice(String address) {return true;}
 		}, mainThread , new MockHIDFactory());
 		deviceManager.start();
 		
@@ -231,6 +233,7 @@ public class HIDDeviceDisconnectTest {
 					System.out.println("Returning HIDHosts: " + hidHosts.size());
 					return hidHosts;
 					}
+				public boolean removePairedDevice(String address) {return true;}
 			}, mainThread , new MockHIDFactory());
 			deviceManager.start();
 			
@@ -289,6 +292,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
 				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
+				public boolean removePairedDevice(String address) {return true;}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			
@@ -333,6 +337,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
 				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
+				public boolean removePairedDevice(String address) {return true;}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			
@@ -377,6 +382,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceHidden() {}
 				public void setDeviceNotDiscoverable() {}
 				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
+				public boolean removePairedDevice(String address) {return true;}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			

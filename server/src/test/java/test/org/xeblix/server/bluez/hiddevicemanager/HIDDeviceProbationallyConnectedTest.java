@@ -619,9 +619,8 @@ public class HIDDeviceProbationallyConnectedTest {
 		
 		try{
 			
-			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			final ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
 			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
-			hidHosts.add(new DeviceInfo("Test Host 2","10987654321",true, false));
 			HashSet<String> hidHostAddresses = new HashSet<String>();
 			hidHostAddresses.add("12345678910");
 			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
@@ -629,9 +628,31 @@ public class HIDDeviceProbationallyConnectedTest {
 			mainThread = new MockActiveObject();
 			mainThread.start();
 			MockHIDFactory hidFactory = new MockHIDFactory();
-			deviceManager = createDeviceManager(mainThread, hidFactory, 175,
-					hidHosts);
-		
+			
+			deviceManager = new HIDDeviceManager(new DBusManager(){
+				public BluezAuthenticationAgent getAgent() {return new BluezAuthenticationAgent(){
+					public String getPinCode() {return null;}
+					public void setPinCode(String pinCode) {}
+					public void Authorize(Path device, String uuid)throws Rejected, Canceled {}
+					public void Cancel() {}
+					public void ConfirmModeChange(String mode) throws Rejected,Canceled {}
+					public void DisplayPasskey(Path device, UInt32 passkey,byte entered) {}
+					public void Release() {}
+					public void RequestConfirmation(Path device, UInt32 passkey)throws Rejected, Canceled {}
+					public UInt32 RequestPasskey(Path device) throws Rejected,Canceled {return null;}
+					public String RequestPinCode(Path device) throws Rejected,Canceled {return null;}
+					public boolean isRemote() {return false;}
+				};}
+				public void registerAgent(ActiveThread mainActiveObject) {}
+				public void registerSDPRecord() {}
+				public void setDeviceDiscoverable() {}
+				public void setDeviceHidden() {}
+				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
+				public boolean removePairedDevice(String address) {return true;}
+			}, mainThread , hidFactory,175);
+			deviceManager.start();
+			
 			transitionViaPairMode(mainThread, deviceManager, hidFactory);
 			
 			//##############################################
@@ -672,6 +693,10 @@ public class HIDDeviceProbationallyConnectedTest {
 			
 			try{Thread.sleep(25);}catch(InterruptedException ex){ex.printStackTrace();}
 			
+			//simulate bluez returning the newly paired device, this must be done after the input 
+			//connection and before the validateHIDConnection is called
+			hidHosts.add(new DeviceInfo("Test Host 2","10987654321",true, false));
+			
 			assertEquals(HIDDeviceProbationallyConnectedState.getInstance(),
 				deviceManager.getDeviceManagerState());
 			assertEquals(0, mainThread.getMessages().size());
@@ -679,7 +704,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			assertEquals(1, hidFactory.getWriterCount());
 			
 			//wait for the validateMessage to be consumed 
-			try{Thread.sleep(100);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(125);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDeviceConnectedState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
@@ -768,6 +793,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
 			public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
+			public boolean removePairedDevice(String address) {return true;}
 		}, mainThread , hidFactory,validateConnectionTimeout);
 		deviceManager.start();
 		return deviceManager;
@@ -779,7 +805,7 @@ public class HIDDeviceProbationallyConnectedTest {
 		deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
 				ServerMessages.getConnectToHost("12345678910")));
 		
-		try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+		try{Thread.sleep(60);}catch(InterruptedException ex){ex.printStackTrace();}
 		
 		assertEquals(HIDDeviceProbationallyConnectedState.getInstance(), 
 			deviceManager.getDeviceManagerState());

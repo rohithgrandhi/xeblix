@@ -594,6 +594,31 @@ public final class DBusManagerImpl implements DBusManager{
 		}
 	}
 	
+	public boolean removePairedDevice(String addressToRemove){
+		Path adaptorLocation = manager.DefaultAdapter();
+		try {
+			Adapter adapter = conn.getRemoteObject("org.bluez", adaptorLocation
+					.getPath(), Adapter.class);
+			Path[] devicePaths = adapter.ListDevices();
+			for(Path devicePath: devicePaths){
+				
+				Device device = conn.getRemoteObject("org.bluez", devicePath.getPath(), Device.class);
+				Map<String, Variant<?>> properties = device.GetProperties();
+				String address = DBusProperties.getStringValue(properties, Device.Properties.Address);
+				address = address.replace(":", "");
+				if(addressToRemove.equalsIgnoreCase(address)){
+					adapter.RemoveDevice(devicePath);
+					return true;
+				}
+			}
+			
+			return false;
+		} catch (DBusException ex) {
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		}
+	}
+	
 	public void setDeviceDiscoverable(){
 		//set mode to undiscoverable
 		Path adaptorLocation = manager.DefaultAdapter();
