@@ -216,7 +216,7 @@ public final class HIDDeviceManager extends ActiveThread{
 		//need to check if the specified address is already "known"
 		//if so then need to forget it
 		if(possibleHidHostAddress != null && isPairedDevice(possibleHidHostAddress)){
-			removePairedDevice(possibleHidHostAddress);
+			removePairedDevice(possibleHidHostAddress,false);
 		}
 		
 	}
@@ -307,7 +307,7 @@ public final class HIDDeviceManager extends ActiveThread{
 	 * device to remove is being re-paired
 	 * @param address
 	 */
-	private void removePairedDevice(String address){
+	private void removePairedDevice(String address, boolean removeFromBluez){
 		Set<String> oldHidHostAddresses = getHIDHostAddressesFromFile();
 		
 		System.out.println("Removing Paired Device: " + address);
@@ -325,17 +325,22 @@ public final class HIDDeviceManager extends ActiveThread{
 			}
 		}
 		
-		dbusManager.removePairedDevice(address);
-		
-		List<DeviceInfo> devices = getValidListOfHIDHosts(this.dbusManager, 
-			newHIDHostAddresses);
-		
-		//validate the address is not in the list of devices
-		for(DeviceInfo deviceInfo: devices){
-			if(deviceInfo.getAddress().equalsIgnoreCase(address)){
-				throw new IllegalStateException("Device with address: " + 
-					address + " was un-paired, but is still being returned by " +
-					"dbus as paired.");
+		//we don't want to remove from bluez if this method is called when a hidHost
+		//is trying to pair, will cause issues
+		List<DeviceInfo> devices = this.hidHosts;
+		if(removeFromBluez){
+			dbusManager.removePairedDevice(address);
+			
+			devices = getValidListOfHIDHosts(this.dbusManager, 
+				newHIDHostAddresses);
+			
+			//validate the address is not in the list of devices
+			for(DeviceInfo deviceInfo: devices){
+				if(deviceInfo.getAddress().equalsIgnoreCase(address)){
+					throw new IllegalStateException("Device with address: " + 
+						address + " was un-paired, but is still being returned by " +
+						"dbus as paired.");
+				}
 			}
 		}
 		
