@@ -43,6 +43,7 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	//this is used to figure out when to calculate textview locations, don't
 	//want to calculate if we simply lost focus due to popup or lock screen
 	private boolean onResumeCalled = false;
+	private boolean dismissRetrievingConfigAlert = false;
 	private Vibrator vibrator = null;
 	private TextView selectedTextView = null;
 	private RemoteConfiguration remoteConfiguration;
@@ -107,30 +108,41 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	        .setMessage(R.string.RETRIEVING_CONFIGURATION).create();
 		this.alertDialog = alertDialog;
 		alertDialog.show();
+		dismissRetrievingConfigAlert = true;
 		
 		getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getHidHosts());
 		
 		//setRootButtonText(UserInputTargetEnum.ROOT_FREE, vip1200,textViews[9]);
 	}
 
-	private void getRemoteConfiguration() {
+	private void getRemoteConfiguration(boolean selectRemoteConfiguration) {
 		
-		AlertDialog alertDialog = this.alertDialog;
-		if(alertDialog != null && alertDialog.isShowing()){
-			alertDialog.dismiss();
-			this.alertDialog = null;
-			alertDialog = null; 
+		if(dismissRetrievingConfigAlert){
+			AlertDialog alertDialog = this.alertDialog;
+			if(alertDialog != null && alertDialog.isShowing()){
+				alertDialog.dismiss();
+				this.alertDialog = null;
+				alertDialog = null; 
+			}
 		}
 		
 		this.configuredRemotes = getBTSDApplication().getRemoteConfigurationNames();
-		ButtonConfiguration selectedRemote = this.configuredRemotes.get(
-			this.selectedRemoteIndex);
-		RemoteConfiguration remoteConfiguration =  getBTSDApplication().getRemoteConfiguration(
-			selectedRemote.getCommand().toString());
-		this.remoteName = selectedRemote.getCommand().toString();
-		this.remoteConfiguration = remoteConfiguration;
 		
-		initRootButtons(selectedRemote);
+		if(dismissRetrievingConfigAlert || selectRemoteConfiguration){
+			ButtonConfiguration selectedRemote = this.configuredRemotes.get(
+				this.selectedRemoteIndex);
+			RemoteConfiguration remoteConfiguration =  getBTSDApplication().getRemoteConfiguration(
+				selectedRemote.getCommand().toString());
+			this.remoteName = selectedRemote.getCommand().toString();
+			this.remoteConfiguration = remoteConfiguration;
+			
+			initRootButtons(selectedRemote);
+			
+			dismissRetrievingConfigAlert = false;
+		}
+		
+		this.remoteConfiguration.remoteConfigurationRefreshed(this.configuredRemotes, 
+				getBTSDApplication().getRemoteCache(), this);
 	}
 
 	private void initRootButtons(ButtonConfiguration selectedRemote) {
@@ -400,7 +412,7 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 				String type = (String)serverJSONMessage.get(Main.TYPE);
 				if(Main.TYPE_HID_HOSTS.equalsIgnoreCase(type)){
 					getBTSDApplication().updateRemoteConfiguration(serverJSONMessage);
-					getRemoteConfiguration();
+					getRemoteConfiguration(false);
 				}else{
 					JSONObject serverMessage =  remoteConfiguration.
 						serverInteraction(serverJSONMessage, 
@@ -469,11 +481,20 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 		//TODO: right now this just goes back to the first remoteConfiguration
 		//need to update to go to the previous config
 		selectedRemoteIndex = 0;
-		getRemoteConfiguration();
+		getRemoteConfiguration(true);
 	}
 	
 	@Override
 	public void selectConfiguredRemote(String name) {
-		throw new IllegalArgumentException("Implement me");
+		
+		selectedRemoteIndex = 0;
+		for(int i=0; i < this.configuredRemotes.size(); i++){
+			ButtonConfiguration selectedRemote = this.configuredRemotes.get(i);
+			if(selectedRemote.getLabel().equals(name)){
+				selectedRemoteIndex = i;
+				break;
+			}
+		}
+		getRemoteConfiguration(true);
 	}
 }

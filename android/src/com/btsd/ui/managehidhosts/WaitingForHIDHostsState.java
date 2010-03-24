@@ -85,8 +85,6 @@ public class WaitingForHIDHostsState extends AbstractHIDRemoteState {
 				"RemoteConfigurations refresh.");
 		}
 		
-		throw new RuntimeException("implement me");
-		
 	}
 	
 }
