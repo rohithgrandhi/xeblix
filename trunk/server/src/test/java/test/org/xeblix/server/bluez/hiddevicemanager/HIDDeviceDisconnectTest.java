@@ -12,12 +12,13 @@ import java.util.List;
 
 import javax.bluetooth.L2CAPConnection;
 
+import junit.framework.Assert;
+
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Test;
 import org.xeblix.server.bluez.BluezAuthenticationAgentImpl;
 import org.xeblix.server.bluez.DBusManager;
 import org.xeblix.server.bluez.DeviceInfo;
-import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceConnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceDisconnectedState;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManager;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDevicePairModeState;
@@ -37,6 +38,8 @@ public class HIDDeviceDisconnectTest {
 	@Test
 	public void testHIDDeviceDisconnectState(){
 		
+		//Assert.fail("Test clientMessageUnpairDevice for all states");
+		
 		MockActiveObject mainThread = null;
 		HIDDeviceManager deviceManager = null;
 		try{
@@ -52,6 +55,7 @@ public class HIDDeviceDisconnectTest {
 			public void setDeviceNotDiscoverable() {}
 			public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			public boolean removePairedDevice(String address) {return true;}
+			public DeviceInfo getDeviceInfo(String path) {return null;}
 		}, mainThread , new MockHIDFactory());
 		deviceManager.start();
 		
@@ -128,6 +132,7 @@ public class HIDDeviceDisconnectTest {
 			public void setDeviceNotDiscoverable() {}
 			public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 			public boolean removePairedDevice(String address) {return true;}
+			public DeviceInfo getDeviceInfo(String path) {return null;}
 		}, mainThread , new MockHIDFactory());
 		deviceManager.start();
 		
@@ -234,6 +239,7 @@ public class HIDDeviceDisconnectTest {
 					return hidHosts;
 					}
 				public boolean removePairedDevice(String address) {return true;}
+				public DeviceInfo getDeviceInfo(String path) {return null;}
 			}, mainThread , new MockHIDFactory());
 			deviceManager.start();
 			
@@ -293,6 +299,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceNotDiscoverable() {}
 				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 				public boolean removePairedDevice(String address) {return true;}
+				public DeviceInfo getDeviceInfo(String path) {return null;}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			
@@ -338,6 +345,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceNotDiscoverable() {}
 				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 				public boolean removePairedDevice(String address) {return true;}
+				public DeviceInfo getDeviceInfo(String path) {return null;}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			
@@ -383,6 +391,7 @@ public class HIDDeviceDisconnectTest {
 				public void setDeviceNotDiscoverable() {}
 				public List<DeviceInfo> listDevices() {return new ArrayList<DeviceInfo>();}
 				public boolean removePairedDevice(String address) {return true;}
+				public DeviceInfo getDeviceInfo(String path) {return null;}
 			}, mainThread , hidFactory);
 			deviceManager.start();
 			

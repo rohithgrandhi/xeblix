@@ -74,7 +74,7 @@ public final class BluezAuthenticationAgentImpl implements BluezAuthenticationAg
 		
 		System.out.println("Pincode request from " + device.getPath() + " :");
 		
-		this.mainActiveObject.addMessage(new PinRequestMessage());
+		this.mainActiveObject.addMessage(new PinRequestMessage(device.getPath()));
 		
 		try{
 			//it is possible to have setPinCode and Cancel called by different

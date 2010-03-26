@@ -8,6 +8,7 @@ import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
+import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
 
 public class HIDDeviceConnectedState implements HIDDeviceManagerState {
@@ -160,5 +161,37 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 			throw new RuntimeException();
 		}
 		return toReturn;
+	}
+	
+	public void validatePinRequest(HIDDeviceManager deviceManager,
+			PinRequestMessage pinRequestMessage) {
+		
+		//ignore the message
+		HIDDeviceManagerHelper.ignoringMessage(pinRequestMessage, this);
+		
+	}
+	
+	public void clientMessageUnpairDevice(HIDDeviceManager deviceManager,
+			HIDFromClientMessage message) {
+		
+		String hostAddress = null;
+		try{
+			hostAddress = message.getClientArguments().getString(
+				FromClientResponseMessage.HOST_ADDRESS);
+		}catch(JSONException ex){
+			throw new RuntimeException(ex.getMessage(), ex);
+		}
+		
+		DeviceInfo hidHost = deviceManager.getConnectedHostInfo();
+		if(hidHost.getAddress().equalsIgnoreCase(hostAddress)){
+			System.out.println("Unpairing device with address: " + 
+				hostAddress + ". Currently connected to the address so must " +
+				"disconnect first then reprocess the message in diconnected state");
+			HIDDeviceManagerHelper.disconnectFromHost(deviceManager);
+			deviceManager.updateState(HIDDeviceDisconnectedState.getInstance());
+			//give time to disconnect, then unpairHIDHost
+			try{Thread.sleep(1000);}catch(InterruptedException ex){}
+		}
+		HIDDeviceManagerHelper.unpairHIDHost(deviceManager, message);	
 	}
 }

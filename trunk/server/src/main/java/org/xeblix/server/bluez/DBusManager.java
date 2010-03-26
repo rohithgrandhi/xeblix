@@ -26,6 +26,14 @@ public interface DBusManager {
 	public List<DeviceInfo> listDevices();
 	
 	/**
+	 * Returns the DeviceInfo associated with the given path or null
+	 * if no device could be found.
+	 * @param path
+	 * @return
+	 */
+	public DeviceInfo getDeviceInfo(String path);
+	
+	/**
 	 * Un pairs the specified address and returns true if successful or false otherwise.
 	 * @param address
 	 */

@@ -10,6 +10,7 @@ import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.HIDInitMessage;
+import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
 import org.xeblix.server.util.ActiveThread;
 
@@ -256,5 +257,22 @@ public final class HIDDeviceProbationallyConnectedState implements
 			deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
 					HIDDeviceManagerHelper.getStatus(HIDDeviceDisconnectedState.STATUS)));
 		}
+	}
+	
+	public void validatePinRequest(HIDDeviceManager deviceManager,
+			PinRequestMessage pinRequestMessage) {
+		
+		//ignore the message
+		HIDDeviceManagerHelper.ignoringMessage(pinRequestMessage, this);		
+	}
+	
+	public void clientMessageUnpairDevice(HIDDeviceManager deviceManager,
+			HIDFromClientMessage message) {
+		
+		//not in a good state to handle this message, but it back on the queue to be 
+		//picked up after we leave this state
+		System.out.println("Can't Unpair HID Host in ProbationallyConnectedState. Putting " +
+			"UnpairDevice message back on the queue to be processed in another state.");
+		deviceManager.addMessage(message, 750);
 	}
 }
