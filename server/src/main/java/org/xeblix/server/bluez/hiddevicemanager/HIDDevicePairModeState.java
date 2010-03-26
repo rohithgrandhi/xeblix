@@ -2,12 +2,14 @@ package org.xeblix.server.bluez.hiddevicemanager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xeblix.server.bluez.DeviceInfo;
 import org.xeblix.server.messages.FromClientResponseMessage;
 import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.HIDInitMessage;
+import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
 import org.xeblix.server.util.ActiveThread;
 
@@ -222,4 +224,34 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 		return HIDDeviceManagerHelper.getStatus(STATUS);
 	}
 	
+	public void validatePinRequest(HIDDeviceManager deviceManager,
+			PinRequestMessage pinRequestMessage) {
+		
+		DeviceInfo info = deviceManager.getDeviceInfo(pinRequestMessage.getDeviceIdentifier());
+		if(info == null){
+			throw new IllegalArgumentException("Failed to retrieve the device " +
+				"info for device at path " + pinRequestMessage.getDeviceIdentifier());
+		}
+		
+		if(info.isPaired()){
+			System.out.println("Received invalid Pin Request from host: " + info.getName() + 
+				" address: " + info.getAddress() + ". The host is already paired. Need to unpair " +
+				"before pairing again.");
+			deviceManager.getDbusManager().getAgent().setPinCode(null);
+			
+			deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
+					HIDDeviceManagerHelper.getInvalidPinRequest(info.getName(),info.getAddress())));
+			
+		}else{
+			deviceManager.getBtsdActiveObject().addMessage(
+				new PinRequestMessage(info));
+		}
+		
+	}
+	
+	public void clientMessageUnpairDevice(HIDDeviceManager deviceManager,
+			HIDFromClientMessage message) {
+		
+		HIDDeviceManagerHelper.unpairHIDHost(deviceManager, message);		
+	}
 }

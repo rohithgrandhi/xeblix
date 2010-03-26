@@ -22,6 +22,7 @@ import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
 import org.xeblix.server.messages.Message;
+import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
 import org.xeblix.server.messages.HIDFromClientMessage.HIDCommands;
 import org.xeblix.server.util.ActiveThread;
@@ -119,6 +120,8 @@ public final class HIDDeviceManager extends ActiveThread{
 				state.clientMessageConnectToHostCancel(this, clientMessage);
 			}else if(clientMessage.getHidCommand() == HIDCommands.KEYCODE){
 				state.clientMessageKeyCode(this, clientMessage);
+			}else if(clientMessage.getHidCommand() == HIDCommands.UNPAIR_DEVICE){
+					state.clientMessageUnpairDevice(this, clientMessage);
 			}else if(clientMessage.getHidCommand() == HIDCommands.DISCONNECTED_FROM_HOST){
 				state.hidHostDisconnect(this, new HIDHostDisconnect());
 			}else{
@@ -135,6 +138,8 @@ public final class HIDDeviceManager extends ActiveThread{
 			this.receivedPinconfirmation = true;
 		}else if(msg.getType() == MessagesEnum.AUTH_AGENT_HID_HOST_CANCEL_PIN_REQUEST){
 			state.hidHostPinCodeCancel(this, (HIDHostCancelPinRequestMessage)msg);
+		}else if(msg.getType() == MessagesEnum.AUTH_AGENT_PIN_REQUEST){
+			state.validatePinRequest(this, (PinRequestMessage) msg);
 		}
 		
 	}
@@ -307,18 +312,19 @@ public final class HIDDeviceManager extends ActiveThread{
 	 * device to remove is being re-paired
 	 * @param address
 	 */
-	private void removePairedDevice(String address, boolean removeFromBluez){
+	void removePairedDevice(String address, boolean removeFromBluez){
 		Set<String> oldHidHostAddresses = getHIDHostAddressesFromFile();
 		
 		System.out.println("Removing Paired Device: " + address);
 		
-		if(!oldHidHostAddresses.contains(address)){
+		/* The address may not be in the list of hidHostAddress, could be paired however
+		 * if(!oldHidHostAddresses.contains(address)){
 			//throw exception to help find any bugs
 			throw new IllegalStateException("Failed to remove HID Host with address: " + 
 				address + ". The HID Host is not a known HID Host.");
-		}
+		}*/
 		
-		Set<String> newHIDHostAddresses = new HashSet<String>(oldHidHostAddresses.size() - 1);
+		Set<String> newHIDHostAddresses = new HashSet<String>(oldHidHostAddresses.size());
 		for(String pairedAddress: oldHidHostAddresses){
 			if(!address.equalsIgnoreCase(pairedAddress)){
 				newHIDHostAddresses.add(pairedAddress);
@@ -425,5 +431,8 @@ public final class HIDDeviceManager extends ActiveThread{
 		this.connectedHostInfo = connectedHostInfo;
 	}
 
+	DeviceInfo getDeviceInfo(String devicePath){
+		return dbusManager.getDeviceInfo(devicePath);
+	}
 
 }

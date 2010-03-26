@@ -11,6 +11,7 @@ import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
+import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
 import org.xeblix.server.util.ActiveThread;
 
@@ -213,5 +214,19 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 	private static JSONObject getStatus(){
 		
 		return HIDDeviceManagerHelper.getStatus(STATUS);
+	}
+	
+	public void validatePinRequest(HIDDeviceManager deviceManager,
+			PinRequestMessage pinRequestMessage) {
+		
+		//ignore the message
+		HIDDeviceManagerHelper.ignoringMessage(pinRequestMessage, this);
+		
+	}
+	
+	public void clientMessageUnpairDevice(HIDDeviceManager deviceManager,
+			HIDFromClientMessage message) {
+		
+		HIDDeviceManagerHelper.unpairHIDHost(deviceManager, message);		
 	}
 }

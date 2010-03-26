@@ -4,6 +4,7 @@ import org.xeblix.server.messages.HIDConnectionInitResultMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.HIDHostCancelPinRequestMessage;
 import org.xeblix.server.messages.HIDHostDisconnect;
+import org.xeblix.server.messages.PinRequestMessage;
 import org.xeblix.server.messages.ValidateHIDConnection;
 
 public interface HIDDeviceManagerState {
@@ -72,6 +73,13 @@ public interface HIDDeviceManagerState {
 	public void clientMessageConnectToHostCancel(HIDDeviceManager deviceManager, HIDFromClientMessage message);
 	
 	/**
+	 * Called when a client requests a HID Host be unpaired. This message can be received in any state
+	 * @param deviceManager
+	 * @param message
+	 */
+	public void clientMessageUnpairDevice(HIDDeviceManager deviceManager, HIDFromClientMessage message);
+	
+	/**
 	 * Called when the HIDDeviceManager receives the HIDConnectionInitResultMessage.
 	 * @param deviceManager
 	 * @param message
@@ -98,4 +106,13 @@ public interface HIDDeviceManagerState {
 	 * @param message
 	 */
 	public void hidHostPinCodeCancel(HIDDeviceManager deviceManager, HIDHostCancelPinRequestMessage message);
+	
+	/**
+	 * Validate the PinRequest coming from the HIDHost. Should only get 
+	 * the message in PairMode.
+	 * @param deviceManager
+	 * @param pinRequestMessage
+	 */
+	public void validatePinRequest(HIDDeviceManager deviceManager, 
+			PinRequestMessage pinRequestMessage);
 }

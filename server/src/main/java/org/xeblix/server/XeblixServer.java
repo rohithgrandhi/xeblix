@@ -201,10 +201,14 @@ public class XeblixServer {
 					
 					//for now send pin request to all clients
 					PinRequestMessage message  = (PinRequestMessage)msg;
-					for(String address: clientWriters.keySet()){
-						ActiveThread clientWriter = clientWriters.get(address);
-						clientWriter.addMessage(new FromClientResponseMessage(address, 
-								message.getMessage()));
+					if(message.isClientMessage()){
+						for(String address: clientWriters.keySet()){
+							ActiveThread clientWriter = clientWriters.get(address);
+							clientWriter.addMessage(new FromClientResponseMessage(address, 
+									message.getMessage()));
+						}
+					}else{
+						hidDeviceManager.addMessage(msg);
 					}
 				}else if(msg.getType() == MessagesEnum.AUTH_AGENT_HID_HOST_CANCEL_PIN_REQUEST){
 					

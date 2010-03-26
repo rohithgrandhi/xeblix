@@ -594,6 +594,25 @@ public final class DBusManagerImpl implements DBusManager{
 		}
 	}
 	
+	public DeviceInfo getDeviceInfo(String path){
+		try{
+			Device device = conn.getRemoteObject("org.bluez", path, Device.class);
+			if(device != null){
+				Map<String, Variant<?>> properties = device.GetProperties();
+				String  name = DBusProperties.getStringValue(properties, Device.Properties.Name);
+				String address = DBusProperties.getStringValue(properties, Device.Properties.Address);
+				boolean paired = DBusProperties.getBooleanValue(properties, Device.Properties.Paired);
+				boolean connected = DBusProperties.getBooleanValue(properties, Device.Properties.Connected);
+				return new DeviceInfo(name, address, paired, connected);
+			}else{
+				return null;
+			}
+		} catch (DBusException ex) {
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		}
+	}
+	
 	public boolean removePairedDevice(String addressToRemove){
 		Path adaptorLocation = manager.DefaultAdapter();
 		try {

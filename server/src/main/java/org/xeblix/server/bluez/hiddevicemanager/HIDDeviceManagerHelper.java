@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xeblix.server.bluez.DeviceInfo;
 import org.xeblix.server.messages.FromClientResponseMessage;
+import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.Message;
 import org.xeblix.server.messages.ShutdownMessage;
 import org.xeblix.server.util.ActiveThread;
@@ -57,6 +58,28 @@ public final class HIDDeviceManagerHelper {
 			deviceManager.setInputHIDSocketActiveObject(null);
 		}
 		
+	}
+	
+	public static void unpairHIDHost(HIDDeviceManager deviceManager,
+			HIDFromClientMessage message){
+		
+		//not connected to a host so just unpair
+		String hostAddress = null;
+		try{
+			hostAddress = message.getClientArguments().getString(
+				FromClientResponseMessage.HOST_ADDRESS);
+		}catch(JSONException ex){
+			throw new RuntimeException(ex.getMessage(), ex);
+		}
+		
+		System.out.println("Unpairing device with address: " + 
+				hostAddress + ".");
+		
+		deviceManager.removePairedDevice(hostAddress, true);
+		
+		//finally respond to the client with a HIDHosts
+		sendHIDHosts(deviceManager.getHidHosts(),deviceManager.getBtsdActiveObject(), 
+			message.getRemoteDeviceAddress());		
 	}
 	
 	public static void sendHIDHosts(List<DeviceInfo> hidHosts, ActiveThread ao, 
@@ -131,6 +154,17 @@ public final class HIDDeviceManagerHelper {
 		}catch(JSONException ex){}
 		return response;
 	}
+	
+	public static JSONObject getInvalidPinRequest(String hostName, String address){
+		JSONObject response = new JSONObject();
+		try{
+			response.put(FromClientResponseMessage.TYPE, "InvalidPinRequest");
+			response.put(FromClientResponseMessage.HOST_NAME, hostName);
+			response.put(FromClientResponseMessage.HOST_ADDRESS, address);
+		}catch(JSONException ex){}
+		return response;
+	}
+	
 	
 	public static JSONObject getUnrecognizedCommand(){
 		JSONObject response = new JSONObject();
