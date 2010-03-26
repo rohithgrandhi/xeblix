@@ -103,7 +103,7 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 	}
 	
 	@Override
-	public void remoteConfigurationsRefreshed(
+	public JSONObject remoteConfigurationsRefreshed(
 			List<ButtonConfiguration> remoteConfigNames,
 			Map<String, Object> remoteCache,
 			RemoteConfiguration remoteConfiguration,
@@ -124,7 +124,7 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 		if(!foundCurrentRemote){
 			callbackActivity.returnToPreviousRemoteConfiguration();
 		}
-		
+		return null;
 	}
 	
 	@Override
@@ -136,5 +136,14 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 		
 		return WaitingForStatusState.getInstance().transitionTo(remoteCache, 
 			remoteConfiguration, callbackActivity);
+	}
+	
+	@Override
+	public JSONObject invalidHidHostPinRequest(Map<String, Object> remoteCache,
+			RemoteConfiguration remoteConfiguration,JSONObject serverMessage, 
+			CallbackActivity callbackActivity) {
+		
+		//this method is only called during pair mode.
+		return null;
 	}
 }

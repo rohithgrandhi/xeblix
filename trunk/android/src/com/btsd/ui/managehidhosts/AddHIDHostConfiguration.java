@@ -23,6 +23,7 @@ public final class AddHIDHostConfiguration extends RemoteConfiguration {
 	public static final String CURRENT_ADD_HID_STATE = "CURRENT_ADD_HID_STATE";
 	public static final String ADDED_HOST_ADDRESS = "ADD_HID_STATE_ADDED_HOST_ADDRESS";
 	public static final String ADDED_HOST_NAME = "ADD_HID_STATE_ADDED_HOST_NAME";
+	public static final String HOST_ADDRESS_TO_UNPAIR = "HOST_ADDRESS_TO_UNPAIR";
 	
 	@Override
 	public JSONObject alertClicked(int which, Map<String, Object> remoteCache,
@@ -93,6 +94,8 @@ public final class AddHIDHostConfiguration extends RemoteConfiguration {
 				toReturn = hidState.pinconfirmationRequest(remoteCache, this, messageFromServer,activity);
 			}else if(Main.TYPE_HID_HOST_PIN_CANCEL.equalsIgnoreCase(type)){
 				toReturn = hidState.hidHostPincodeCancel(remoteCache, this, messageFromServer, activity);
+			}else if(Main.TYPE_INVALID_PIN_REQUEST.equalsIgnoreCase(type)){
+				toReturn = hidState.invalidHidHostPinRequest(remoteCache, this,messageFromServer, activity);
 			}else{
 				throw new IllegalArgumentException("Unexpected message type: " + type);
 			}
@@ -104,12 +107,12 @@ public final class AddHIDHostConfiguration extends RemoteConfiguration {
 	}
 
 	@Override
-	public void remoteConfigurationRefreshed(
+	public JSONObject remoteConfigurationRefreshed(
 			List<ButtonConfiguration> remoteConfigNames,
 			Map<String, Object> remoteCache, CallbackActivity activity) {
 		
 		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
-		hidState.remoteConfigurationsRefreshed(remoteConfigNames, remoteCache, 
+		return hidState.remoteConfigurationsRefreshed(remoteConfigNames, remoteCache, 
 			this, activity);
 	}
 	

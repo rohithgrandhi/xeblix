@@ -57,7 +57,7 @@ public class WaitingForHIDHostsState extends AbstractHIDRemoteState {
 	}
 	
 	@Override
-	public void remoteConfigurationsRefreshed(
+	public JSONObject remoteConfigurationsRefreshed(
 			List<ButtonConfiguration> remoteConfigNames,
 			Map<String, Object> remoteCache,
 			RemoteConfiguration remoteConfiguration,
@@ -84,7 +84,7 @@ public class WaitingForHIDHostsState extends AbstractHIDRemoteState {
 				addedAddress +  " in list of RemoteConfigurations but did not. Continuing to wait " +
 				"RemoteConfigurations refresh.");
 		}
-		
+		return null;
 	}
 	
 }

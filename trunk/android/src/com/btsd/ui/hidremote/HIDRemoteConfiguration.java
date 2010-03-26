@@ -81,6 +81,7 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 		
 		try{
 			HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
+			remoteCache.put(SESSION_ID, UUID.randomUUID().toString());
 			
 			String type = (String)messageFromServer.get(Main.TYPE);
 			JSONObject toReturn = null;
@@ -104,6 +105,8 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 				toReturn = hidState.pinconfirmationRequest(remoteCache, this, messageFromServer,activity);
 			}else if(Main.TYPE_HID_HOST_PIN_CANCEL.equalsIgnoreCase(type)){
 				toReturn = hidState.hidHostPincodeCancel(remoteCache, this, messageFromServer, activity);
+			}else if(Main.TYPE_INVALID_PIN_REQUEST.equalsIgnoreCase(type)){
+				toReturn = hidState.invalidHidHostPinRequest(remoteCache, this,messageFromServer, activity);
 			}else{
 				throw new IllegalArgumentException("Unexpected message type: " + type);
 			}
@@ -148,12 +151,12 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 	}
 	
 	@Override
-	public void remoteConfigurationRefreshed(
+	public JSONObject remoteConfigurationRefreshed(
 			List<ButtonConfiguration> remoteConfigNames,
 			Map<String, Object> remoteCache, CallbackActivity activity) {
 		
 		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
-		hidState.remoteConfigurationsRefreshed(remoteConfigNames, remoteCache, 
+		return hidState.remoteConfigurationsRefreshed(remoteConfigNames, remoteCache, 
 			this, activity);
 		
 	}

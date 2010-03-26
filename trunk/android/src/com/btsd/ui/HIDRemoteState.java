@@ -123,8 +123,18 @@ public interface HIDRemoteState {
 	 * @param remoteConfiguration
 	 * @param callbackActivity
 	 */
-	public void remoteConfigurationsRefreshed(List<ButtonConfiguration> remoteConfigNames, 
+	public JSONObject remoteConfigurationsRefreshed(List<ButtonConfiguration> remoteConfigNames, 
 			Map<String, Object> remoteCache, RemoteConfiguration remoteConfiguration, 
 			CallbackActivity callbackActivity);
 	
+	/**
+	 * Called when a HID Host that is already paired with the Xeblix server requests
+	 * a pin code like it is Pairing. This method will only be called while in pair mode. 
+	 * @param remoteCache
+	 * @param remoteConfiguration
+	 * @param callbackActivity
+	 */
+	public JSONObject invalidHidHostPinRequest(Map<String, Object> remoteCache, 
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage, 
+			CallbackActivity callbackActivity);
 }

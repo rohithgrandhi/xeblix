@@ -2,6 +2,7 @@ package com.btsd;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Message;
@@ -23,7 +24,8 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		BTSDApplication application =  (BTSDApplication)getApplication();
+		application.getStateMachine().registerActivity(this);
 	}
 	
 	@Override
@@ -102,6 +104,22 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 	
 	@Override
 	public void showCancelableDialog(int title, String message) {
+		showCancelableDialog(title, message, null, android.R.string.cancel);
+	}
+	
+	@Override
+	public void showCancelableDialog(int title, int message,
+			Integer positiveButton, Integer negativeButton) {
+		
+		String messageString = getString(message);
+		showCancelableDialog(title, message, positiveButton, negativeButton);
+		
+	}
+	
+	@Override
+	public void showCancelableDialog(int title, String message,
+			Integer positiveButton, Integer negativeButton) {
+		
 		AlertDialog alertDialog = this.alertDialog;
 		
 		if(alertDialog != null){
@@ -112,21 +130,37 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 			this.alertDialog = null;
 		}
 		
+		
+		
 		if(alertDialog == null){
-			alertDialog = new AlertDialog.Builder(this)
-		        .setTitle(title)
-		        .setNegativeButton(android.R.string.cancel, this).
-		        setMessage(message).create();
+			Builder builder = new AlertDialog.Builder(this).
+				setTitle(title).
+				setMessage(message);
+			
+			if(negativeButton != null){
+				builder.setNegativeButton(negativeButton, this);
+			}else{
+				builder.setNegativeButton(android.R.string.cancel, this);
+			}
+			
+			if(positiveButton != null){
+				builder.setPositiveButton(positiveButton, this);
+			}
+			
+			alertDialog = builder.create();
+			
 			this.alertDialog = alertDialog;
 		}else{
-			if(alertDialog.isShowing()){
+			/*if(alertDialog.isShowing()){
 				alertDialog.hide();
 			}
 			alertDialog.setTitle(title);
-			alertDialog.setMessage(message);
+			alertDialog.setMessage(message);*/
+			throw new IllegalStateException("The alert Dialog should be null");
 		}
 		
 		alertDialog.show();
+		
 	}
 	
 	@Override
