@@ -139,6 +139,16 @@ public final class ServerMessages {
 		return pincodeCancel;
 	}
 
+	public static JSONObject getRemovePairedHost(String hostAddress){
+		JSONObject toReturn = createHIDJSONObject("UNPAIR_DEVICE");
+		try{
+			toReturn.put(Main.HOST_ADDRESS, hostAddress);
+		}catch(JSONException ex){
+			
+		}
+		return toReturn;
+	}
+	
 	public static JSONObject getVersionRequest() {
 		if(versionRequest == null){
 			versionRequest = createJSONObject("VersionRequest");

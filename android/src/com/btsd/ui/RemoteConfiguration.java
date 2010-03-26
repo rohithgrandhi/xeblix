@@ -183,7 +183,7 @@ public abstract class RemoteConfiguration {
 	 * RemoteConfigurations to select new configurations or to be notified they 
 	 * have been removed. 
 	 */
-	public abstract void remoteConfigurationRefreshed(List<ButtonConfiguration> remoteConfigNames, 
+	public abstract JSONObject remoteConfigurationRefreshed(List<ButtonConfiguration> remoteConfigNames, 
 			Map<String,Object> remoteCache, CallbackActivity activity);
 	
 	/**

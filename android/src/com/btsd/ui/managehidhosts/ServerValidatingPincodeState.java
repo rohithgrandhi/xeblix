@@ -41,7 +41,7 @@ public class ServerValidatingPincodeState extends AbstractHIDRemoteState {
 		
 		if(Main.STATUS_CONNECTED.equalsIgnoreCase(status)){
 			callbackActivity.hideDialog();
-			//looks like we have a new host, need to 
+			//looks like we have a new host
 			WaitingForHIDHostsState.getInstance().transitionTo(remoteCache, 
 				remoteConfiguration, callbackActivity);
 			//forward the status to the waitingForHIDHostsState

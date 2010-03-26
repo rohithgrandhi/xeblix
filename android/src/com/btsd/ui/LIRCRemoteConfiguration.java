@@ -58,9 +58,9 @@ public final class LIRCRemoteConfiguration extends RemoteConfiguration {
 	}
 	
 	@Override
-	public void remoteConfigurationRefreshed(
+	public JSONObject remoteConfigurationRefreshed(
 			List<ButtonConfiguration> remoteConfigNames,
 			Map<String, Object> remoteCache, CallbackActivity activity) {
-		
+		return null;
 	}
 }

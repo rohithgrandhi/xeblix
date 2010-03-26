@@ -39,4 +39,9 @@
 <string name="CONNECTION_FAILED">Unable to connect to </string>
 <string name="CANCELLING_PAIR_MODE">Exiting Pair Mode </string>
 <string name="PIN_CONFIRMATION">Pin:</string>
+<string name="INVALID_PIN_REQUEST">Invalid Pin Request</string>
+<string name="INVALID_PIN_REQUEST_MSG1">The Host</string>
+<string name="INVALID_PIN_REQUEST_MSG2">is attempting to Pair with the server. This host is already paired. Click UnPair to remove the existing Pairing so that the host can be paired again.</string>
+<string name="INVALID_PIN_REQUEST_BTN1">UnPair</string>
+<string name="REMOVING_HID_HOST">UnPairing HID Host</string>
 </resources>

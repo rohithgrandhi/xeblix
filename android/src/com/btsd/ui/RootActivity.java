@@ -141,8 +141,11 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			dismissRetrievingConfigAlert = false;
 		}
 		
-		this.remoteConfiguration.remoteConfigurationRefreshed(this.configuredRemotes, 
+		JSONObject serverMessage = this.remoteConfiguration.remoteConfigurationRefreshed(this.configuredRemotes, 
 				getBTSDApplication().getRemoteCache(), this);
+		if(serverMessage != null){
+			getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+		}
 	}
 
 	private void initRootButtons(ButtonConfiguration selectedRemote) {

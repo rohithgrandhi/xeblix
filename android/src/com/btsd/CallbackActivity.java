@@ -15,6 +15,10 @@ public interface CallbackActivity {
 	
 	public void showCancelableDialog(int title, String message);
 	
+	public void showCancelableDialog(int title, int message, Integer positiveButton, Integer negativeButton);
+	
+	public void showCancelableDialog(int title, String message, Integer positiveButton, Integer negativeButton);
+	
 	/**
 	 * TODO: replace show*Dialog with a way to create dialogs that don't require
 	 * UI elements (don't want to create UI elements outside of activities)

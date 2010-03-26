@@ -40,6 +40,7 @@ public class Main extends Activity implements CallbackActivity{
 	public static final String TYPE_PINCODE_REQUEST = "PINCODE_REQUEST";
 	public static final String TYPE_PINCONFIRMATION_REQUEST = "PINCONFIRMATION_REQUEST";
 	public static final String TYPE_HID_HOST_PIN_CANCEL = "HIDHostPinCancel";
+	public static final String TYPE_INVALID_PIN_REQUEST = "InvalidPinRequest";
 	
 	public static final String RESULT_SUCCESS = "SUCCESS";
 	public static final String RESULT_FAILED = "FAILED";
@@ -321,6 +322,18 @@ public class Main extends Activity implements CallbackActivity{
 	
 	@Override
 	public void selectConfiguredRemote(String name) {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void showCancelableDialog(int title, int message,
+			Integer positiveButton, Integer negativeButton) {
+		throw new IllegalArgumentException("Implement me");
+	}
+	
+	@Override
+	public void showCancelableDialog(int title, String message,
+			Integer positiveButton, Integer negativeButton) {
 		throw new IllegalArgumentException("Implement me");
 	}
 }
