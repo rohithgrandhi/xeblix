@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import android.app.Application;
 import android.util.Log;
 
+import com.btsd.bluetooth.BluetoothAccessor;
+import com.btsd.bluetooth.BluetoothAdapter;
 import com.btsd.ui.ButtonConfiguration;
 import com.btsd.ui.RemoteConfiguration;
 import com.btsd.ui.ScreensEnum;
@@ -58,6 +60,10 @@ public class BTSDApplication extends Application {
 		if(hidHosts == null){
 			hidHosts = new ArrayList<RemoteConfiguration>();
 		}
+		
+		//for android2.0+ need to do some initialization in a thread that has 
+		//had looper.prepare called
+		BluetoothAccessor.getInstance().getBluetoothAdapter(this);
 	}
 
 	public BTScrewDriverStateMachine getStateMachine(){
