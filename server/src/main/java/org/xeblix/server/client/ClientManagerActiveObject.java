@@ -3,6 +3,7 @@ package org.xeblix.server.client;
 import java.io.IOException;
 
 import javax.bluetooth.RemoteDevice;
+import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
@@ -26,8 +27,10 @@ public class ClientManagerActiveObject extends ActiveThread {
 	}
 
 	private void handleClientRequests(ClientManagerInitMessage initMessage){
-		
-		String url = "btspp://localhost:1111;name=BTSDServer;authenticate=false;encrypt=false;master=true";
+		//java.util.UUID.fromString("0006164b-0000-1000-8000-00805f9b34fb")
+		UUID uuid = new UUID(398923l);
+		//String url = "btspp://localhost:1111;name=BTSDServer;authenticate=false;encrypt=false;master=true";
+		String url = "btspp://localhost:" + uuid.toString() + ";name=BTSDServer;authenticate=false;encrypt=false;master=true";
 		
 		System.out.println("Starting BTSD Server using URL:" + url);
 		StreamConnectionNotifier streamConnNotifier = null;
