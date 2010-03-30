@@ -2,10 +2,10 @@ package com.btsd;
 
 import it.gerdavax.android.bluetooth.BluetoothSocket;
 import it.gerdavax.android.bluetooth.LocalBluetoothDevice;
-import it.gerdavax.android.bluetooth.RemoteBluetoothDevice;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import org.json.JSONObject;
 
@@ -13,6 +13,9 @@ import android.content.Context;
 import android.os.Message;
 import android.util.Log;
 
+import com.btsd.bluetooth.BluetoothAccessor;
+import com.btsd.bluetooth.BluetoothAdapter;
+import com.btsd.bluetooth.BluetoothDevice;
 import com.btsd.util.ActiveThread;
 import com.btsd.util.MessagesEnum;
 
@@ -32,9 +35,9 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 	//will be null when the 
 	private States currentState = States.DISCONNECTED;
 	private CallbackActivity currentActivity;
-	private LocalBluetoothDevice device;
-	private RemoteBluetoothDevice remoteDevice;
-	private BTScrewDriverAlert cachedAlert;
+	private BluetoothAdapter device;
+	private BluetoothDevice remoteDevice;
+	//private BTScrewDriverAlert cachedAlert;
 	
 	private ServerWriterActiveObject serverWriter;
 	private ServerReaderActiveObject serverReader;
@@ -43,7 +46,8 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 	//00:02:72:15:9B:71 (original)
 	//00:1B:DC:00:00:3F (marco sheeva)
 	private static final String address = "00:02:72:A0:BD:E5";
-	private static final int port = 1;
+	//private static final int port = 1;
+	private static final UUID uuid = UUID.fromString("0006164b-0000-1000-8000-00805f9b34fb");
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -138,23 +142,19 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 		Log.i(TAG, "Connecting to Remote BT Device with address: " + address);
 		
 		Log.d(TAG, "Validating BluetoothState");
-		try{
-			device = LocalBluetoothDevice.initLocalDevice(context);
+		device = BluetoothAccessor.getInstance().getBluetoothAdapter(context);
 			
-			if(!device.isEnabled()){
-				currentState = States.BLUETOOTH_DISABLED;
-				return;
-			}
-			
-		}catch(Exception ex){
-			throw new RuntimeException(ex);
+		if(!device.isEnabled()){
+			currentState = States.BLUETOOTH_DISABLED;
+			return;
 		}
+			
 		
-		remoteDevice = device.getRemoteBluetoothDevice(address);
+		remoteDevice = device.getRemoteDevice(address);
 		remoteDevice.pair();
 		
 		try{
-			BluetoothSocket socket = remoteDevice.openSocket(port);
+			BluetoothSocket socket = remoteDevice.createRfcommSocketToServiceRecord(uuid);
 			InputStream input = socket.getInputStream();
 			OutputStream output = socket.getOutputStream();
 			
