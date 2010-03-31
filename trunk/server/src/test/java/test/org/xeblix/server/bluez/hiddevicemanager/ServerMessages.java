@@ -127,6 +127,16 @@ public final class ServerMessages {
 		return versionRequest;
 	}
 
+	public static JSONObject getRemovePairedHost(String hostAddress){
+		JSONObject toReturn = createHIDJSONObject("UNPAIR_DEVICE");
+		try{
+			toReturn.put(FromClientResponseMessage.HOST_ADDRESS, hostAddress);
+		}catch(JSONException ex){
+			
+		}
+		return toReturn;
+	}
+	
 	private static JSONObject createHIDJSONObject(String value){
 		JSONObject toReturn = new JSONObject();
 		try{
