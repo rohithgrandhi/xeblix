@@ -738,6 +738,79 @@ public class HIDDeviceProbationallyConnectedTest {
 		disconnectFromPairModeState(false);
 	}
 	
+	@Test
+	public void testClientMessageUnpairDevice(){
+		
+		MockActiveObject mainThread = null;
+		HIDDeviceManager deviceManager = null;
+		
+		try{
+			final ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
+			
+			mainThread = new MockActiveObject();
+			mainThread.start();
+			MockHIDFactory hidFactory = new MockHIDFactory();
+			
+			deviceManager = new HIDDeviceManager(new DBusManager(){
+				public BluezAuthenticationAgent getAgent() {return new BluezAuthenticationAgent(){
+					public String getPinCode() {return null;}
+					public void setPinCode(String pinCode) {}
+					public void Authorize(Path device, String uuid)throws Rejected, Canceled {}
+					public void Cancel() {}
+					public void ConfirmModeChange(String mode) throws Rejected,Canceled {}
+					public void DisplayPasskey(Path device, UInt32 passkey,byte entered) {}
+					public void Release() {}
+					public void RequestConfirmation(Path device, UInt32 passkey)throws Rejected, Canceled {}
+					public UInt32 RequestPasskey(Path device) throws Rejected,Canceled {return null;}
+					public String RequestPinCode(Path device) throws Rejected,Canceled {return null;}
+					public boolean isRemote() {return false;}
+				};}
+				public void registerAgent(ActiveThread mainActiveObject) {}
+				public void registerSDPRecord() {}
+				public void setDeviceDiscoverable() {}
+				public void setDeviceHidden() {}
+				public void setDeviceNotDiscoverable() {}
+				public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
+				public boolean removePairedDevice(String address) {return true;}
+				public DeviceInfo getDeviceInfo(String path) {return null;}
+			}, mainThread , hidFactory,175);
+			deviceManager.start();
+			
+			transitionViaPairMode(mainThread, deviceManager, hidFactory);
+			
+			//###################################################
+			//start with a non-existant device
+			mainThread.getMessages().clear();
+			deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
+					ServerMessages.getRemovePairedHost("invalid")));
+			
+			//probationally connected passes the buck to whichever state comes next, either connected
+			//disconencted, or pair mode, in this case nothing should happen for a total of 750ms
+			//then probationally connected will transition back to pair mode because there are 
+			//no connections.
+			try{Thread.sleep(100);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDeviceProbationallyConnectedState.getInstance(), deviceManager.getDeviceManagerState());
+			
+			
+			try{Thread.sleep(750);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(2, mainThread.getMessages().size());
+			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
+			assertEquals("{\"status\":\"PAIR_MODE\",\"type\":\"status\"}", message.getReponse());
+			message = (FromClientResponseMessage)mainThread.getMessages().get(1);
+			assertEquals("{\"value\":[{\"address\":\"12345678910\",\"connected\":false,\"name\":\"Test Host\"}]," +
+					"\"type\":\"HIDHosts\"}", message.getReponse());
+			
+		}finally{
+			HIDDeviceDisconnectTest.cleanup(mainThread, deviceManager);
+		}
+	}
+	
 	private void transitionViaPairMode(MockActiveObject mainThread,
 			HIDDeviceManager deviceManager, MockHIDFactory hidFactory) {
 		//get to the right state

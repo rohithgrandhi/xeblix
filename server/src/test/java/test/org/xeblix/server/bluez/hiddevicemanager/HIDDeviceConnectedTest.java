@@ -12,6 +12,8 @@ import java.util.List;
 
 import javax.bluetooth.L2CAPConnection;
 
+import junit.framework.Assert;
+
 import org.bluez.Error.Canceled;
 import org.bluez.Error.Rejected;
 import org.freedesktop.dbus.Path;
@@ -331,6 +333,76 @@ public class HIDDeviceConnectedTest {
 		
 	}
 	
+	@Test
+	public void testClientMessageUnpairDevice(){
+		MockActiveObject mainThread = null;
+		HIDDeviceManager deviceManager = null;
+		try{
+			
+			ArrayList<DeviceInfo> hidHosts = new ArrayList<DeviceInfo>();
+			hidHosts.add(new DeviceInfo("Test Host","12345678910",true, false));
+			hidHosts.add(new DeviceInfo("Test Host2","10987654321",true, false));
+			HashSet<String> hidHostAddresses = new HashSet<String>();
+			hidHostAddresses.add("12345678910");
+			hidHostAddresses.add("10987654321");
+			HIDDeviceDisconnectTest.saveHIDHosts(hidHostAddresses);
+			
+			mainThread = new MockActiveObject();
+			mainThread.start();
+			MockHIDFactory hidFactory = new MockHIDFactory();
+			deviceManager = createDeviceManager(mainThread, hidFactory, hidHosts);
+			
+			transitionToConenctedState(mainThread, deviceManager, hidFactory);
+			
+			//#########################################3
+			//first unpair non-existant device 
+			mainThread.getMessages().clear();
+			deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
+					ServerMessages.getRemovePairedHost("invalid")));
+			
+			try{Thread.sleep(100);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDeviceConnectedState.getInstance(), deviceManager.getDeviceManagerState());
+			assertEquals(1, mainThread.getMessages().size());
+			FromClientResponseMessage message = (FromClientResponseMessage)mainThread.getMessages().get(0);
+			assertEquals("{\"value\":[{\"address\":\"10987654321\",\"connected\":false," +
+					"\"name\":\"Test Host2\"},{\"address\":\"12345678910\",\"connected\":" +
+					"false,\"name\":\"Test Host\"}],\"type\":\"HIDHosts\"}", message.getReponse());
+			
+			//#########################################3
+			//now unpair device we are not connected to
+			mainThread.getMessages().clear();
+			deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
+					ServerMessages.getRemovePairedHost("10987654321")));
+			
+			try{Thread.sleep(75);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDeviceConnectedState.getInstance(), deviceManager.getDeviceManagerState());
+			assertEquals(1, mainThread.getMessages().size());
+			message = (FromClientResponseMessage)mainThread.getMessages().get(0);
+			assertEquals("{\"value\":[{\"address\":\"12345678910\",\"connected\":" +
+					"false,\"name\":\"Test Host\"}],\"type\":\"HIDHosts\"}", message.getReponse());
+			
+			//##########################################3
+			//now unpair device we are connected to
+			mainThread.getMessages().clear();
+			deviceManager.addMessage(new HIDFromClientMessage(mainThread, "test", 
+					ServerMessages.getRemovePairedHost("12345678910")));
+			
+			try{Thread.sleep(1150);}catch(InterruptedException ex){ex.printStackTrace();}
+			
+			assertEquals(HIDDeviceDisconnectedState.getInstance(), deviceManager.getDeviceManagerState());
+			assertEquals(2, mainThread.getMessages().size());
+			message = (FromClientResponseMessage)mainThread.getMessages().get(0);
+			assertEquals("{\"value\":[],\"type\":\"HIDHosts\"}", message.getReponse());
+			message = (FromClientResponseMessage)mainThread.getMessages().get(1);
+			assertEquals("{\"status\":\"disconnected\",\"type\":\"status\"}", message.getReponse());
+			
+		}finally{
+			HIDDeviceDisconnectTest.cleanup(mainThread, deviceManager);
+		}
+	}
+	
 	private void transitionToConenctedState(MockActiveObject mainThread,
 			HIDDeviceManager deviceManager, MockHIDFactory hidFactory) {
 		//get to the right state
@@ -405,7 +477,14 @@ public class HIDDeviceConnectedTest {
 			public void setDeviceHidden() {}
 			public void setDeviceNotDiscoverable() {}
 			public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
-			public boolean removePairedDevice(String address) {return true;}
+			public boolean removePairedDevice(String address) {
+				
+				if(hidHosts.get(0).getAddress().equalsIgnoreCase(address)){
+					hidHosts.clear();
+				}
+				
+				return true;
+			}
 			public DeviceInfo getDeviceInfo(String path) {return null;}
 		}, mainThread , hidFactory,25);
 		deviceManager.start();

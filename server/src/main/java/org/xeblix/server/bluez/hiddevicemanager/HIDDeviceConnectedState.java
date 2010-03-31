@@ -182,6 +182,7 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
 		
+		boolean updatedState = false;
 		DeviceInfo hidHost = deviceManager.getConnectedHostInfo();
 		if(hidHost.getAddress().equalsIgnoreCase(hostAddress)){
 			System.out.println("Unpairing device with address: " + 
@@ -191,7 +192,12 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 			deviceManager.updateState(HIDDeviceDisconnectedState.getInstance());
 			//give time to disconnect, then unpairHIDHost
 			try{Thread.sleep(1000);}catch(InterruptedException ex){}
+			updatedState = true;
 		}
-		HIDDeviceManagerHelper.unpairHIDHost(deviceManager, message);	
+		HIDDeviceManagerHelper.unpairHIDHost(deviceManager, message);
+		if(updatedState){
+			deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
+					HIDDeviceManagerHelper.getStatus(HIDDeviceDisconnectedState.STATUS)));
+		}
 	}
 }
