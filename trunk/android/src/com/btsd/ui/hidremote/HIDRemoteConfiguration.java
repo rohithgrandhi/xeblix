@@ -81,7 +81,10 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 		
 		try{
 			HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
-			remoteCache.put(SESSION_ID, UUID.randomUUID().toString());
+			//if we have no session create one
+			if(remoteCache.get(SESSION_ID) == null){
+				remoteCache.put(SESSION_ID, UUID.randomUUID().toString());
+			}
 			
 			String type = (String)messageFromServer.get(Main.TYPE);
 			JSONObject toReturn = null;
