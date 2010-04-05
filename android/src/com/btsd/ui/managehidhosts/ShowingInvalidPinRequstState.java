@@ -50,7 +50,7 @@ public class ShowingInvalidPinRequstState extends AbstractHIDRemoteState {
 		String message = callbackActivity.getActivity().getString(R.string.INVALID_PIN_REQUEST_MSG1);
 		
 		try{
-			//store the host_address incase the user selecs unpair
+			//store the host_address in case the user selects unpair
 			remoteCache.put(AddHIDHostConfiguration.HOST_ADDRESS_TO_UNPAIR, 
 					serverMessage.getString(Main.HOST_ADDRESS));
 			

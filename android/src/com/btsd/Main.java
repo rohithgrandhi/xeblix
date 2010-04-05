@@ -41,6 +41,7 @@ public class Main extends Activity implements CallbackActivity{
 	public static final String TYPE_PINCONFIRMATION_REQUEST = "PINCONFIRMATION_REQUEST";
 	public static final String TYPE_HID_HOST_PIN_CANCEL = "HIDHostPinCancel";
 	public static final String TYPE_INVALID_PIN_REQUEST = "InvalidPinRequest";
+	public static final String TYPE_UNPAIR_HID_HOST = "UNPAIR_HID_HOST";
 	
 	public static final String RESULT_SUCCESS = "SUCCESS";
 	public static final String RESULT_FAILED = "FAILED";

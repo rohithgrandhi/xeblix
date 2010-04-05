@@ -3,11 +3,15 @@ package com.btsd.ui.hidremote;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
 import com.btsd.CallbackActivity;
+import com.btsd.Main;
+import com.btsd.R;
+import com.btsd.ServerMessages;
 import com.btsd.ui.ButtonConfiguration;
 import com.btsd.ui.HIDRemoteState;
 import com.btsd.ui.RemoteConfiguration;
@@ -145,5 +149,20 @@ public abstract class AbstractHIDRemoteState implements HIDRemoteState {
 		
 		//this method is only called during pair mode.
 		return null;
+	}
+	
+	@Override
+	public JSONObject unpairHIDHost(Map<String, Object> remoteCache,
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage,
+			CallbackActivity callbackActivity) {
+		
+		String address = null;
+		try{
+			address = serverMessage.getString(Main.HOST_ADDRESS);
+		}catch(JSONException ex){
+			throw new RuntimeException(ex.getMessage(), ex);
+		}
+		callbackActivity.showCancelableDialog(R.string.INFO, R.string.REMOVING_HID_HOST);
+		return ServerMessages.getRemovePairedHost(address);
 	}
 }

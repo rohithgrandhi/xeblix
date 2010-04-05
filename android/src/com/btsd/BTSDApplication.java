@@ -146,6 +146,16 @@ public class BTSDApplication extends Application {
 		return toReturn;
 	}
 
+	public ArrayList<ButtonConfiguration> getHIDHostConfigurationNames(){
+		ArrayList<ButtonConfiguration> toReturn = new ArrayList<ButtonConfiguration>();
+		for(RemoteConfiguration hidRemoteConfig: this.hidHosts){
+			toReturn.add(hidRemoteConfig.getButtonConfiguration(
+				ScreensEnum.ROOT, UserInputTargetEnum.REMOTE_NAME));
+			
+		}
+		return toReturn;
+	}
+	
 	public Map<String, Object> getRemoteCache() {
 		return remoteCache;
 	}

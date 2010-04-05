@@ -44,4 +44,7 @@
 <string name="INVALID_PIN_REQUEST_MSG2">is attempting to Pair with the server. This host is already paired. Click UnPair to remove the existing Pairing so that the host can be paired again.</string>
 <string name="INVALID_PIN_REQUEST_BTN1">UnPair</string>
 <string name="REMOVING_HID_HOST">UnPairing HID Host</string>
+<string name="REMOVE_HID_HOST_TITLE">Select a HID Host to UnPair</string>
+<string name="FAILED_REMOVE_HID_HOST_TITLE">No HID Hosts to UnPair</string>
+<string name="FAILED_REMOVE_HID_HOST_BODY">There are no Paired HID Hosts to UnPair.</string>
 </resources>

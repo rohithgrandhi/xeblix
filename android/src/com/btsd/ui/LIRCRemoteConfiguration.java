@@ -3,9 +3,12 @@ package com.btsd.ui;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.btsd.CallbackActivity;
+import com.btsd.Main;
+import com.btsd.R;
 import com.btsd.ServerMessages;
 
 public final class LIRCRemoteConfiguration extends RemoteConfiguration {
@@ -47,6 +50,24 @@ public final class LIRCRemoteConfiguration extends RemoteConfiguration {
 	@Override
 	public JSONObject serverInteraction(JSONObject messageFromServer,
 			Map<String, Object> remoteCache, CallbackActivity activity) {
+		
+		String type = null;
+		try{
+			type = (String)messageFromServer.get(Main.TYPE);
+		}catch(JSONException ex){
+			throw new RuntimeException(ex.getMessage(), ex);
+		}
+		if(Main.TYPE_UNPAIR_HID_HOST.equalsIgnoreCase(type)){
+			String address = null;
+			try{
+				address = messageFromServer.getString(Main.HOST_ADDRESS);
+			}catch(JSONException ex){
+				throw new RuntimeException(ex.getMessage(), ex);
+			}
+			activity.showCancelableDialog(R.string.INFO, R.string.REMOVING_HID_HOST);
+			return ServerMessages.getRemovePairedHost(address);
+		}
+		
 		return null;
 	}
 	
@@ -61,6 +82,8 @@ public final class LIRCRemoteConfiguration extends RemoteConfiguration {
 	public JSONObject remoteConfigurationRefreshed(
 			List<ButtonConfiguration> remoteConfigNames,
 			Map<String, Object> remoteCache, CallbackActivity activity) {
+		
+		activity.hideDialog();
 		return null;
 	}
 }

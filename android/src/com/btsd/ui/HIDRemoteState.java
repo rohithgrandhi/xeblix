@@ -137,4 +137,16 @@ public interface HIDRemoteState {
 	public JSONObject invalidHidHostPinRequest(Map<String, Object> remoteCache, 
 			RemoteConfiguration remoteConfiguration, JSONObject serverMessage, 
 			CallbackActivity callbackActivity);
+	
+	/**
+	 * Called when the user selects a HID Host to remove.
+	 * @param remoteCache
+	 * @param remoteConfiguration
+	 * @param hidHostAddress
+	 * @param callbackActivity
+	 * @return
+	 */
+	public JSONObject unpairHIDHost(Map<String, Object> remoteCache, 
+			RemoteConfiguration remoteConfiguration, JSONObject serverMessage, 
+			CallbackActivity callbackActivity);
 }
