@@ -27,6 +27,7 @@ import com.btsd.BTSDApplication;
 import com.btsd.Main;
 import com.btsd.R;
 import com.btsd.ServerMessages;
+import com.btsd.ui.hidremote.HIDRemoteConfiguration;
 import com.btsd.util.MessagesEnum;
 
 public class RootActivity extends AbstractRemoteActivity implements DialogInterface.OnClickListener{
@@ -49,7 +50,8 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	private RemoteConfiguration remoteConfiguration;
 	private String remoteName;
 	private AlertDialog menuDialog;
-	private int selectedMenu;
+	private AlertDialog removeHIDHostDialog;
+	private int selectedDialogItem;
 	
 	private int selectedRemoteIndex = 0;
 	private List<ButtonConfiguration> configuredRemotes;
@@ -266,7 +268,7 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 						new CharSequence[menusToDisplay.size()]);
 				
 				//default is the first item in the menu list
-				selectedMenu = 0;;
+				selectedDialogItem = 0;;
 				
 				menuDialog = new AlertDialog.Builder(this)
 			        .setTitle(R.string.MENU_DIALOG_TITLE)
@@ -385,14 +387,46 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 				
 				List<ButtonConfiguration> menus =  remoteConfiguration.getButtonConfigurations(ScreensEnum.ROOT, 
 						UserInputTargetEnum.ROOT_MENU);
-				ButtonConfiguration buttonConfig = menus.get(selectedMenu);
+				ButtonConfiguration buttonConfig = menus.get(selectedDialogItem);
 				JSONObject serverMessage = remoteConfiguration.getCommand(buttonConfig, 
 						getBTSDApplication().getRemoteCache(), this);
 				getBTSDApplication().getStateMachine().messageToServer(serverMessage);
 			}else{
 				//user just selected an option
-				selectedMenu = which;
+				selectedDialogItem = which;
 			}
+		}else if(dialog == removeHIDHostDialog){
+			
+			if(which == DialogInterface.BUTTON1){
+				
+				Log.i(getClass().getSimpleName(), "Removing HID Host at index: " + 
+						selectedDialogItem);
+				ArrayList<ButtonConfiguration> hidHostNames = getBTSDApplication().
+					getHIDHostConfigurationNames();
+				ButtonConfiguration selectedRemote = hidHostNames.get(selectedDialogItem);
+				HIDRemoteConfiguration hidRemoteConfig =  (HIDRemoteConfiguration)getBTSDApplication().
+				 	getRemoteConfiguration(selectedRemote.getCommand().toString());
+				
+				JSONObject serverJSONMessage = new JSONObject();
+				try{
+					serverJSONMessage.put(Main.TYPE, Main.TYPE_UNPAIR_HID_HOST);
+					serverJSONMessage.put(Main.HOST_ADDRESS, hidRemoteConfig.getHostAddress());
+					serverJSONMessage.put(Main.HOST_NAME, hidRemoteConfig.getName());
+				}catch(JSONException ex){
+					throw new RuntimeException(ex.getMessage(), ex);
+				}
+				
+				JSONObject serverMessage =  remoteConfiguration.
+					serverInteraction(serverJSONMessage, 
+					getBTSDApplication().getRemoteCache(), this);
+				if(serverMessage != null){
+					getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+				}
+			}else{
+				//user just selected an option
+				selectedDialogItem = which;
+			}
+			
 		}else if(dialog == alertDialog){
 			JSONObject serverMessage = remoteConfiguration.alertClicked(which, getBTSDApplication().getRemoteCache(), 
 				this);
@@ -453,10 +487,41 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			enterPairMode();
 			break;
 		case REMOVE_HID_HOST_ID:
+			removeHIDHostDialog();
 			break;
 		}
 		
 		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	private void removeHIDHostDialog(){
+		
+		ArrayList<CharSequence> hidHostsToDisplay = new ArrayList<CharSequence>();
+		for(ButtonConfiguration menuConfig: getBTSDApplication().getHIDHostConfigurationNames()){
+			hidHostsToDisplay.add(menuConfig.getLabel());
+		}
+		
+		if(!hidHostsToDisplay.isEmpty()){
+		
+			CharSequence[] hidHostsToDisplayArray = hidHostsToDisplay.toArray(
+					new CharSequence[hidHostsToDisplay.size()]);
+			
+			//default is the first item in the menu list
+			selectedDialogItem = 0;
+			
+			removeHIDHostDialog = new AlertDialog.Builder(this)
+		        .setTitle(R.string.REMOVE_HID_HOST_TITLE)
+		        .setPositiveButton(android.R.string.ok, this)
+		        .setNegativeButton(android.R.string.cancel, null).
+		        setSingleChoiceItems(hidHostsToDisplayArray,
+		                0, this).create();
+			removeHIDHostDialog.show();
+		}else{
+			//don't have any hid hosts to remove
+			showCancelableDialog(R.string.FAILED_REMOVE_HID_HOST_TITLE, 
+				R.string.FAILED_REMOVE_HID_HOST_BODY);
+		}
+		
 	}
 	
 	private void enterPairMode(){

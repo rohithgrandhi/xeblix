@@ -110,6 +110,8 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 				toReturn = hidState.hidHostPincodeCancel(remoteCache, this, messageFromServer, activity);
 			}else if(Main.TYPE_INVALID_PIN_REQUEST.equalsIgnoreCase(type)){
 				toReturn = hidState.invalidHidHostPinRequest(remoteCache, this,messageFromServer, activity);
+			}else if(Main.TYPE_UNPAIR_HID_HOST.equalsIgnoreCase(type)){
+				toReturn = hidState.unpairHIDHost(remoteCache, this, messageFromServer, activity);
 			}else{
 				throw new IllegalArgumentException("Unexpected message type: " + type);
 			}
