@@ -417,12 +417,17 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 					getBTSDApplication().updateRemoteConfiguration(serverJSONMessage);
 					getRemoteConfiguration(false);
 				}else{
-					JSONObject serverMessage =  remoteConfiguration.
-						serverInteraction(serverJSONMessage, 
-						getBTSDApplication().getRemoteCache(), this);
-					if(serverMessage != null){
-						getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+					//if remoteConfiguration is null then have not gotten remote configuration
+					//yet and the message should be ignored. 
+					if(remoteConfiguration != null){
+						JSONObject serverMessage =  remoteConfiguration.
+							serverInteraction(serverJSONMessage, 
+							getBTSDApplication().getRemoteCache(), this);
+						if(serverMessage != null){
+							getBTSDApplication().getStateMachine().messageToServer(serverMessage);
+						}
 					}
+					
 				}
 			}catch(JSONException ex){
 				throw new RuntimeException(ex);
