@@ -39,11 +39,9 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	
 	private boolean[] textViewStates = new boolean[]{true, true, true, true, 
 			true, true, true, true, true, true};
+	private boolean buttonsRefreshed = false;
 	private int[][] textViewsLocations = new int[10][4];
 	private final TextView[] textViews = new TextView[10];
-	//this is used to figure out when to calculate textview locations, don't
-	//want to calculate if we simply lost focus due to popup or lock screen
-	private boolean onResumeCalled = false;
 	private boolean dismissRetrievingConfigAlert = false;
 	private Vibrator vibrator = null;
 	private TextView selectedTextView = null;
@@ -59,32 +57,19 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	private final static int ADD_HID_HOST_ID = Menu.FIRST;
 	private final static int REMOVE_HID_HOST_ID = Menu.FIRST + 1;
 	
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		
-		if(hasFocus && onResumeCalled){
-			for(int i=0; i < textViews.length; i++){
-				int[] xy = new int[2];
-				textViews[i].getLocationOnScreen(xy);
-				textViewsLocations[i][0] = xy[0];
-				textViewsLocations[i][1] = xy[1];
-				textViewsLocations[i][2] = xy[0] + textViews[i].getWidth();
-				textViewsLocations[i][3] = xy[1] + textViews[i].getHeight();
-				
-				/*Log.i(TAG, "TextView: " + i + " x:" + textViewsLocations[i][0] + " y:" + 
-						textViewsLocations[i][1] + " x+w:" + textViewsLocations[i][2] + 
-						" y+h: " + textViewsLocations[i][3]);*/
-			}
-			onResumeCalled = false;
+	private void refreshTextViewLocations() {
+		for(int i=0; i < textViews.length; i++){
+			int[] xy = new int[2];
+			textViews[i].getLocationOnScreen(xy);
+			textViewsLocations[i][0] = xy[0];
+			textViewsLocations[i][1] = xy[1];
+			textViewsLocations[i][2] = xy[0] + textViews[i].getWidth();
+			textViewsLocations[i][3] = xy[1] + textViews[i].getHeight();
+			
+			/*Log.i(TAG, "TextView: " + i + " x:" + textViewsLocations[i][0] + " y:" + 
+					textViewsLocations[i][1] + " x+w:" + textViewsLocations[i][2] + 
+					" y+h: " + textViewsLocations[i][3]);*/
 		}
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		onResumeCalled = true;
 	}
 	
 	@Override
@@ -177,7 +162,11 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			//no optional button defined so set its gravity to 0
 			textViews[8].setLayoutParams(new LayoutParams(
 					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 0));
+		}else{
+			textViews[8].setLayoutParams(new LayoutParams(
+					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
 		}
+		buttonsRefreshed = true;
 	}
 	
 	private void setRootButtonText(UserInputTargetEnum targetEnum, RemoteConfiguration remoteConfig,
@@ -305,9 +294,10 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			intent.putExtra(ScreenBundleKey, ScreensEnum.NUMERIC.getName());
 			startActivity(intent);
 		}else if(v.getId() == R.id.RootTarget10){
-			Intent intent = new Intent("com.btsd.GestureScreenActivity");
+			ButtonConfiguration buttonConfig = remoteConfiguration.getButtonConfiguration(
+				ScreensEnum.ROOT, UserInputTargetEnum.ROOT_FREE);
+			Intent intent = new Intent(buttonConfig.getCommand().toString());
 			intent.putExtra(RemoteConfigurationBundleKey, this.remoteName);
-			intent.putExtra(ScreenBundleKey, ScreensEnum.OPTIONAL.getName());
 			startActivity(intent);
 		}
 		
@@ -323,13 +313,20 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 	public boolean onTouchEvent(MotionEvent event) {
 		Log.e(TAG, "onTouchEvent:" + event.getAction());
 		
+		//check if the initRootButtons method has been called. If so then we
+		//need to refresh the textViewLocations
+		if(buttonsRefreshed){
+			buttonsRefreshed = false;
+			refreshTextViewLocations();
+		}
+		
 		final float x = event.getX();
 		final float y = event.getY();
 		
 		//Log.i(TAG, "me x:" + x + " y: " + y);
 		final TextView selectedTextView = this.selectedTextView;
 		TextView textView = null;
-		boolean enabled = true; 
+		boolean enabled = false; 
 		
 		for(int i=0; i < textViewsLocations.length; i++){
 			if( (x >= textViewsLocations[i][0] && x < textViewsLocations[i][2]) && 

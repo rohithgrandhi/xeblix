@@ -48,6 +48,12 @@ public final class LIRCRemoteConfiguration extends RemoteConfiguration {
 	}
 	
 	@Override
+	public JSONObject validateState(Map<String, Object> remoteCache,
+			CallbackActivity activity) {
+		return null;
+	}
+	
+	@Override
 	public JSONObject serverInteraction(JSONObject messageFromServer,
 			Map<String, Object> remoteCache, CallbackActivity activity) {
 		

@@ -67,7 +67,7 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 		return toReturn;
 	}
 	
-	private JSONObject validateState(Map<String, Object> remoteCache, 
+	public JSONObject validateState(Map<String, Object> remoteCache, 
 			CallbackActivity activity){
 		
 		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);

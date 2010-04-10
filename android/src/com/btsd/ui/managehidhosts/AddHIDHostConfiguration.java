@@ -26,6 +26,14 @@ public final class AddHIDHostConfiguration extends RemoteConfiguration {
 	public static final String HOST_ADDRESS_TO_UNPAIR = "HOST_ADDRESS_TO_UNPAIR";
 	
 	@Override
+	public JSONObject validateState(Map<String, Object> remoteCache,
+			CallbackActivity activity) {
+		
+		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
+		return hidState.validateState(remoteCache, this, activity);
+	}
+	
+	@Override
 	public JSONObject alertClicked(int which, Map<String, Object> remoteCache,
 			CallbackActivity activity) {
 		
