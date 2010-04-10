@@ -62,42 +62,64 @@ public class BTHIDWriterActiveObject extends ActiveThread {
 		for(int i=0; i < length; i++){
 			commands[i] = new Integer(arguments.getString(i)).byteValue() ;
 		}
+		
 		try{
 			
-			/*if(arguments[2].equals("4")){
+			/*if(arguments.getString(1).equals("4")){
 				System.out.println("blah0");
 				connection.send(new byte[]{ 
-						(new Integer(0xa1)).byteValue(), //a1 01 == Collection (Application)
+						(new Integer(0xa1)).byteValue(), //a1 02 == Collection (Application)
 						(new Integer(0x02)).byteValue(), 
 						(new Integer(0x02)).byteValue(), //buttons - 0x01 - left, 0x02 - right, 0x04 - middle, 0x08 - side, 0x10 - extra
 						(new Integer(0x00)).byteValue(), //move x
 						(new Integer(0x00)).byteValue(), //move y
 						(new Integer(0x00)).byteValue()}); //wheel
 				
-			}else{
-			*/connection.send(new byte[]{ 
+			}else{*/
+			
+			//the modifiers are simply integers indicating what position to shift 
+			//a "1" into
+			JSONArray modifiers = clientArguments.getJSONArray(
+					FromClientResponseMessage.KEY_MODIFIERS_DOWN);
+			int modifiersFlag = 0;
+			for(int i=0; i < modifiers.length(); i++){
+				modifiersFlag += 1 << new Integer(modifiers.getInt(i));
+			}
+			
+			byte[]  data1 = new byte[]{
 					(new Integer(0xa1)).byteValue(), //a1 01 == Collection (Application)
 					(new Integer(0x01)).byteValue(), 
-					(new Integer(0x00)).byteValue(), //modifiers
+					(new Integer(modifiersFlag)).byteValue(), //modifiers
 					(new Integer(0x00)).byteValue(), //reserve byte
 					commands[0],
 					commands[1],
 					commands[2],
 					commands[3],
 					commands[4],
-					commands[5]});
+					commands[5]};
+					
+			modifiers = clientArguments.getJSONArray(
+					FromClientResponseMessage.KEY_MODIFIERS_UP);
+			modifiersFlag = 0;
+			for(int i=0; i < modifiers.length(); i++){
+				modifiersFlag += 1 << new Integer(modifiers.getInt(i));
+			}
 			
-			connection.send(new byte[]{ 
+			byte[] data2 = new byte[]{
 					(new Integer(0xa1)).byteValue(), 
 					(new Integer(0x01)).byteValue(),
+					(new Integer(modifiersFlag)).byteValue(), //modifiers
 					(new Integer(0x00)).byteValue(),
 					(new Integer(0x00)).byteValue(),
 					(new Integer(0x00)).byteValue(),
 					(new Integer(0x00)).byteValue(),
 					(new Integer(0x00)).byteValue(),
 					(new Integer(0x00)).byteValue(),
-					(new Integer(0x00)).byteValue(),
-					(new Integer(0x00)).byteValue()});
+					(new Integer(0x00)).byteValue()};
+			
+				connection.send(data1);
+				connection.send(data2);
+				
 			//}
 			
 			JSONObject response = new JSONObject();
