@@ -60,7 +60,7 @@ public class MCEActivity extends AbstractRemoteActivity {
 		Log.e(TAG, "id: " + id + " onClick date: " + new Date());
 		
 		Button button = (Button)v;
-		List<Integer> commands = new ArrayList<Integer>(3);
+		ArrayList<Integer> commands = new ArrayList<Integer>(3);
 		switch (button.getId()) {
 		case R.id.mceBack:
 			commands.add(getKeycode(KeyEvent.KEYCODE_DEL));

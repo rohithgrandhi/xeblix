@@ -47,4 +47,11 @@
 <string name="REMOVE_HID_HOST_TITLE">Select a HID Host to UnPair</string>
 <string name="FAILED_REMOVE_HID_HOST_TITLE">No HID Hosts to UnPair</string>
 <string name="FAILED_REMOVE_HID_HOST_BODY">There are no Paired HID Hosts to UnPair.</string>
+<string name="WINDOWS_KEY_LABEL">Win</string>
+<string name="ESCAPE_KEY_LABEL">Esc</string>
+<string name="TAB_KEY_LABEL">Tab</string>
+<string name="WINDOWS_KEY_LOCK_LABEL">Win Lock</string>
+<string name="ALT_KEY_LOCK_LABEL">Alt Lock</string>
+<string name="CTRL_KEY_LOCK_LABEL">CTRL Lock</string>
+<string name="BACKSPACE_KEY_LABEL">Backspace</string>
 </resources>

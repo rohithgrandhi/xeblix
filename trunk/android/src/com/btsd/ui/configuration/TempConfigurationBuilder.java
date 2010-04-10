@@ -142,6 +142,8 @@ public final class TempConfigurationBuilder {
 		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,UserInputTargetEnum.ROOT_MENU, 
 				new int[]{getKeycode(BluetoothHIDActivity.CONTROL_LEFT),getKeycode(KeyEvent.KEYCODE_I)}, 
 				"My Pictures"));
+		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT, UserInputTargetEnum.ROOT_FREE, 
+				"com.btsd.ui.KeyboardActivity", "Keyboard/Mouse"));
 		
 		//Gesture Screen Direction
 		toReturn.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.DIRECTION,UserInputTargetEnum.GESTURE_SCREEN_1, 

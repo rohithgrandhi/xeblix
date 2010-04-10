@@ -1,12 +1,10 @@
 package com.btsd;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.util.Log;
 
 public final class ServerMessages {
 
@@ -47,18 +45,31 @@ public final class ServerMessages {
 	}
 	
 	public static JSONObject getKeyCode(Integer keyCode){
-		JSONObject toReturn = createHIDJSONObject("KEYCODE");
-		try{
-			JSONArray keyCodesArray = new JSONArray();
-			keyCodesArray.put(keyCode);
-			toReturn.put(Main.KEY_CODES, keyCodesArray);
-		}catch(JSONException ex){
-			throw new RuntimeException(ex.getMessage(), ex);
-		}
-		return toReturn;
+		
+		ArrayList<Integer> keyCodes = new ArrayList<Integer>();
+		keyCodes.add(keyCode);
+		return getKeycodes(keyCodes, null, null);
 	}
 	
-	public static JSONObject getKeycodes(List<Integer> keycodes){
+	public static JSONObject getKeyCode(Integer keyCode,
+		ArrayList<Integer> keyModifiersDown,ArrayList<Integer> keyModifiersUp){
+		
+		ArrayList<Integer> keyCodes = new ArrayList<Integer>();
+		keyCodes.add(keyCode);
+		return getKeycodes(keyCodes, keyModifiersDown, keyModifiersUp);
+	}
+	
+	
+	public static JSONObject getKeycodes(ArrayList<Integer> keycodes){
+		
+		return getKeycodes(keycodes, null, null);
+		
+		
+	}
+	
+	public static JSONObject getKeycodes(ArrayList<Integer> keycodes, 
+		ArrayList<Integer> keyModifiersDown, ArrayList<Integer> keyModifiersUp){
+		
 		JSONObject toReturn = createHIDJSONObject("KEYCODE");
 		try{
 			JSONArray keyCodesArray = new JSONArray();
@@ -66,6 +77,22 @@ public final class ServerMessages {
 				keyCodesArray.put(keyCode);
 			}
 			toReturn.put(Main.KEY_CODES, keyCodesArray);
+			JSONArray keyModifiersArray = new JSONArray();
+			if(keyModifiersDown != null){
+				for(Integer modifier: keyModifiersDown){
+					keyModifiersArray.put(modifier);
+				}
+			}
+			toReturn.put(Main.KEY_MODIFIERS_DOWN, keyModifiersArray);
+			
+			keyModifiersArray = new JSONArray();
+			if(keyModifiersUp != null){
+				for(Integer modifier: keyModifiersUp){
+					keyModifiersArray.put(modifier);
+				}
+			}
+			toReturn.put(Main.KEY_MODIFIERS_UP, keyModifiersArray);
+			
 		}catch(JSONException ex){
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
@@ -73,17 +100,23 @@ public final class ServerMessages {
 	}
 	
 	public static JSONObject getKeycodes(int[] keycodes){
-		JSONObject toReturn = createHIDJSONObject("KEYCODE");
-		try{
-			JSONArray keyCodesArray = new JSONArray();
-			for(Integer keyCode: keycodes){
-				keyCodesArray.put(keyCode);
-			}
-			toReturn.put(Main.KEY_CODES, keyCodesArray);
-		}catch(JSONException ex){
-			throw new RuntimeException(ex.getMessage(), ex);
+		
+		ArrayList<Integer> keyCodes = new ArrayList<Integer>();
+		for(int keycode: keycodes){
+			keyCodes.add(keycode);
 		}
-		return toReturn;
+		return getKeycodes(keyCodes, null, null);
+	}
+	
+	public static JSONObject getKeycodes(int[] keycodes,
+		ArrayList<Integer> keyModifiersDown, ArrayList<Integer> keyModifiersUp){
+		
+		ArrayList<Integer> keyCodes = new ArrayList<Integer>();
+		for(int keycode: keycodes){
+			keyCodes.add(keycode);
+		}
+		return getKeycodes(keyCodes, keyModifiersDown, keyModifiersUp);
+		
 	}
 	
 	public static JSONObject getLIRCCommand(String remote, String command, 

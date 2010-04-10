@@ -12,8 +12,6 @@ import org.json.JSONObject;
 
 import com.btsd.CallbackActivity;
 
-import android.app.Activity;
-
 public abstract class RemoteConfiguration {
 
 	private Map<String, ButtonConfiguration> singleAssignmentMap;
@@ -183,8 +181,8 @@ public abstract class RemoteConfiguration {
 	 * RemoteConfigurations to select new configurations or to be notified they 
 	 * have been removed. 
 	 */
-	public abstract JSONObject remoteConfigurationRefreshed(List<ButtonConfiguration> remoteConfigNames, 
-			Map<String,Object> remoteCache, CallbackActivity activity);
+	public abstract JSONObject remoteConfigurationRefreshed(List<ButtonConfiguration> 
+		remoteConfigNames, Map<String,Object> remoteCache, CallbackActivity activity);
 	
 	/**
 	 * Callback method that is invoked when a user cancels an alert dialog this RemoteConfiguration
@@ -192,5 +190,15 @@ public abstract class RemoteConfiguration {
 	 * @param remoteCache
 	 * @param activity
 	 */
-	public abstract JSONObject alertClicked(int button, Map<String,Object> remoteCache, CallbackActivity activity) ;
+	public abstract JSONObject alertClicked(int button, Map<String,Object> remoteCache, 
+			CallbackActivity activity) ;
+	
+	/**
+	 * Validates the underlying RemoteConfiguration's state and returns a message to 
+	 * send to the server or null if no message is neccessary.
+	 * @return
+	 */
+	public abstract JSONObject validateState(Map<String,Object> remoteCache, 
+			
+			CallbackActivity activity); 
 }

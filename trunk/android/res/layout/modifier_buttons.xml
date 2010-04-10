@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/LinearLayout01"
+	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<LinearLayout
+		android:id="@+id/btn_win"
+		android:layout_width="0dip"
+  		android:layout_weight="1"
+  		android:layout_height="fill_parent"
+  		android:background="@android:color/transparent"
+  		android:clickable="false"
+  		android:focusable="false"
+  		android:orientation="vertical">
+  		
+  		 <ImageView
+            android:id="@+id/img_win"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:src="@drawable/modifier_windows_off"
+            android:scaleType="center"
+            />
+
+        <ImageView
+            android:id="@+id/ind_win"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/modifier_ind_off_l"
+            android:scaleType="fitXY"
+            />
+  		
+  	</LinearLayout>
+	
+	 <ImageView
+		android:layout_width="1dip"
+		android:layout_height="fill_parent"
+		android:background="@drawable/modifier_divider"
+	/>
+	
+	<LinearLayout
+		android:id="@+id/btn_alt"
+		android:layout_width="0dip"
+  		android:layout_weight="1"
+  		android:layout_height="fill_parent"
+  		android:background="@android:color/transparent"
+  		android:clickable="false"
+  		android:focusable="false"
+  		android:orientation="vertical">
+
+  		 <ImageView
+            android:id="@+id/img_alt"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:src="@drawable/modifier_alt_off"
+            android:scaleType="center"
+            />
+
+        <ImageView
+            android:id="@+id/ind_alt"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/modifier_ind_off_c"
+            android:scaleType="fitXY"
+            />
+  		
+  	</LinearLayout>
+	
+	 <ImageView
+		android:layout_width="1dip"
+		android:layout_height="fill_parent"
+		android:background="@drawable/modifier_divider"
+	/>
+	
+	<LinearLayout
+		android:id="@+id/btn_ctrl"
+		android:layout_width="0dip"
+  		android:layout_weight="1"
+  		android:layout_height="fill_parent"
+  		android:background="@android:color/transparent"
+  		android:clickable="false"
+  		android:focusable="false"
+  		android:orientation="vertical">
+  		
+  		 <ImageView
+            android:id="@+id/img_ctrl"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:src="@drawable/modifier_ctrl_off"
+            android:scaleType="center"
+            />
+
+        <ImageView
+            android:id="@+id/ind_ctrl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/modifier_ind_off_r"
+            android:scaleType="fitXY"
+            />
+  		
+  	</LinearLayout>
+
+	
+</LinearLayout>
