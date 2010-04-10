@@ -12,8 +12,6 @@ import java.util.List;
 
 import javax.bluetooth.L2CAPConnection;
 
-import junit.framework.Assert;
-
 import org.bluez.Error.Canceled;
 import org.bluez.Error.Rejected;
 import org.freedesktop.dbus.Path;
@@ -38,6 +36,18 @@ import org.xeblix.server.util.ActiveThread;
 
 public class HIDDeviceConnectedTest {
 
+	@Test
+	public void testBlah(){
+		assertTrue(true);
+		
+		int blah = 0;
+		blah += 1 << 1;
+		blah += 1 << 3;
+		
+		System.out.println(Integer.toBinaryString(blah));
+		
+	}
+	
 	@Test
 	public void testHIDDeviceConnectedState(){
 		

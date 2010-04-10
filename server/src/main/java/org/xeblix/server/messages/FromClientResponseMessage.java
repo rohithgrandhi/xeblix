@@ -16,6 +16,8 @@ public class FromClientResponseMessage implements Message {
 	public static final String HOST_ADDRESS = "address";
 	public static final String HOST_NAME = "hostName";
 	public static final String KEY_CODES = "keycodes";
+	public static final String KEY_MODIFIERS_DOWN = "keymodifiersdown";
+	public static final String KEY_MODIFIERS_UP = "keymodifiersup";
 	public static final String PINCODE = "pincode";
 	public static final String REMOTE = "remote";
 	public static final String SEND_COUNT = "count";
