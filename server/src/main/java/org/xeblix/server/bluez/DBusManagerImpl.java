@@ -552,24 +552,11 @@ public final class DBusManagerImpl implements DBusManager{
 			throw new RuntimeException(ex);
 		}
 		
-		setDeviceHidden();
+		//device will always be discoverable for now
+		setDeviceDiscoverable();
+		//setDeviceNotDiscoverable();
 	}
 
-	public void setDeviceHidden(){
-		//set mode to undiscoverable
-		Path adaptorLocation = manager.DefaultAdapter();
-		try {
-			Adapter adapter = conn.getRemoteObject("org.bluez", adaptorLocation
-					.getPath(), Adapter.class);
-			adapter.SetProperty(DBusProperties.getPropertyName(Adapter.Properties.Discoverable), 
-					new Variant<Boolean>(Boolean.FALSE));
-		} catch (DBusException ex) {
-			ex.printStackTrace();
-			throw new RuntimeException(ex);
-		}
-		System.out.println("Adapter is now set to hidden. Hosts will be unable to discover this device.");
-	}
-	
 	public List<DeviceInfo> listDevices(){
 		Path adaptorLocation = manager.DefaultAdapter();
 		List<DeviceInfo> toReturn = new ArrayList<DeviceInfo>();

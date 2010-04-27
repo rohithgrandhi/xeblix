@@ -130,7 +130,8 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 		controlHIDSocketActiveObject.addMessage(new HIDConnectionInitMessage(deviceManager, 11, HIDDeviceManager.CONTROL_UUID));
 		deviceManager.setControlHIDSocketActiveObject(controlHIDSocketActiveObject);
 		
-		deviceManager.getDbusManager().setDeviceDiscoverable();
+		//for now device will always be discoverable
+		//deviceManager.getDbusManager().setDeviceDiscoverable();
 		
 		//send a status changed to all clients
 		deviceManager.getBtsdActiveObject().addMessage(new FromClientResponseMessage(
@@ -219,8 +220,8 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 	public void validatePinRequest(HIDDeviceManager deviceManager,
 			PinRequestMessage pinRequestMessage) {
 		
-		//ignore the message
-		HIDDeviceManagerHelper.ignoringMessage(pinRequestMessage, this);
+		//send default response
+		deviceManager.getDbusManager().getAgent().setDefaultPinCode();
 		
 	}
 	

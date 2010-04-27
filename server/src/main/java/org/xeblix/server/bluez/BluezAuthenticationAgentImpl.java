@@ -11,6 +11,9 @@ import org.xeblix.server.util.ActiveThread;
 
 public final class BluezAuthenticationAgentImpl implements BluezAuthenticationAgent {
 
+	//TODO: replace with value retrieved from config file
+	private static final String DEFAULT_PIN_CODE = "0000";
+	
 	private final Semaphore available = new Semaphore(0, true);
 	private ActiveThread mainActiveObject = null;
 	private String pinCode;
@@ -107,5 +110,9 @@ public final class BluezAuthenticationAgentImpl implements BluezAuthenticationAg
 		this.available.release();
 	}
 
+	public void setDefaultPinCode() {
+		this.pinCode = DEFAULT_PIN_CODE;
+		this.available.release();
+	}
 	
 }
