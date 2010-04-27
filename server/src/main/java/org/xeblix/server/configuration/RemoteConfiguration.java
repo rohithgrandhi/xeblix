@@ -13,7 +13,7 @@ public class RemoteConfiguration {
 	private final RemoteConfigurationContainer configContainer;
 	
 	private RemoteConfiguration(){
-		this.configContainer = new RemoteConfigurationContainer();
+		this.configContainer = new RemoteConfigurationContainer("Xeblix");
 	}
 	
 	/**
