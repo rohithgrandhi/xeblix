@@ -132,7 +132,7 @@ public final class DBusManagerImpl implements DBusManager{
 			// keyboard+mouse=0xc0)
 			//Note: when set to c0 most keys worked except "windows key" (hid keycode 227)
 			"<attribute id=\"0x0202\">"
-			+ "<uint8 value=\"0x40\" />"
+			+ "<uint8 value=\"0xc0\" />"
 			+ "</attribute>"
 			+
 			/*"<attribute id=\"0x0202\">"
@@ -181,6 +181,7 @@ public final class DBusManagerImpl implements DBusManager{
 			+ "</attribute>"
 			+
 			/*
+			 * 05010906a101850175019508050719e029e715002501810295017508810395057501050819012905910295017503910395067508150026ff000507190029ff8100c0
 				05 01 Usage Page (Generic Desktop),
 				09 06 Usage (Keyboard),
 				A1 01 Collection (Application),
