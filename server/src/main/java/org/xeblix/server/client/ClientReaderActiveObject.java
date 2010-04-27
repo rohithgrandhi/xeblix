@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.xeblix.server.bluez.hiddevicemanager.HIDDeviceManagerHelper;
 import org.xeblix.server.messages.ClientDisconnectMessage;
 import org.xeblix.server.messages.ClientInitMessage;
+import org.xeblix.server.messages.ConfigFromClientMessage;
 import org.xeblix.server.messages.FromClientResponseMessage;
 import org.xeblix.server.messages.HIDFromClientMessage;
 import org.xeblix.server.messages.LIRCFromClientMessage;
@@ -129,6 +130,16 @@ public class ClientReaderActiveObject extends ActiveThread {
 					btsdActiveObject.addMessage(new FromClientResponseMessage(
 							this.remoteDeviceAddress, HIDDeviceManagerHelper.getUnrecognizedCommand()));
 				}
+			}else if("ConfigCommand".equalsIgnoreCase(clientString.getString(FromClientResponseMessage.TYPE))){
+				
+				try{
+					btsdActiveObject.addMessage(new ConfigFromClientMessage(btsdActiveObject,
+						this.remoteDeviceAddress));
+				}catch(IllegalArgumentException ex){
+					btsdActiveObject.addMessage(new FromClientResponseMessage(
+							this.remoteDeviceAddress, HIDDeviceManagerHelper.getUnrecognizedCommand()));
+				}
+				
 			}else{
 				System.out.println("Invalid client request. Ignoring");
 				btsdActiveObject.addMessage(new FromClientResponseMessage(
@@ -142,7 +153,8 @@ public class ClientReaderActiveObject extends ActiveThread {
 	public static enum ClientTargetsEnum{
 		
 		LIRC("LIRC"),
-		HID("HID");
+		HID("HID"),
+		CONFIGURATION("CONFIG");
 		
 		private String name;
 		

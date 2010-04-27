@@ -65,8 +65,8 @@ public class BTHIDWriterActiveObject extends ActiveThread {
 		
 		try{
 			
-			/*if(arguments.getString(1).equals("4")){
-				System.out.println("blah0");
+			/*if(arguments.length() == 1 && arguments.getString(0).equals("4")){
+				System.out.println("\nblah0\n");
 				connection.send(new byte[]{ 
 						(new Integer(0xa1)).byteValue(), //a1 02 == Collection (Application)
 						(new Integer(0x02)).byteValue(), 
