@@ -14,8 +14,8 @@ Right now my client is hard coded to connect to a Xeblix server, need a way to s
 *~~Use bluez APIs to get HID Hosts~~ *
 ~~ Bluez can return lists of Paired bluetooth devices, use this instead of relying on a serialized list of HID Hosts. ~~ Complete
 
-*Move remote configuration to Server and JSON format*
-Right now configuration is in code on the client, move to server and parse from file. Use JSON format in file.
+*~~Move remote configuration to Server and JSON format~~ *
+~~ Right now configuration is in code on the client, move to server and parse from file. Use JSON format in file. ~~ Complete
 
-*Add Keyboard/Mouse Activity*
-Need to port over the old BluetoohHIDActivity to the new UI. Need to add ability to specify an intent in the RemoteConfiguration.
+*~~Add Keyboard/Mouse Activity~~ *
+~~ Need to port over the old BluetoohHIDActivity to the new UI. Need to add ability to specify an intent in the RemoteConfiguration. ~~ Complete
