@@ -641,6 +641,7 @@ public class HIDDeviceProbationallyConnectedTest {
 					public void RequestConfirmation(Path device, UInt32 passkey)throws Rejected, Canceled {}
 					public UInt32 RequestPasskey(Path device) throws Rejected,Canceled {return null;}
 					public String RequestPinCode(Path device) throws Rejected,Canceled {return null;}
+					public void setDefaultPinCode() {}
 					public boolean isRemote() {return false;}
 				};}
 				public void registerAgent(ActiveThread mainActiveObject) {}
@@ -767,6 +768,7 @@ public class HIDDeviceProbationallyConnectedTest {
 					public void RequestConfirmation(Path device, UInt32 passkey)throws Rejected, Canceled {}
 					public UInt32 RequestPasskey(Path device) throws Rejected,Canceled {return null;}
 					public String RequestPinCode(Path device) throws Rejected,Canceled {return null;}
+					public void setDefaultPinCode() {}
 					public boolean isRemote() {return false;}
 				};}
 				public void registerAgent(ActiveThread mainActiveObject) {}
@@ -859,6 +861,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				public void RequestConfirmation(Path device, UInt32 passkey)throws Rejected, Canceled {}
 				public UInt32 RequestPasskey(Path device) throws Rejected,Canceled {return null;}
 				public String RequestPinCode(Path device) throws Rejected,Canceled {return null;}
+				public void setDefaultPinCode() {}
 				public boolean isRemote() {return false;}
 			};}
 			public void registerAgent(ActiveThread mainActiveObject) {}

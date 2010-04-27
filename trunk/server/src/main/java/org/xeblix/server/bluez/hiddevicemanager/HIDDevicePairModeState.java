@@ -82,7 +82,8 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 		
 		System.out.println("Exiting Pair Mode");
 		
-		deviceManager.getDbusManager().setDeviceNotDiscoverable();
+		//for now device will always be discoverable
+		//deviceManager.getDbusManager().setDeviceNotDiscoverable();
 		
 		HIDDeviceManagerHelper.disconnectFromHost(deviceManager);
 		
@@ -157,7 +158,8 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 			
 			deviceManager.setBtHIDWriterActiveObject(btHIDWriterActiveObject);
 			
-			deviceManager.getDbusManager().setDeviceNotDiscoverable();
+			//for now device will always be discoverable
+			//deviceManager.getDbusManager().setDeviceNotDiscoverable();
 			
 			//store the hostInfo, we will need it later if we get connected
 			deviceManager.setPossibleHidHostAddress(message.getAddress());

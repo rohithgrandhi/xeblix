@@ -145,7 +145,8 @@ public final class HIDDeviceProbationallyConnectedState implements
 			//only set deviceNotDiscoverable and save the host info
 			//if this is a new connection, else it must be a re-connect
 			if(message.isNewConnection()){
-				deviceManager.getDbusManager().setDeviceNotDiscoverable();
+				//for now device will always be discoverable
+				//deviceManager.getDbusManager().setDeviceNotDiscoverable();
 				deviceManager.setPossibleHidHostAddress(message.getAddress());
 			}
 			
@@ -262,8 +263,8 @@ public final class HIDDeviceProbationallyConnectedState implements
 	public void validatePinRequest(HIDDeviceManager deviceManager,
 			PinRequestMessage pinRequestMessage) {
 		
-		//ignore the message
-		HIDDeviceManagerHelper.ignoringMessage(pinRequestMessage, this);		
+		//send default response
+		deviceManager.getDbusManager().getAgent().setDefaultPinCode();		
 	}
 	
 	public void clientMessageUnpairDevice(HIDDeviceManager deviceManager,

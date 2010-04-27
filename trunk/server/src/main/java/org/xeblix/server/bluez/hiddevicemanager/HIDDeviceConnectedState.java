@@ -166,9 +166,8 @@ public class HIDDeviceConnectedState implements HIDDeviceManagerState {
 	public void validatePinRequest(HIDDeviceManager deviceManager,
 			PinRequestMessage pinRequestMessage) {
 		
-		//ignore the message
-		HIDDeviceManagerHelper.ignoringMessage(pinRequestMessage, this);
-		
+		//send default response
+		deviceManager.getDbusManager().getAgent().setDefaultPinCode();
 	}
 	
 	public void clientMessageUnpairDevice(HIDDeviceManager deviceManager,
