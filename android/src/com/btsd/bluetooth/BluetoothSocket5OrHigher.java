@@ -1,11 +1,11 @@
 package com.btsd.bluetooth;
 
+import it.gerdavax.android.bluetooth.BluetoothSocket;
+import it.gerdavax.android.bluetooth.RemoteBluetoothDevice;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import it.gerdavax.android.bluetooth.BluetoothSocket;
-import it.gerdavax.android.bluetooth.RemoteBluetoothDevice;
 
 public final class BluetoothSocket5OrHigher implements BluetoothSocket {
 

@@ -1,6 +1,5 @@
 package com.btsd.prototype;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;

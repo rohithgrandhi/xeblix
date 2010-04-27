@@ -33,8 +33,15 @@ public class Main extends Activity implements CallbackActivity{
 	public static final String REMOTE = "remote";
 	public static final String SEND_COUNT = "count";
 	public static final String MESSAGE_ID = "MESSAGE_ID";
+	public static final String REMOTE_CONFIGURATION = "remoteConfiguration";
+	public static final String REMOTE_TYPE = "remoteType";
+	public static final String REMOTE_NAME = "name";
+	public static final String REMOTE_LABEL = "label";
+	public static final String LIRC_REPEAT_COUNT = "repeatCount";
+	public static final String HID_ADDRESS = "address";
 	
 	public static final String TYPE_HID_HOSTS = "HIDHosts";
+	public static final String TYPE_REMOTE_CONFIGURATION = "RemoteConfiguration";
 	public static final String TYPE_STATUS = "status";
 	public static final String TYPE_RESULT = "result";
 	public static final String TYPE_VERSION_REQUEST = "VersionRequest";
@@ -44,6 +51,9 @@ public class Main extends Activity implements CallbackActivity{
 	public static final String TYPE_HID_HOST_PIN_CANCEL = "HIDHostPinCancel";
 	public static final String TYPE_INVALID_PIN_REQUEST = "InvalidPinRequest";
 	public static final String TYPE_UNPAIR_HID_HOST = "UNPAIR_HID_HOST";
+	
+	public static final String REMOTE_TYPE_LIRC = "LIRC";
+	public static final String REMOTE_TYPE_HID = "HID";
 	
 	public static final String RESULT_SUCCESS = "SUCCESS";
 	public static final String RESULT_FAILED = "FAILED";

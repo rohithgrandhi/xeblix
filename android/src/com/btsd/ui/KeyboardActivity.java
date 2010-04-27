@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.JSONObject;
+import org.xeblix.configuration.ScreensEnum;
 
 import android.content.Context;
 import android.content.DialogInterface;

@@ -2,7 +2,6 @@ package com.btsd;
 
 import java.util.Date;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;

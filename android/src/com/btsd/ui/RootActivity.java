@@ -6,6 +6,9 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
+import org.xeblix.configuration.ScreensEnum;
+import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -97,7 +100,9 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 		alertDialog.show();
 		dismissRetrievingConfigAlert = true;
 		
-		getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getHidHosts());
+		//TODO: remove this commented line
+		//getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getHidHosts());
+		getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getConfigurationCommand());
 		
 		//setRootButtonText(UserInputTargetEnum.ROOT_FREE, vip1200,textViews[9]);
 	}
@@ -444,7 +449,7 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			
 			try{
 				String type = (String)serverJSONMessage.get(Main.TYPE);
-				if(Main.TYPE_HID_HOSTS.equalsIgnoreCase(type)){
+				if(Main.TYPE_REMOTE_CONFIGURATION.equalsIgnoreCase(type)){
 					getBTSDApplication().updateRemoteConfiguration(serverJSONMessage);
 					getRemoteConfiguration(false);
 				}else{

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
 
 import com.btsd.CallbackActivity;
 

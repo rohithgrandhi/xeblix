@@ -119,6 +119,10 @@ public final class ServerMessages {
 		
 	}
 	
+	public static JSONObject getConfigurationCommand(){
+		return createJSONObject("ConfigCommand");
+	}
+	
 	public static JSONObject getLIRCCommand(String remote, String command, 
 		Integer count){
 		
