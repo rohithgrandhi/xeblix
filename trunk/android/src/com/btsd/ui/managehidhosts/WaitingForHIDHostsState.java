@@ -5,13 +5,13 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
 
 import android.util.Log;
 
 import com.btsd.CallbackActivity;
 import com.btsd.Main;
 import com.btsd.ServerMessages;
-import com.btsd.ui.ButtonConfiguration;
 import com.btsd.ui.RemoteConfiguration;
 
 public class WaitingForHIDHostsState extends AbstractHIDRemoteState {

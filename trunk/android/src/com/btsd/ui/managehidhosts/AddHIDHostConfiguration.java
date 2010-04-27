@@ -5,16 +5,18 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
+import org.xeblix.configuration.RemoteConfigurationContainer;
+import org.xeblix.configuration.ScreensEnum;
+import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.util.Log;
 
+import com.btsd.BTSDApplication;
 import com.btsd.CallbackActivity;
 import com.btsd.Main;
-import com.btsd.ui.ButtonConfiguration;
 import com.btsd.ui.HIDRemoteState;
 import com.btsd.ui.RemoteConfiguration;
-import com.btsd.ui.ScreensEnum;
-import com.btsd.ui.UserInputTargetEnum;
 
 public final class AddHIDHostConfiguration extends RemoteConfiguration {
 
@@ -24,6 +26,12 @@ public final class AddHIDHostConfiguration extends RemoteConfiguration {
 	public static final String ADDED_HOST_ADDRESS = "ADD_HID_STATE_ADDED_HOST_ADDRESS";
 	public static final String ADDED_HOST_NAME = "ADD_HID_STATE_ADDED_HOST_NAME";
 	public static final String HOST_ADDRESS_TO_UNPAIR = "HOST_ADDRESS_TO_UNPAIR";
+	
+	public AddHIDHostConfiguration(){
+		RemoteConfigurationContainer container = new RemoteConfigurationContainer(getLabel());
+		container.lockConfiguration();
+		this.setRemoteConfigurationContainer(container);
+	}
 	
 	@Override
 	public JSONObject validateState(Map<String, Object> remoteCache,
@@ -124,6 +132,11 @@ public final class AddHIDHostConfiguration extends RemoteConfiguration {
 		HIDRemoteState hidState = getCurrentRemoteState(remoteCache, activity);
 		return hidState.remoteConfigurationsRefreshed(remoteConfigNames, remoteCache, 
 			this, activity);
+	}
+	
+	@Override
+	public String getLabel() {
+		return BTSDApplication.ADD_HID_HOST_CONFIGURATION_NAME;
 	}
 	
 }

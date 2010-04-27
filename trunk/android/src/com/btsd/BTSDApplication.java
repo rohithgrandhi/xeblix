@@ -8,17 +8,17 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
+import org.xeblix.configuration.ScreensEnum;
+import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.app.Application;
 import android.util.Log;
 
 import com.btsd.bluetooth.BluetoothAccessor;
-import com.btsd.bluetooth.BluetoothAdapter;
-import com.btsd.ui.ButtonConfiguration;
+import com.btsd.ui.LIRCRemoteConfiguration;
 import com.btsd.ui.RemoteConfiguration;
-import com.btsd.ui.ScreensEnum;
-import com.btsd.ui.UserInputTargetEnum;
-import com.btsd.ui.configuration.TempConfigurationBuilder;
+import com.btsd.ui.hidremote.HIDRemoteConfiguration;
 import com.btsd.ui.managehidhosts.AddHIDHostConfiguration;
 
 public class BTSDApplication extends Application {
@@ -28,7 +28,8 @@ public class BTSDApplication extends Application {
 	private BTScrewDriverStateMachine statemachine;
 	
 	private Map<String, Object> remoteCache;
-	private List<RemoteConfiguration> hidHosts;
+	//private List<RemoteConfiguration> hidHosts;
+	private List<RemoteConfiguration> remoteConfigurations;
 	
 	public static final String ADD_HID_HOST_CONFIGURATION_NAME = 
 		"??ADD_HID_HOST_CONFIGURATION??";
@@ -57,8 +58,8 @@ public class BTSDApplication extends Application {
 			remoteCache = new HashMap<String, Object>();
 		}
 		
-		if(hidHosts == null){
-			hidHosts = new ArrayList<RemoteConfiguration>();
+		if(remoteConfigurations == null){
+			remoteConfigurations = new ArrayList<RemoteConfiguration>();
 		}
 		
 		//for android2.0+ need to do some initialization in a thread that has 
@@ -91,18 +92,25 @@ public class BTSDApplication extends Application {
 
 	public void updateRemoteConfiguration(JSONObject remoteConfigurations){
 		
-		this.hidHosts.clear();
+		this.remoteConfigurations.clear();
+		//this.hidHosts.clear();
 		
 		try{
-			JSONArray hidHosts = remoteConfigurations.getJSONArray(Main.VALUE);
+			JSONArray remoteConfigs = remoteConfigurations.getJSONArray(Main.REMOTE_CONFIGURATION);
 			
-			for(int i=0; i < hidHosts.length(); i++){
-				JSONObject jsonObject = hidHosts.getJSONObject(i);
-				String address = jsonObject.getString("address");
-				String hostName = jsonObject.getString("name");
+			for(int i=0; i < remoteConfigs.length(); i++){
+				JSONObject jsonObject = remoteConfigs.getJSONObject(i);
 				
-				this.hidHosts.add(TempConfigurationBuilder.getHIDHostConfiguration(address, 
-					hostName));
+				String remoteType = jsonObject.getString(Main.REMOTE_TYPE);
+				if(Main.REMOTE_TYPE_LIRC.equalsIgnoreCase(remoteType)){
+					this.remoteConfigurations.add(new LIRCRemoteConfiguration(jsonObject));
+				}else if(Main.REMOTE_TYPE_HID.equalsIgnoreCase(remoteType)){
+					this.remoteConfigurations.add(new HIDRemoteConfiguration(jsonObject));
+				}else{
+					throw new IllegalArgumentException("Unknown RemoteType: " + remoteType);
+				}
+				
+				this.remoteConfigurations.add(new AddHIDHostConfiguration());
 			}
 			
 		}catch(JSONException ex){
@@ -112,46 +120,47 @@ public class BTSDApplication extends Application {
 	
 	public RemoteConfiguration getRemoteConfiguration(String name){
 		
-		if("vip1200".equalsIgnoreCase(name)){
-			return TempConfigurationBuilder.getVIP1200Configuration();
-		}else if("SONY_12_RM-YD010".equalsIgnoreCase(name)){
-			return TempConfigurationBuilder.getSonyBraviaConfiguration();
-		}else if(ADD_HID_HOST_CONFIGURATION_NAME.equalsIgnoreCase(name)){
-			return new AddHIDHostConfiguration();
-		}
-		
-		for(RemoteConfiguration hidRemoteConfig: this.hidHosts){
-			ButtonConfiguration buttonConfig = hidRemoteConfig.getButtonConfiguration(
-				ScreensEnum.ROOT, UserInputTargetEnum.REMOTE_NAME);
+		for(RemoteConfiguration config: this.remoteConfigurations){
+			
+			ButtonConfiguration buttonConfig = config.getButtonConfiguration(ScreensEnum.ROOT, 
+				UserInputTargetEnum.REMOTE_NAME);
+			if(buttonConfig == null){
+				continue;
+			}
+			
 			if(buttonConfig.getCommand().toString().equalsIgnoreCase(name)){
-				return hidRemoteConfig;
+				return config;
 			}
 		}
 		
 		return null;
+		
 	}
 	
 	public ArrayList<ButtonConfiguration> getRemoteConfigurationNames(){
-		ArrayList<ButtonConfiguration> toReturn = new ArrayList<ButtonConfiguration>();
-		toReturn.add(new ButtonConfiguration(ScreensEnum.ROOT,UserInputTargetEnum.REMOTE_NAME,
-				"vip1200", "DVR"));
-		toReturn.add(new ButtonConfiguration(ScreensEnum.ROOT,UserInputTargetEnum.REMOTE_NAME,
-				"SONY_12_RM-YD010", "TV"));
 		
-		for(RemoteConfiguration hidRemoteConfig: this.hidHosts){
-			toReturn.add(hidRemoteConfig.getButtonConfiguration(
-				ScreensEnum.ROOT, UserInputTargetEnum.REMOTE_NAME));
-			
+		ArrayList<ButtonConfiguration> toReturn = new ArrayList<ButtonConfiguration>();
+		
+		for(RemoteConfiguration config: this.remoteConfigurations){
+			ButtonConfiguration buttonConfig = config.getButtonConfiguration(ScreensEnum.ROOT, 
+				UserInputTargetEnum.REMOTE_NAME);
+			//the ADDHIDHostConfiguration will return null so check for null and skip it
+			if(buttonConfig != null){
+				toReturn.add(buttonConfig);
+			}
 		}
+
 		return toReturn;
 	}
 
 	public ArrayList<ButtonConfiguration> getHIDHostConfigurationNames(){
 		ArrayList<ButtonConfiguration> toReturn = new ArrayList<ButtonConfiguration>();
-		for(RemoteConfiguration hidRemoteConfig: this.hidHosts){
-			toReturn.add(hidRemoteConfig.getButtonConfiguration(
-				ScreensEnum.ROOT, UserInputTargetEnum.REMOTE_NAME));
-			
+		
+		for(RemoteConfiguration config: this.remoteConfigurations){
+			if(config instanceof HIDRemoteConfiguration){
+				toReturn.add(config.getButtonConfiguration(ScreensEnum.ROOT, 
+				UserInputTargetEnum.REMOTE_NAME));
+			}
 		}
 		return toReturn;
 	}

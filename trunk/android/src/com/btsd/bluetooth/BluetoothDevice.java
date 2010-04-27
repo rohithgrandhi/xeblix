@@ -1,9 +1,9 @@
 package com.btsd.bluetooth;
 
-import java.util.UUID;
-
 import it.gerdavax.android.bluetooth.BluetoothException;
 import it.gerdavax.android.bluetooth.BluetoothSocket;
+
+import java.util.UUID;
 
 public interface BluetoothDevice {
 

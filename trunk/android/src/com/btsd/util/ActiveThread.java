@@ -3,9 +3,9 @@ package com.btsd.util;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 
-import com.btsd.ShutdownException;
-
 import android.os.Message;
+
+import com.btsd.ShutdownException;
 
 public abstract class ActiveThread extends Thread {
 

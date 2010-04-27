@@ -6,17 +6,18 @@ import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
+import org.xeblix.configuration.RemoteConfigurationContainer;
+import org.xeblix.configuration.ScreensEnum;
+import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.util.Log;
 
 import com.btsd.CallbackActivity;
 import com.btsd.Main;
 import com.btsd.ServerMessages;
-import com.btsd.ui.ButtonConfiguration;
 import com.btsd.ui.HIDRemoteState;
 import com.btsd.ui.RemoteConfiguration;
-import com.btsd.ui.ScreensEnum;
-import com.btsd.ui.UserInputTargetEnum;
 
 public final class HIDRemoteConfiguration extends RemoteConfiguration {
 
@@ -28,6 +29,26 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 	public static final String SESSION_ID = "HID_REMOTE_SESSION_ID";
 	public static final String CONNECT_ID = "HID_REMOTE_CONNECT_ID";
 	//public static final String CACHED_HID_ALERT = "CACHED_HID_ALERT";
+	
+	public HIDRemoteConfiguration(JSONObject remoteConfig){
+		String address = null;
+		String label = null;
+		try{
+			address = remoteConfig.getString(Main.HID_ADDRESS);
+			label = remoteConfig.getString(Main.REMOTE_LABEL);
+			
+		}catch(JSONException ex){
+			throw new RuntimeException("Unable to parse LIRC remote configuration. " +
+				"Either name, lable, or repeat count is invalid.");
+		}
+		
+		RemoteConfigurationContainer container = RemoteConfigurationContainer.
+			parseButtonConfiguration(remoteConfig, label);
+		container.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,
+			UserInputTargetEnum.REMOTE_NAME,address, label));
+		container.lockConfiguration();
+		setRemoteConfigurationContainer(container);
+	}
 	
 	@Override
 	public JSONObject getCommand(ButtonConfiguration buttonConfiguration,
@@ -165,4 +186,5 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 			this, activity);
 		
 	}
+	
 }

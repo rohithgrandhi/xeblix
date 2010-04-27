@@ -1,6 +1,9 @@
 package com.btsd.ui;
 
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
+import org.xeblix.configuration.ScreensEnum;
+import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.content.Context;
 import android.content.DialogInterface;

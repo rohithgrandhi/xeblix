@@ -2,6 +2,7 @@ package com.btsd;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,10 +34,24 @@ public class ServerReaderActiveObject extends ActiveThread {
 			
 			while(true){
 				
+				StringBuilder builder = new StringBuilder();
+				
 				byte[] buffer = new byte[1024];
-				int read = -1;
+				int read = buffer.length;
+				String temp = " ";
 				try{
-					read = inputStream.read(buffer);
+					//the last char read must always be a "}", so if its not then we got more
+					//to read (not using inputStream.available b/c it is buggy on some android phones)
+					while(temp.charAt(temp.length()-1) != '}'){
+						read = inputStream.read(buffer);
+						if(read == -1){
+							break;
+						}
+						
+						temp = new String(buffer, 0, read);
+						builder.append(temp);
+					}
+					
 				}catch(IOException ex){
 					stateMachine.serverDisconnect();
 					//server is dead, kill the thread
@@ -48,17 +63,17 @@ public class ServerReaderActiveObject extends ActiveThread {
 					throw new RuntimeException("Failed to read from the server");
 				}
 				
-				String message = new String(buffer, 0, read);
 				JSONObject serverMessage = null;
 				//the message is either JSONObject or Array. Most likely an object
 				try{
-					serverMessage = new JSONObject(message);
+					serverMessage = new JSONObject(builder.toString());
 				}catch(JSONException ex){}
 				
-				if(message != null){
+				if(serverMessage != null){
+					Log.i(TAG, "ServerMessage length: " + serverMessage.toString().length());
 					stateMachine.messageFromServer( serverMessage);
 				}else{
-					Log.e(TAG, "Unrecognized server message: " + message);
+					Log.e(TAG, "Unrecognized server message: " + builder.toString());
 				}
 			}
 			

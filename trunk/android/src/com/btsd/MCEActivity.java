@@ -1,22 +1,20 @@
 package com.btsd;
 
+import static com.btsd.BluetoothHIDActivity.getKeycode;
+
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-
-import static com.btsd.BluetoothHIDActivity.getKeycode;
 
 import com.btsd.util.MessagesEnum;
 

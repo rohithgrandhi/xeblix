@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xeblix.configuration.ButtonConfiguration;
+import org.xeblix.configuration.RemoteConfigurationContainer;
+import org.xeblix.configuration.ScreensEnum;
+import org.xeblix.configuration.UserInputTargetEnum;
 
 import com.btsd.CallbackActivity;
 import com.btsd.Main;
@@ -15,8 +19,27 @@ public final class LIRCRemoteConfiguration extends RemoteConfiguration {
 	
 	private int repeatCount;
 	
-	public LIRCRemoteConfiguration(int repeatCount){
-		this.repeatCount = repeatCount;
+	public LIRCRemoteConfiguration(JSONObject remoteConfig){
+		
+		String name = null;
+		String label = null;
+		try{
+			name = remoteConfig.getString(Main.REMOTE_NAME);
+			label = remoteConfig.getString(Main.REMOTE_LABEL);
+			repeatCount = remoteConfig.getInt(Main.LIRC_REPEAT_COUNT);
+			
+		}catch(JSONException ex){
+			throw new RuntimeException("Unable to parse LIRC remote configuration. " +
+				"Either name, lable, or repeat count is invalid.");
+		}
+		
+		RemoteConfigurationContainer container = RemoteConfigurationContainer.
+			parseButtonConfiguration(remoteConfig, label);
+		container.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,
+			UserInputTargetEnum.REMOTE_NAME,name, label));
+		container.lockConfiguration();
+		setRemoteConfigurationContainer(container);
+		
 	}
 	
 	public final int getRepeatCount() {
@@ -92,4 +115,5 @@ public final class LIRCRemoteConfiguration extends RemoteConfiguration {
 		activity.hideDialog();
 		return null;
 	}
+	
 }
