@@ -29,6 +29,9 @@ public final class AddHIDHostConfiguration extends RemoteConfiguration {
 	
 	public AddHIDHostConfiguration(){
 		RemoteConfigurationContainer container = new RemoteConfigurationContainer(getLabel());
+		container.addButtonConfiguration(new ButtonConfiguration(ScreensEnum.ROOT,
+			UserInputTargetEnum.REMOTE_NAME,BTSDApplication.ADD_HID_HOST_CONFIGURATION_NAME, 
+			BTSDApplication.ADD_HID_HOST_CONFIGURATION_NAME));
 		container.lockConfiguration();
 		this.setRemoteConfigurationContainer(container);
 	}
