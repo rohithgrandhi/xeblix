@@ -60,7 +60,7 @@
 	{screen:CHANNEL, target:GESTURE_SCREEN_9,command: BTN_CHANNEL_dOWN, label:Channel Down}
 	]},
 
-{remoteType:HID,address:000272159B71,label:MEDIA-PC,buttons:[
+{remoteType:HID, buttons:[
 	{screen:ROOT, target:ROOT_POWER,command: [227,226,40], label:Start},
 	{screen:ROOT, target:ROOT_OK,command: [40], label:Enter},
 	{screen:ROOT, target:ROOT_MENU,command: [227,226,40], label:Home},

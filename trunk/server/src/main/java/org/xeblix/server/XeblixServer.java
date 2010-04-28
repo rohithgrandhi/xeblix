@@ -265,10 +265,22 @@ public class XeblixServer {
 			JSONArray remoteConfiguration = new JSONArray(fileContents.toString());
 			//got the configuration as JSONArray, now parse the jsonArray to verify
 			//configuration is valid
+			boolean foundHIDConfig = false;
 			for(int i=0; i < remoteConfiguration.length(); i++){
 				
 				RemoteConfigurationParser.parseRemoteConfiguration(
 					remoteConfiguration.getJSONObject(i));
+				
+				JSONObject remoteConfig = remoteConfiguration.getJSONObject(i);
+				String remoteType = remoteConfig.getString(RemoteConfigurationParser.REMOTE_TYPE);
+				if(RemoteConfigurationParser.TYPE_HID.equalsIgnoreCase(remoteType)){
+					foundHIDConfig = true;
+				}
+			}
+			
+			if(!foundHIDConfig){
+				throw new IllegalStateException("The HID Configuration was not fouind in the " +
+					"RemoteConfiguration file. The HID Configuration is required.");
 			}
 			
 			return remoteConfiguration;

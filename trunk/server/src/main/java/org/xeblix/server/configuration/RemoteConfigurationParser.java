@@ -6,20 +6,22 @@ import org.xeblix.configuration.RemoteConfigurationContainer;
 
 public final class RemoteConfigurationParser {
 
-	private static final String REMOTE_TYPE = "remoteType";
-	private static final String LIRC_NAME = "name";
-	private static final String HID_ADDRESS = "address";
-	private static final String REMOTE_LABEL = "label";
-	private static final String LIRC_REPEAT_COUNT = "repeatCount";
+	public static final String REMOTE_TYPE = "remoteType";
+	public static final String LIRC_NAME = "name";
+	public static final String HID_ADDRESS = "address";
+	public static final String REMOTE_LABEL = "label";
+	public static final String LIRC_REPEAT_COUNT = "repeatCount";
 	
+	public static final String TYPE_LIRC = "LIRC";
+	public static final String TYPE_HID = "HID";
 	
 	public static void parseRemoteConfiguration(JSONObject jsonObject){
 		
 		try{
 			String remoteType = jsonObject.getString(REMOTE_TYPE);
-			if("LIRC".equalsIgnoreCase(remoteType)){
+			if(TYPE_LIRC.equalsIgnoreCase(remoteType)){
 				parseLIRCConfiguration(jsonObject);
-			}else if("HID".equalsIgnoreCase(remoteType)){
+			}else if(TYPE_HID.equalsIgnoreCase(remoteType)){
 				parseHIDConfiguration(jsonObject);
 			}
 		}catch(JSONException ex){
@@ -30,18 +32,7 @@ public final class RemoteConfigurationParser {
 	
 	public static void parseHIDConfiguration(JSONObject jsonObject){
 		
-		String remoteLabel = null;
-		try{
-			jsonObject.getString(HID_ADDRESS);
-			remoteLabel = jsonObject.getString(REMOTE_LABEL);
-		}catch(JSONException ex){
-			throw new RuntimeException("A HID Configuration requires the following properties: " +
-				HID_ADDRESS + "(String) and " + REMOTE_LABEL + "(String) " +
-				". One or more of these properties is missing from the configuration: " + 
-				jsonObject.toString(), ex);
-		}
-		
-		RemoteConfigurationContainer.parseButtonConfiguration(jsonObject, remoteLabel);
+		RemoteConfigurationContainer.parseButtonConfiguration(jsonObject, "HIDTemplate");
 		
 	}
 	
