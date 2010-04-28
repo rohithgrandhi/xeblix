@@ -100,11 +100,9 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 		alertDialog.show();
 		dismissRetrievingConfigAlert = true;
 		
-		//TODO: remove this commented line
-		//getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getHidHosts());
+		getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getHidHosts());
 		getBTSDApplication().getStateMachine().messageToServer(ServerMessages.getConfigurationCommand());
 		
-		//setRootButtonText(UserInputTargetEnum.ROOT_FREE, vip1200,textViews[9]);
 	}
 
 	private void getRemoteConfiguration(boolean selectRemoteConfiguration) {
@@ -449,9 +447,15 @@ public class RootActivity extends AbstractRemoteActivity implements DialogInterf
 			
 			try{
 				String type = (String)serverJSONMessage.get(Main.TYPE);
-				if(Main.TYPE_REMOTE_CONFIGURATION.equalsIgnoreCase(type)){
+				if(Main.TYPE_REMOTE_CONFIGURATION.equalsIgnoreCase(type) || 
+					Main.TYPE_HID_HOSTS.equalsIgnoreCase(type)){
+					
 					getBTSDApplication().updateRemoteConfiguration(serverJSONMessage);
-					getRemoteConfiguration(false);
+					//if only got a HIDHost reply then need to wait for remoteConfig before dismissing dialog
+					//and configuring screen
+					if(!getBTSDApplication().getRemoteConfigurationNames().isEmpty()){
+						getRemoteConfiguration(false);
+					}
 				}else{
 					//if remoteConfiguration is null then have not gotten remote configuration
 					//yet and the message should be ignored. 

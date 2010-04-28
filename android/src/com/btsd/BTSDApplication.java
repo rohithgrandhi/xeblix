@@ -14,6 +14,7 @@ import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.app.Application;
 import android.util.Log;
+import android.util.Pair;
 
 import com.btsd.bluetooth.BluetoothAccessor;
 import com.btsd.ui.LIRCRemoteConfiguration;
@@ -28,8 +29,9 @@ public class BTSDApplication extends Application {
 	private BTScrewDriverStateMachine statemachine;
 	
 	private Map<String, Object> remoteCache;
-	//private List<RemoteConfiguration> hidHosts;
+	private List<Pair<String, String>> hidHosts;
 	private List<RemoteConfiguration> remoteConfigurations;
+	private JSONObject hidTemplateConfiguration;
 	
 	public static final String ADD_HID_HOST_CONFIGURATION_NAME = 
 		"??ADD_HID_HOST_CONFIGURATION??";
@@ -62,6 +64,10 @@ public class BTSDApplication extends Application {
 			remoteConfigurations = new ArrayList<RemoteConfiguration>();
 		}
 		
+		if(hidHosts == null){
+			hidHosts = new ArrayList<Pair<String,String>>();
+		}
+		
 		//for android2.0+ need to do some initialization in a thread that has 
 		//had looper.prepare called
 		BluetoothAccessor.getInstance().getBluetoothAdapter(this);
@@ -90,28 +96,68 @@ public class BTSDApplication extends Application {
 		}
 	}
 
-	public void updateRemoteConfiguration(JSONObject remoteConfigurations){
+	public void updateRemoteConfiguration(JSONObject remoteConfigurationsJSON){
 		
-		this.remoteConfigurations.clear();
-		//this.hidHosts.clear();
+		List<RemoteConfiguration> remoteConfigurations = this.remoteConfigurations;
+		JSONObject hidTemplateConfiguration = this.hidTemplateConfiguration;
+		
+		
+		List<Pair<String, String>> hidHosts = this.hidHosts;
+		
 		
 		try{
-			JSONArray remoteConfigs = remoteConfigurations.getJSONArray(Main.REMOTE_CONFIGURATION);
 			
-			for(int i=0; i < remoteConfigs.length(); i++){
-				JSONObject jsonObject = remoteConfigs.getJSONObject(i);
+			String type = remoteConfigurationsJSON.getString(Main.TYPE);
+			
+			if(Main.TYPE_HID_HOSTS.equalsIgnoreCase(type)){
+				hidHosts.clear();
+				JSONArray hidHostsJSON = remoteConfigurationsJSON.getJSONArray(Main.VALUE);
 				
-				String remoteType = jsonObject.getString(Main.REMOTE_TYPE);
-				if(Main.REMOTE_TYPE_LIRC.equalsIgnoreCase(remoteType)){
-					this.remoteConfigurations.add(new LIRCRemoteConfiguration(jsonObject));
-				}else if(Main.REMOTE_TYPE_HID.equalsIgnoreCase(remoteType)){
-					this.remoteConfigurations.add(new HIDRemoteConfiguration(jsonObject));
-				}else{
-					throw new IllegalArgumentException("Unknown RemoteType: " + remoteType);
+				for(int i=0; i < hidHostsJSON.length(); i++){
+					JSONObject jsonObject = hidHostsJSON.getJSONObject(i);
+					String address = jsonObject.getString("address");
+					String hostName = jsonObject.getString("name");
+					
+					hidHosts.add(Pair.create(address, hostName));
+				
+					//if the HIDtemplate config exists, go ahead and create the HIDRemoteConfigurations
+					if(hidTemplateConfiguration != null){
+						remoteConfigurations.add(new HIDRemoteConfiguration(hidTemplateConfiguration,
+							address, hostName));
+					}
 				}
+			}else if(Main.TYPE_REMOTE_CONFIGURATION.equalsIgnoreCase(type)){
+				JSONArray remoteConfigs = remoteConfigurationsJSON.getJSONArray(Main.REMOTE_CONFIGURATION);
 				
-				this.remoteConfigurations.add(new AddHIDHostConfiguration());
+				remoteConfigurations.clear();
+				
+				for(int i=0; i < remoteConfigs.length(); i++){
+					JSONObject jsonObject = remoteConfigs.getJSONObject(i);
+					
+					String remoteType = jsonObject.getString(Main.REMOTE_TYPE);
+					if(Main.REMOTE_TYPE_LIRC.equalsIgnoreCase(remoteType)){
+						remoteConfigurations.add(new LIRCRemoteConfiguration(jsonObject));
+					}else if(Main.REMOTE_TYPE_HID.equalsIgnoreCase(remoteType)){
+						this.hidTemplateConfiguration = jsonObject;
+						hidTemplateConfiguration = jsonObject;
+					}else{
+						throw new IllegalArgumentException("Unknown RemoteType: " + remoteType);
+					}
+					
+					remoteConfigurations.add(new AddHIDHostConfiguration());
+					
+				}
+				//if the HIDHosts were received before the remote configuration then go ahead
+				//and create the HIDRemoteConfigurations
+				if(!hidHosts.isEmpty()){
+					for(Pair<String,String> hidHost: hidHosts){
+						remoteConfigurations.add(new HIDRemoteConfiguration(hidTemplateConfiguration,
+								hidHost.first, hidHost.second));
+					}
+				}
 			}
+			
+			
 			
 		}catch(JSONException ex){
 			throw new RuntimeException(ex);
@@ -145,7 +191,7 @@ public class BTSDApplication extends Application {
 			ButtonConfiguration buttonConfig = config.getButtonConfiguration(ScreensEnum.ROOT, 
 				UserInputTargetEnum.REMOTE_NAME);
 			//the ADDHIDHostConfiguration will return null so check for null and skip it
-			if(buttonConfig != null){
+			if(!ADD_HID_HOST_CONFIGURATION_NAME.equalsIgnoreCase(buttonConfig.getLabel())){
 				toReturn.add(buttonConfig);
 			}
 		}

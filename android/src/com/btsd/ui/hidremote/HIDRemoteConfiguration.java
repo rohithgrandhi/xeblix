@@ -30,17 +30,7 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 	public static final String CONNECT_ID = "HID_REMOTE_CONNECT_ID";
 	//public static final String CACHED_HID_ALERT = "CACHED_HID_ALERT";
 	
-	public HIDRemoteConfiguration(JSONObject remoteConfig){
-		String address = null;
-		String label = null;
-		try{
-			address = remoteConfig.getString(Main.HID_ADDRESS);
-			label = remoteConfig.getString(Main.REMOTE_LABEL);
-			
-		}catch(JSONException ex){
-			throw new RuntimeException("Unable to parse LIRC remote configuration. " +
-				"Either name, lable, or repeat count is invalid.");
-		}
+	public HIDRemoteConfiguration(JSONObject remoteConfig, String address, String label){
 		
 		RemoteConfigurationContainer container = RemoteConfigurationContainer.
 			parseButtonConfiguration(remoteConfig, label);
@@ -133,6 +123,8 @@ public final class HIDRemoteConfiguration extends RemoteConfiguration {
 				toReturn = hidState.invalidHidHostPinRequest(remoteCache, this,messageFromServer, activity);
 			}else if(Main.TYPE_UNPAIR_HID_HOST.equalsIgnoreCase(type)){
 				toReturn = hidState.unpairHIDHost(remoteCache, this, messageFromServer, activity);
+			}else if(Main.TYPE_HID_HOSTS.equalsIgnoreCase(type)){
+				//Do nothing
 			}else{
 				throw new IllegalArgumentException("Unexpected message type: " + type);
 			}
