@@ -111,6 +111,19 @@ public class BTSDApplication extends Application {
 			
 			if(Main.TYPE_HID_HOSTS.equalsIgnoreCase(type)){
 				hidHosts.clear();
+				
+				//remove any HIDRemoteConfigurations if any exists
+				ArrayList<RemoteConfiguration> toRemove = new ArrayList<RemoteConfiguration>();
+				for(RemoteConfiguration config: remoteConfigurations){
+					if(config instanceof HIDRemoteConfiguration){
+						toRemove.add(config);
+					}
+				}
+				
+				for(RemoteConfiguration config: toRemove){
+					remoteConfigurations.remove(config);
+				}
+				
 				JSONArray hidHostsJSON = remoteConfigurationsJSON.getJSONArray(Main.VALUE);
 				
 				for(int i=0; i < hidHostsJSON.length(); i++){
