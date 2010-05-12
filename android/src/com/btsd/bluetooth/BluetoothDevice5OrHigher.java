@@ -1,39 +1,43 @@
 package com.btsd.bluetooth;
 
-import it.gerdavax.android.bluetooth.BluetoothException;
-import it.gerdavax.android.bluetooth.BluetoothSocket;
-
 import java.io.IOException;
 import java.util.UUID;
 
-public final class BluetoothDevice5OrHigher implements BluetoothDevice {
+import android.bluetooth.BluetoothDevice;
 
-	private android.bluetooth.BluetoothDevice device;
-	private BluetoothAdapter adapter;
+import com.btsd.bluetooth.BluetoothSocket;
+
+public final class BluetoothDevice5OrHigher extends com.btsd.bluetooth.BluetoothDevice {
+
+	private BluetoothDevice device;
 	
-	public BluetoothDevice5OrHigher(android.bluetooth.BluetoothDevice device, BluetoothAdapter adapter){
+	public BluetoothDevice5OrHigher(BluetoothDevice device){
+		if(device == null){
+			throw new IllegalArgumentException("This method does not accept null parameters.");
+		}
 		this.device = device;
-		this.adapter = adapter;
-	}
-	
-	@Override
-	public void pair() {
-		//do nothing
 	}
 	
 	@Override
 	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid)
-			throws BluetoothException {
+			throws IOException {
 		
-		android.bluetooth.BluetoothSocket socket = null;
-		try{
-			socket = device.createRfcommSocketToServiceRecord(uuid);
-			adapter.cancelDiscovery();
-			socket.connect();
-		}catch(IOException ex){
-			throw new BluetoothException(ex.getMessage(), ex);
-		}
-		
+		android.bluetooth.BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid);
 		return new BluetoothSocket5OrHigher(socket);
+	}
+
+	@Override
+	public int getBondState() {
+		return device.getBondState();
+	}
+
+	@Override
+	public String getAddress() {
+		return device.getAddress();
+	}
+	
+	@Override
+	public String getName() {
+		return device.getName();
 	}
 }

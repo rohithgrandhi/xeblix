@@ -1,14 +1,23 @@
 package com.btsd.bluetooth;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
-
 public abstract class BluetoothAccessor {
-	
+
 	private static BluetoothAccessor instance;
 	
-	private static final int ECLAIR = 5;
+	public static final int ECLAIR = 5;
+	
+	public synchronized static void registerReceivers(){
+		
+		/*
+		 * Check the version of the SDK we are running on. If under 2.0
+		 * then need to register the bluetooth backport receiver
+		 */
+		
+		
+	}
 	
 	public synchronized static BluetoothAccessor getInstance(){
 		
@@ -50,6 +59,7 @@ public abstract class BluetoothAccessor {
 		
 	}
 	
-	public abstract BluetoothAdapter getBluetoothAdapter(Context context);
+	public abstract BluetoothAdapter getDefaultAdapter();
 	
+	public abstract BluetoothDevice getBluetoothDeviceFromIntent(Intent intent);
 }

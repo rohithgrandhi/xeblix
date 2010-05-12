@@ -7,4 +7,6 @@ public interface BluetoothAdapter {
 	public BluetoothDevice getRemoteDevice(String address);
 	
 	public boolean cancelDiscovery();
+	
+	public boolean startDiscovery();
 }

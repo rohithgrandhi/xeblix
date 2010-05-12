@@ -28,4 +28,8 @@
 		android:layout_height="wrap_content" android:textSize="24sp"
 		android:fadingEdge="vertical" android:layout_weight="1"
 		android:text="Root" />
+	<Button android:id="@+id/WelcomeActivity" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="24sp"
+		android:fadingEdge="vertical" android:layout_weight="1"
+		android:text="Welcome" />
 </LinearLayout>

@@ -1,8 +1,6 @@
 package com.btsd;
 
-import it.gerdavax.android.bluetooth.BluetoothSocket;
-import it.gerdavax.android.bluetooth.LocalBluetoothDevice;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
@@ -16,8 +14,10 @@ import android.util.Log;
 import com.btsd.bluetooth.BluetoothAccessor;
 import com.btsd.bluetooth.BluetoothAdapter;
 import com.btsd.bluetooth.BluetoothDevice;
+import com.btsd.bluetooth.BluetoothSocket;
 import com.btsd.util.ActiveThread;
 import com.btsd.util.MessagesEnum;
+import com.btsd.util.Pair;
 
 public class BTScrewDriverStateMachine extends ActiveThread{
 
@@ -41,6 +41,8 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 	
 	private ServerWriterActiveObject serverWriter;
 	private ServerReaderActiveObject serverReader;
+	private BluetoothSocket socket;
+	private InputStream inputStream;
 
 	//00:02:72:A0:BD:E5 (new)
 	//00:02:72:15:9B:71 (original)
@@ -54,17 +56,19 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 		
 		Log.d(TAG, "Received message with id: " + msg.arg1);
 		
-		if(msg.arg1 == MessagesEnum.ON_START.getId()){
-			Context context = (Context)msg.obj;
-			handleOnStart(context);
-			
-		}else if(msg.arg1 == MessagesEnum.REGISTER_ACTIVITY.getId()){
+		if(msg.arg1 == MessagesEnum.REGISTER_ACTIVITY.getId()){
 			this.currentActivity = (CallbackActivity) msg.obj;
 		}else if(msg.arg1 == MessagesEnum.SERVER_DISCONNECT.getId()){
 			disconnect();
+		}else if(msg.arg1 == MessagesEnum.CONNECT_TO_SERVER.getId()){
+			
+			Pair<String,String> connectInfo = (Pair<String,String>)msg.obj;
+			disconnect();
+			handleOnStart(connectInfo.getRight());
+			BTScrewDriverCallbackHandler.BTConnectionStatus(currentActivity, currentState);
 		}else if(msg.arg1 == MessagesEnum.BT_CONNECTION_STATE.getId()){
 			CallbackActivity callback = (CallbackActivity)msg.obj;
-			handleOnStart((Context)callback);
+			//handleOnStart((Context)callback);
 			BTScrewDriverCallbackHandler.BTConnectionStatus(callback, currentState);
 		}else if(msg.arg1 == MessagesEnum.MESSAGE_FROM_SERVER.getId()){
 			
@@ -79,41 +83,70 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 			}
 			
 		}else if(msg.arg1 == MessagesEnum.SHUTDOWN.getId()){
-			Context context = (Context)this.currentActivity;
+			/*Context context = (Context)this.currentActivity;
 			try{
 				LocalBluetoothDevice device = LocalBluetoothDevice.initLocalDevice(context);
 				device.close();
 			}catch(Exception ex){
 				//we are shutting down so ignore errors
-			}
+			}*/
 			throw new ShutdownException();
 		}
 		
 	}
 
 	private void disconnect() {
+		
+		if(socket != null){
+			try{
+				socket.close();
+			}catch(IOException ex){
+				Log.w(getClass().getSimpleName(), ex.getMessage());
+			}
+			socket = null;
+		}
+		
 		if(serverWriter != null && serverWriter.isAlive()){
 			serverWriter.serverDisconnect();
 			serverWriter = null;
+		}else{
+			serverWriter = null;
+		}
+		
+		//calling interrupt on serverReader while it is blocking has no effect.
+		//closing the underlying inputStream allows the thread to stop
+		if(inputStream != null){
+			try{
+				inputStream.close();
+			}catch(Exception ex){
+				Log.w(getClass().getSimpleName(), ex.getMessage());
+			}
 		}
 		
 		if(serverReader != null && serverReader.isAlive()){
 			serverReader.interrupt();
 			serverReader = null;
+		}else{
+			serverReader = null;
 		}
 		
+		if(currentState == States.CONNECTED){
+			//have the thread wait a short period of time. This gives the server some time
+			//to clean up. This is useful when you disconnect from a server and immediately reconnect
+			try{Thread.sleep(2000);}catch(Exception ex){}
+		}
 		currentState = States.DISCONNECTED;
 		
 		BTScrewDriverCallbackHandler.BTConnectionStatus(currentActivity, currentState);
 	}
 	
-	private void handleOnStart(Context context){
+	private void handleOnStart(String address){
 		
 		Log.d(TAG, "Handling OnStart message. Current state: " + currentState.getName());
 		if(currentState == States.DISCONNECTED || 
 			currentState == States.CONNECTION_FAILED){
 			//try to connect to bt server
-			connectToBTServer(context);
+			connectToBTServer(address);
 		}else{
 			Log.w(TAG, "Ignoring onStart event. Not in required " + States.DISCONNECTED.getName() + " state.");
 		}
@@ -137,25 +170,40 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 		
 	}
 	
-	private void connectToBTServer(Context context){
+	private void connectToBTServer(String address){
 		
 		Log.i(TAG, "Connecting to Remote BT Device with address: " + address);
 		
 		Log.d(TAG, "Validating BluetoothState");
-		device = BluetoothAccessor.getInstance().getBluetoothAdapter(context);
+		device = BluetoothAccessor.getInstance().getDefaultAdapter();
 			
 		if(!device.isEnabled()){
 			currentState = States.BLUETOOTH_DISABLED;
 			return;
 		}
 			
-		
-		remoteDevice = device.getRemoteDevice(address);
-		remoteDevice.pair();
+		try{
+			remoteDevice = device.getRemoteDevice(address);
+		}catch(Exception  ex){
+			Log.e(TAG, ex.getMessage(), ex);
+			currentState = States.CONNECTION_FAILED;
+		}
 		
 		try{
-			BluetoothSocket socket = remoteDevice.createRfcommSocketToServiceRecord(uuid);
+			this.socket = remoteDevice.createRfcommSocketToServiceRecord(uuid);
+			BluetoothSocket socket = this.socket;
+			try{
+				socket.connect();
+			}catch(IOException e){
+				//not sure what the problem is but on android 2.1 the first connect fails
+				//with a Connect refused error, but the second connect is successful
+				if(e.getMessage().contains("Connection refused")){
+					socket = remoteDevice.createRfcommSocketToServiceRecord(uuid);
+					socket.connect();
+				}
+			}
 			InputStream input = socket.getInputStream();
+			this.inputStream = input;
 			OutputStream output = socket.getOutputStream();
 			
 			this.serverReader = new ServerReaderActiveObject(this, input);
@@ -173,54 +221,6 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 		}
 	}
 	
-	
-	/*private String sendMessageToRemoteDevice(String toSend) throws IOException {
-		
-		BluetoothSocket socket = null;
-		InputStream input = null;
-		OutputStream output = null;
-		
-		try{
-			socket = remoteDevice.openSocket(port);
-			input = socket.getInputStream();
-			output = socket.getOutputStream();
-		}catch(Exception ex){
-			throw new IOException(ex.getMessage());
-		}
-			
-		//try{Thread.sleep(1000);}catch(Exception ex){}
-	
-		output.write(toSend.getBytes());
-		
-		//try{Thread.sleep(1000);}catch(Exception ex){}
-		
-		//make sure we get a response
-		byte[] buffer = new byte[256];
-		int read = input.read(buffer);
-		
-		if(read == -1){
-			throw new RuntimeException("Failed to read from the server");
-		}
-		
-		return  new String(buffer, 0, read);
-	}
-	
-	private void sendMessageToRemoteDevice(String toSend, String expected) throws IOException {
-		
-		String serverResponse = sendMessageToRemoteDevice(toSend);
-		if(!expected.equalsIgnoreCase(serverResponse)){
-			throw new RuntimeException("Invalid version. Expecting " +
-				expected + " got: " + serverResponse);
-		}
-	}*/
-	
-	public void onStart(Context context){
-		Message message = Message.obtain();
-		message.arg1 = MessagesEnum.ON_START.getId();
-		message.obj = context;
-		addMessage(message);
-	}
-	
 	public void registerActivity(CallbackActivity activity){
 		Message message = Message.obtain();
 		message.arg1 = MessagesEnum.REGISTER_ACTIVITY.getId();
@@ -233,30 +233,6 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 		message.arg1 = MessagesEnum.SHUTDOWN.getId();
 		addMessage(message);
 	}
-	
-	/*public void sendCommand(String remote, String button, int count, long id){
-		Message message = Message.obtain();
-		message.arg1 = MessagesEnum.SEND_COMMAND.getId();
-		message.obj = new Object[]{remote,button, count, id};
-		addMessage(message);
-	}
-	
-	public void sendCommand(String remote, int keyCode){
-		Message message = Message.obtain();
-		message.arg1 = MessagesEnum.SEND_COMMAND.getId();
-		message.obj = new Object[]{remote,keyCode, -1, -1};
-		addMessage(message);
-	}
-	
-	public void sendCommandForResult(CallbackActivity callbackActivity, String remote, 
-		String serverCommand){
-		
-		Message message = Message.obtain();
-		message.arg1 = MessagesEnum.SEND_COMMAND.getId();
-		message.obj = new Object[]{remote,serverCommand, -1, -1, callbackActivity};
-		addMessage(message);
-	}
-	*/
 	
 	public void serverDisconnect(){
 		Message message = Message.obtain();
@@ -285,6 +261,13 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 		addMessage(message);
 	}
 	
+	public void connectToServer(String name, String address){
+		Message message = Message.obtain();
+		message.arg1 = MessagesEnum.CONNECT_TO_SERVER.getId();
+		message.obj = Pair.create(name, address);
+		addMessage(message);
+	}
+	
 	public enum States{
 		
 		//states
@@ -292,12 +275,6 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 		CONNECTED("Connected"),
 		BLUETOOTH_DISABLED("Bluetooth Disabled"),
 		CONNECTION_FAILED("Connection failed");
-		/*private static final int BT_ENABLED_CHECK = 1;
-		private static final int BT_NOT_ENABLED_ALERT = 2;
-		private static final int CONNECTING_TO_BT_SERVER = 3;
-		private static final int CONNECTING_TO_BT_SERVER_FAILED = 4;
-		private static final int ACCEPT_REMOTE_COMMANDS = 5;
-		*/
 		
 		private String name;
 		

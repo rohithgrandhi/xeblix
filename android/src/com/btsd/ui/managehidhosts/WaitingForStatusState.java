@@ -30,7 +30,7 @@ public final class WaitingForStatusState extends AbstractHIDRemoteState {
 			CallbackActivity callbackActivity) {
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
-		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
+		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER_TITLE, 
 				R.string.HID_DEVICE_STATUS);
 		return ServerMessages.getHidStatus();
 	}

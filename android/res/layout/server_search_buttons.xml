@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/LinearLayout01"
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical">
+
+	<TextView android:text="Welcome to Xeblix" 
+		android:layout_width="fill_parent" 
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:paddingTop="20px"
+		android:paddingBottom="20px"
+		></TextView>
+		
+	<Button android:text="Server Search" 
+		android:id="@+id/serverSearch"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:layout_width="fill_parent" 
+		android:gravity="center"
+		android:layout_height="wrap_content"></Button>
+</LinearLayout>

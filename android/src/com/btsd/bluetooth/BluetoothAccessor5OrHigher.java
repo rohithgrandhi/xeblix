@@ -1,12 +1,21 @@
 package com.btsd.bluetooth;
 
-import android.content.Context;
+import android.content.Intent;
+import android.bluetooth.BluetoothDevice;
 
-public final class BluetoothAccessor5OrHigher extends BluetoothAccessor{
+import com.btsd.bluetooth.BluetoothAdapter;
+
+public final class BluetoothAccessor5OrHigher extends com.btsd.bluetooth.BluetoothAccessor {
 
 	@Override
-	public BluetoothAdapter getBluetoothAdapter(Context context) {
+	public BluetoothAdapter getDefaultAdapter() {
 		return new BluetoothAdapter5OrHigher();
+	}
+
+	@Override
+	public com.btsd.bluetooth.BluetoothDevice getBluetoothDeviceFromIntent(Intent intent) {
+		BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		return new BluetoothDevice5OrHigher(device);
 	}
 	
 }

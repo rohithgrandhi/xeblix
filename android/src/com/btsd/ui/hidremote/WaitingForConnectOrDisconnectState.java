@@ -36,7 +36,7 @@ public final class WaitingForConnectOrDisconnectState extends AbstractHIDRemoteS
 		
 		super.transitionTo(remoteCache, remoteConfiguration, callbackActivity);
 		
-		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
+		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER_TITLE, 
 				R.string.SERVER_IN_PROBATIONALLY_CONNECTED_MODE);
 		return null;
 	}

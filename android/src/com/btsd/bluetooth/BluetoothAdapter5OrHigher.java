@@ -1,26 +1,35 @@
 package com.btsd.bluetooth;
 
-public class BluetoothAdapter5OrHigher implements BluetoothAdapter{
+import android.bluetooth.BluetoothAdapter;
 
-	private android.bluetooth.BluetoothAdapter adapter;
+import com.btsd.bluetooth.BluetoothDevice;
+
+public final  class BluetoothAdapter5OrHigher implements com.btsd.bluetooth.BluetoothAdapter {
+
+	private BluetoothAdapter adapter;
 	
-	public BluetoothAdapter5OrHigher() {
-		adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter();
-	}
-	
-	@Override
-	public boolean isEnabled() {
-		return adapter.isEnabled();
-	}
-	
-	@Override
-	public BluetoothDevice getRemoteDevice(String address) {
-		
-		return new BluetoothDevice5OrHigher(adapter.getRemoteDevice(address), this);
+	public BluetoothAdapter5OrHigher(){
+		adapter = BluetoothAdapter.getDefaultAdapter();
 	}
 	
 	@Override
 	public boolean cancelDiscovery() {
 		return adapter.cancelDiscovery();
+	}
+
+	@Override
+	public BluetoothDevice getRemoteDevice(String address) {
+		android.bluetooth.BluetoothDevice device =  adapter.getRemoteDevice(address);
+		return new BluetoothDevice5OrHigher(device);
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return adapter.isEnabled();
+	}
+
+	@Override
+	public boolean startDiscovery() {
+		return adapter.startDiscovery();
 	}
 }

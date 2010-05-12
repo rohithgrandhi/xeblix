@@ -2,7 +2,6 @@ package com.btsd.util;
 
 public enum MessagesEnum {
 
-	ON_START(0),
 	//SEND_COMMAND(1),
 	SHUTDOWN(2),
 	REGISTER_ACTIVITY(3),
@@ -14,7 +13,8 @@ public enum MessagesEnum {
 	FOCUS_EVENT(9),
 	CANCEL_PAUSE_ALERT(10),
 	MESSAGE_TO_SERVER(11),
-	VERSION_REQUEST(12);
+	VERSION_REQUEST(12),
+	CONNECT_TO_SERVER(13);
 	
 	private int id;
 	

@@ -70,7 +70,7 @@ public final class ConnectingToHostState extends AbstractHIDRemoteState{
 			CallbackActivity callbackActivity) {
 		HIDRemoteConfiguration hidRemoteConfig = (HIDRemoteConfiguration)remoteConfiguration;
 		String dialog = callbackActivity.getActivity().getString(R.string.HID_HOST_CONNECT_MESSAGE);
-		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER, 
+		callbackActivity.showCancelableDialog(R.string.CONNECTING_TO_BT_SERVER_TITLE, 
 				dialog + " " + hidRemoteConfig.getName());
 		return hidRemoteConfig;
 	}
