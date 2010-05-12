@@ -1,34 +1,44 @@
 package com.btsd.bluetooth;
 
-import it.gerdavax.android.bluetooth.BluetoothException;
-import it.gerdavax.android.bluetooth.BluetoothSocket;
-import it.gerdavax.android.bluetooth.RemoteBluetoothDevice;
-
+import java.io.IOException;
 import java.util.UUID;
 
-public final class BluetoothDevice4OrLower implements BluetoothDevice {
+import backport.android.bluetooth.BluetoothDevice;
 
-	private RemoteBluetoothDevice remoteDevice; 
-	private BluetoothAdapter adapter;
+import com.btsd.bluetooth.BluetoothSocket;
+
+public final class BluetoothDevice4OrLower extends com.btsd.bluetooth.BluetoothDevice {
+
+	private BluetoothDevice device;
 	
-	public BluetoothDevice4OrLower(RemoteBluetoothDevice remoteDevice, BluetoothAdapter adapter){
-		this.remoteDevice = remoteDevice;
-		this.adapter = adapter;
+	public BluetoothDevice4OrLower(BluetoothDevice device){
+		if(device == null){
+			throw new IllegalArgumentException("This method does not accept null parameters.");
+		}
+		this.device = device;
 	}
 	
 	@Override
-	public void pair() {
-		remoteDevice.pair();
-	}
-	
-	@Override
-	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) 
-		throws BluetoothException{
+	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid)
+			throws IOException {
 		
-		adapter.cancelDiscovery();
-		//ignore the uuid just connect to a port. 
-		//TODO: may want to attempt a connection to port 1, if it fails 
-		//do a search or try another socket
-		return remoteDevice.openSocket(1);
+		backport.android.bluetooth.BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid);
+		return new BluetoothSocket4OrLower(socket);
 	}
+
+	@Override
+	public int getBondState() {
+		return device.getBondState();
+	}
+	
+	@Override
+	public String getAddress() {
+		return device.getAddress();
+	}
+	
+	@Override
+	public String getName() {
+		return device.getName();
+	}
+	
 }

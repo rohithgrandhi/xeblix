@@ -1,14 +1,15 @@
 package com.btsd.bluetooth;
 
-import it.gerdavax.android.bluetooth.BluetoothException;
-import it.gerdavax.android.bluetooth.BluetoothSocket;
-
+import java.io.IOException;
 import java.util.UUID;
 
-public interface BluetoothDevice {
+public abstract class BluetoothDevice {
 
-	public void pair();
+	public abstract BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid)	throws IOException;
 	
-	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) throws BluetoothException;
+	public abstract int getBondState();
 	
+	public abstract String getName();
+	
+	public abstract String getAddress();
 }

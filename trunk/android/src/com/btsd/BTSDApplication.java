@@ -14,13 +14,14 @@ import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.app.Application;
 import android.util.Log;
-import android.util.Pair;
 
 import com.btsd.bluetooth.BluetoothAccessor;
+import com.btsd.bluetooth.BluetoothAdapter;
 import com.btsd.ui.LIRCRemoteConfiguration;
 import com.btsd.ui.RemoteConfiguration;
 import com.btsd.ui.hidremote.HIDRemoteConfiguration;
 import com.btsd.ui.managehidhosts.AddHIDHostConfiguration;
+import com.btsd.util.Pair;
 
 public class BTSDApplication extends Application {
 
@@ -50,10 +51,11 @@ public class BTSDApplication extends Application {
 		
 		Log.e(TAG, "onCreate");
 		
+		BluetoothAccessor.getInstance().getDefaultAdapter();
+		
 		if(statemachine == null){
 			statemachine = new BTScrewDriverStateMachine();
 			statemachine.start();
-			statemachine.onStart(this);
 		}
 		
 		if(remoteCache == null){
@@ -70,7 +72,8 @@ public class BTSDApplication extends Application {
 		
 		//for android2.0+ need to do some initialization in a thread that has 
 		//had looper.prepare called
-		BluetoothAccessor.getInstance().getBluetoothAdapter(this);
+		
+		//BluetoothAccessor.getInstance().getBluetoothAdapter(this);
 	}
 
 	public BTScrewDriverStateMachine getStateMachine(){
@@ -165,7 +168,7 @@ public class BTSDApplication extends Application {
 				if(!hidHosts.isEmpty()){
 					for(Pair<String,String> hidHost: hidHosts){
 						remoteConfigurations.add(new HIDRemoteConfiguration(hidTemplateConfiguration,
-								hidHost.first, hidHost.second));
+								hidHost.getLeft(), hidHost.getRight()));
 					}
 				}
 			}

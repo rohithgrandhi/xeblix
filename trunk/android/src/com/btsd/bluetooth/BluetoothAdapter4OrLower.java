@@ -1,46 +1,35 @@
 package com.btsd.bluetooth;
 
+import backport.android.bluetooth.BluetoothAdapter;
 
-import it.gerdavax.android.bluetooth.LocalBluetoothDevice;
-import android.content.Context;
-import android.util.Log;
+import com.btsd.bluetooth.BluetoothDevice;
 
-public final class BluetoothAdapter4OrLower implements BluetoothAdapter{
+public final class BluetoothAdapter4OrLower implements com.btsd.bluetooth.BluetoothAdapter {
 
-	private LocalBluetoothDevice device;
+	private BluetoothAdapter adapter;
 	
-	public BluetoothAdapter4OrLower(Context context){
-		try{
-			device = LocalBluetoothDevice.initLocalDevice(context);
-		}catch(Exception ex){
-			throw new RuntimeException(ex.getMessage(), ex);
-		}
-	}
-	
-	@Override
-	public boolean isEnabled() {
-		try{
-			return device.isEnabled();
-		}catch(Exception ex){
-			throw new RuntimeException(ex.getMessage(), ex);
-		}
-	}
-	
-	@Override
-	public BluetoothDevice getRemoteDevice(String address) {
-		
-		return new BluetoothDevice4OrLower(device.getRemoteBluetoothDevice(address), 
-			this);
+	public BluetoothAdapter4OrLower(){
+		adapter = BluetoothAdapter.getDefaultAdapter();
 	}
 	
 	@Override
 	public boolean cancelDiscovery() {
-		try{
-			device.stopScanning();
-			return true;
-		}catch(Exception ex){
-			Log.e(getClass().getSimpleName(), ex.getMessage(), ex);
-			return false;
-		}
+		return adapter.cancelDiscovery();
+	}
+
+	@Override
+	public BluetoothDevice getRemoteDevice(String address) {
+		backport.android.bluetooth.BluetoothDevice device =  adapter.getRemoteDevice(address);
+		return new BluetoothDevice4OrLower(device);
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return adapter.isEnabled();
+	}
+
+	@Override
+	public boolean startDiscovery() {
+		return adapter.startDiscovery();
 	}
 }

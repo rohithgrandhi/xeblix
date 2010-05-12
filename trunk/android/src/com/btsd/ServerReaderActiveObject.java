@@ -52,7 +52,7 @@ public class ServerReaderActiveObject extends ActiveThread {
 						builder.append(temp);
 					}
 					
-				}catch(IOException ex){
+				}catch(Exception ex){
 					stateMachine.serverDisconnect();
 					//server is dead, kill the thread
 					throw new ShutdownException();

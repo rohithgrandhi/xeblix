@@ -212,12 +212,23 @@ public class Main extends Activity implements CallbackActivity{
 
 		});
         
+        button = (Button) findViewById(R.id.WelcomeActivity);
+        button.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View arg0) {
+				Log.i(TAG, "Xeblix Welcome Activity clicked");
+				Intent intent = new Intent("com.btsd.XeblixWelcomeActivity");
+				startActivity(intent);
+			}
+
+		});
+        
         if(callbackHandler == null){
 			callbackHandler = new BTScrewDriverCallbackHandler(this);
 		}
 		
         
-        pauseAlert = new BTScrewDriverAlert(R.string.CONNECTING_TO_BT_SERVER, false);
+        pauseAlert = new BTScrewDriverAlert(R.string.CONNECTING_TO_BT_SERVER_TITLE, false);
         //TODO: comment out for testing
         pauseAlert.showAlert(this);
         

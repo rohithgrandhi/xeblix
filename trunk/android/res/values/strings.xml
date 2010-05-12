@@ -2,12 +2,13 @@
 <resources>
     <string name="sony_bravia">Sony Bravia</string>
     <string name="hello">Hello World, Main!</string>
-    <string name="app_name">Bluetooth Srewdriver</string>
+    <string name="app_name">Xeblix</string>
 
 <string name="BT_NOT_ENABLED">What am I your mom? Turn on bluetooth!</string>
 <string name="BT_SERVER_CONNECT_FAILED">Bluetooth server not in range or not running.</string>
 <string name="vip1200">vip1200</string>
-<string name="CONNECTING_TO_BT_SERVER">Connecting...</string>
+<string name="CONNECTING_TO_BT_SERVER_TITLE">Connecting...</string>
+<string name="CONNECTING_TO_BT_SERVER_PREFIX">Connecting to </string>
 <string name="bthid">Bluetooth HID</string>
 <string name="HID_DEVICE_STATUS">Checking HID Device Status...</string>
 <string name="BT_SERVER_COMM_FAILURE">Error communicating with Bluetooth Server</string>
@@ -54,4 +55,6 @@
 <string name="ALT_KEY_LOCK_LABEL">Alt Lock</string>
 <string name="CTRL_KEY_LOCK_LABEL">CTRL Lock</string>
 <string name="BACKSPACE_KEY_LABEL">Backspace</string>
+<string name="WELCOME_SEARCHING_TITLE">Searching</string>
+<string name="WELCOME_SEARCHING">Searching for potential Xeblix servers</string>
 </resources>

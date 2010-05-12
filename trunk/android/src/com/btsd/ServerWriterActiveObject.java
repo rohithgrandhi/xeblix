@@ -51,6 +51,7 @@ public class ServerWriterActiveObject extends ActiveThread {
 			
 			break;
 		case SERVER_DISCONNECT:
+			
 			throw new ShutdownException();
 		default:
 			break;

@@ -64,12 +64,14 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 		if(messagesEnum  == MessagesEnum.BT_CONNECTION_STATE){
 			
 			States state = (States)message;
-			if(state == States.DISCONNECTED || state == States.CONNECTION_FAILED){
-	    		
-	    		BTScrewDriverAlert alert = new BTScrewDriverAlert(
-					R.string.BT_SERVER_CONNECT_FAILED, true);
-	    		alert.showAlert(this);
-	    	}
+			if(!onServerConnectionStateChange(state)){
+				if(state == States.DISCONNECTED || state == States.CONNECTION_FAILED){
+		    		
+		    		BTScrewDriverAlert alert = new BTScrewDriverAlert(
+						R.string.BT_SERVER_CONNECT_FAILED, true);
+		    		alert.showAlert(this);
+		    	}
+			}
 		}else{
 			onRemoteMessage(messagesEnum, message);
 		}
@@ -77,6 +79,17 @@ public abstract class AbstractRemoteActivity extends Activity implements OnClick
 	}
 	
 	protected abstract void onRemoteMessage(MessagesEnum messagesEnum, Object message);
+	
+	/**
+	 * Concrete implementations can implement this method to handle server state changes. Return
+	 * true if the concrete implementation handled the change or false if this abstract class should
+	 * handle it
+	 * @param state
+	 * @return
+	 */
+	protected boolean onServerConnectionStateChange(States state){
+		return false;
+	}
 	
 	@Override
 	public void showCancelableDialog(int title, int message) {
