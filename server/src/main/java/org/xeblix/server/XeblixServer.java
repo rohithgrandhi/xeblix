@@ -38,6 +38,8 @@ import org.xeblix.server.util.ActiveThread;
 import org.xeblix.server.util.MessagesEnum;
 import org.xeblix.server.util.ShutdownException;
 
+import com.sun.corba.se.impl.oa.poa.ActiveObjectMap;
+
 public class XeblixServer {
 
 	private static final DBusManagerImpl dbusManager = new DBusManagerImpl();
@@ -124,20 +126,35 @@ public class XeblixServer {
 				}else if(msg.getType() == MessagesEnum.CLIENT_DISCONNECT){
 					
 					ClientDisconnectMessage disconnectMessage = (ClientDisconnectMessage)msg;
-					if(clientReaders.remove(disconnectMessage.getRemoteDeviceAddress()) != null){
+					ActiveThread clientReader = clientReaders.get(disconnectMessage.getRemoteDeviceAddress());
+					if(clientReader != null){
+						clientReaders.remove(disconnectMessage.getRemoteDeviceAddress());
 						System.out.println("Removed client with address: " + disconnectMessage.
-							getRemoteDeviceAddress()+ " from ClientReaders");
+								getRemoteDeviceAddress()+ " from ClientReaders");
+						
+						if(clientReader.isAlive()){
+							clientReader.interrupt();
+							clientReader.addMessage(new ShutdownMessage());
+						}
 					}else{	
 						System.out.println("Failed to remove client with address: " + disconnectMessage.
-								getRemoteDeviceAddress()+ " from ClientReaders");
+								getRemoteDeviceAddress()+ " from ClientReaders. Could not find in list of clients.");
 					}
 					
-					if(clientWriters.remove(disconnectMessage.getRemoteDeviceAddress()) != null){
+					ActiveThread clientWriter = clientWriters.get(disconnectMessage.getRemoteDeviceAddress());
+					if(clientWriter != null){
+						
+						clientWriters.remove(disconnectMessage.getRemoteDeviceAddress());
 						System.out.println("Removed client with address: " + disconnectMessage.
-							getRemoteDeviceAddress()+ " from ClientWriters.");
+								getRemoteDeviceAddress()+ " from ClientWriters.");
+						
+						if(clientWriter.isAlive()){
+							clientWriter.addMessage(new ShutdownMessage());
+						}
 					}else{
 						System.out.println("Faield to remove client with address: " + disconnectMessage.
-								getRemoteDeviceAddress()+ " from ClientWriters.");
+								getRemoteDeviceAddress()+ " from ClientWriters. Could not find in list of clients.");
+								
 					}
 					
 				}else if(msg.getType() == MessagesEnum.MESSAGE_FROM_CLIENT){
