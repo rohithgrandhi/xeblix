@@ -12,6 +12,7 @@ public abstract class ActiveThread extends Thread {
 	
 	public ActiveThread(){
 		this.messages = new LinkedList<Message>();
+		setName(getClass().getSimpleName());
 	}
 	
 	public final  synchronized void addMessage(Message message){

@@ -60,6 +60,16 @@ public class ClientReaderActiveObject extends ActiveThread {
 				btsdActiveObject.addMessage(new ServiceFailureMessage(
 						getClass().getSimpleName()));
 			}
+		}else if(msg.getType() == MessagesEnum.SHUTDOWN){
+			if(inStream != null){
+				try{
+					inStream.close();
+				}catch(IOException ex){}
+			}
+			
+			if(connection !=null){
+				try{connection.close();}catch(IOException ex){}
+			}
 		}else{
 			System.out.println("Unknown message: " + msg.getType().getDescription());
 		}
@@ -75,7 +85,15 @@ public class ClientReaderActiveObject extends ActiveThread {
 		while(true){
 			//get the client's command
 			byte[] bytes = new byte[256];
-			int readBytes = inStream.read(bytes);
+			int readBytes = -1;
+			try{
+				readBytes = inStream.read(bytes);
+			}catch(Exception ex){
+				System.out.println("Client disconnected");
+				ex.printStackTrace();
+				btsdActiveObject.addMessage(new ClientDisconnectMessage(this.remoteDeviceAddress));
+				throw new IllegalStateException("No data from client");
+			}
 			if(readBytes == -1){
 				System.out.println("Client disconnected");
 				//client disconnected

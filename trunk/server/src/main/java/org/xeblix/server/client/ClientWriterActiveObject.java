@@ -5,12 +5,14 @@ import java.io.OutputStream;
 
 import javax.microedition.io.StreamConnection;
 
+import org.xeblix.server.messages.ClientDisconnectMessage;
 import org.xeblix.server.messages.ClientInitMessage;
 import org.xeblix.server.messages.FromClientResponseMessage;
 import org.xeblix.server.messages.Message;
 import org.xeblix.server.messages.ServiceFailureMessage;
 import org.xeblix.server.util.ActiveThread;
 import org.xeblix.server.util.MessagesEnum;
+import org.xeblix.server.util.ShutdownException;
 
 public class ClientWriterActiveObject extends ActiveThread {
 
@@ -59,10 +61,23 @@ public class ClientWriterActiveObject extends ActiveThread {
 			}catch(IOException ex){
 				System.out.println("Error sending data to client. Message: " + messageToClient);
 				ex.printStackTrace();
-				btsdActiveObject.addMessage(new ServiceFailureMessage(
-						getClass().getSimpleName()));
+				btsdActiveObject.addMessage(new ClientDisconnectMessage(this.remoteDeviceAddress));
+				/*btsdActiveObject.addMessage(new ServiceFailureMessage(
+						getClass().getSimpleName()));*/
 			}
 			
+		}else if(msg.getType() == MessagesEnum.SHUTDOWN){
+			if(outStream != null){
+				try{
+					outStream.close();
+				}catch(IOException ex){}
+			}
+			
+			if(connection !=null){
+				try{connection.close();}catch(IOException ex){}
+			}
+			
+			throw new ShutdownException();
 		}
 	}
 
