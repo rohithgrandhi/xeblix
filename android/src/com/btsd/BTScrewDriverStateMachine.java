@@ -80,6 +80,8 @@ public class BTScrewDriverStateMachine extends ActiveThread{
 			
 			if(currentState == States.CONNECTED){
 				serverWriter.sendMessageToServer((JSONObject)msg.obj);
+			}else{
+				BTScrewDriverCallbackHandler.BTConnectionStatus(currentActivity, currentState);
 			}
 			
 		}else if(msg.arg1 == MessagesEnum.SHUTDOWN.getId()){
