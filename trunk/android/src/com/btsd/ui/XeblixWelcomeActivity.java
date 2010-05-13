@@ -11,11 +11,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 
 import com.btsd.AbstractRemoteActivity;
 import com.btsd.BTSDApplication;
-import com.btsd.BTScrewDriverAlert;
 import com.btsd.Main;
 import com.btsd.R;
 import com.btsd.ServerMessages;
@@ -69,8 +71,42 @@ public class XeblixWelcomeActivity extends AbstractRemoteActivity implements OnS
         this.connectingDialog = new AlertDialog.Builder(this).
         	setTitle(R.string.CONNECTING_TO_BT_SERVER_TITLE).
         	setNegativeButton(android.R.string.cancel, this).create();
+        
+        //setup the serversListView with known servers
+        this.serversListView.clearDiscoveredServers(true);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		
+		AdapterView.AdapterContextMenuInfo info = null;
+    	
+    	if(item.getMenuInfo() != null){
+    	    try {
+	             info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+	        } catch (ClassCastException e) {
+	            Log.e(getClass().getSimpleName(), "bad menuInfo", e);
+	            return false;
+	        }
+    	}
+		
+    	if(info == null){
+    		throw new IllegalArgumentException("Expecting menu information from ServersListView.");
+    	}
+    	
+    	int position = (int)info.id;
+    	
+		this.serversListView.removedSavedServer(position);
+    	
+		return super.onMenuItemSelected(featureId, item);
+	}
+	 
 	@Override
 	public void onServerSearchClick() {
 		
@@ -78,7 +114,7 @@ public class XeblixWelcomeActivity extends AbstractRemoteActivity implements OnS
 		
 		this.searchingDialog.show();
 		
-		serversListView.clearDiscoveredServers();
+		serversListView.clearDiscoveredServers(false);
 		adapter.startDiscovery();
 		
 	}
