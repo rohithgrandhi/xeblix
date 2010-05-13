@@ -57,4 +57,5 @@
 <string name="BACKSPACE_KEY_LABEL">Backspace</string>
 <string name="WELCOME_SEARCHING_TITLE">Searching</string>
 <string name="WELCOME_SEARCHING">Searching for potential Xeblix servers</string>
+<string name="REMOVE_XEBLIX_SERVER">Delete</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.btsd.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -14,9 +16,12 @@ import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -27,15 +32,15 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import com.btsd.R;
 
-public class ServersListView extends LinearLayout implements OnItemClickListener{
+public class ServersListView extends LinearLayout implements OnItemClickListener, OnCreateContextMenuListener{
 
 	public static final String XEBLIX_SERVERS = "XEBLIX_SERVERS";
 	public static final String XEBLIX_SERVER_LABEL = "LABEL";
 	public static final String XEBLIX_SERVER_ADDRESS = "ADDRESS";
 	public static final String XEBLIX_DEFAULT_SERVER = "DEFAULT";
 	
-	private final List<String> servers = new ArrayList<String>();// new String[]{"Test Server", "Test Server 2","Test Server 3","Test Server 4","Test Server 5","Test Server 6","Test Server 7","Test Server 8","Test Server 9","Test Server 10"};
-	private final List<String> addresses = new ArrayList<String>(); //new String[]{"00:11:22:33:44", "AA:BB:55:66","AA:BB:11:33","AA:BB:22:44","AA:BB:33:55","AA:BB:44:66","AA:BB:55:77","AA:BB:66:88","AA:BB:77:99","AA:BB:88:10"};
+	private final List<String> servers = Collections.synchronizedList(new ArrayList<String>());
+	private final List<String> addresses = Collections.synchronizedList(new ArrayList<String>()); 
 	
 	private ListView serversListView = null;
 	private String selectedServer = null;
@@ -65,8 +70,7 @@ public class ServersListView extends LinearLayout implements OnItemClickListener
 		serversListView = (ListView)findViewById(R.id.serversListView);
 		serversListView.setAdapter(new ServerAdapter());
 		serversListView.setOnItemClickListener(this);
-		
-		clearDiscoveredServers();
+		serversListView.setOnCreateContextMenuListener(this);
 	}
 	
 	public void setOnServerSelect(OnServerSelect serverSelectListener){
@@ -126,10 +130,11 @@ public class ServersListView extends LinearLayout implements OnItemClickListener
 		
 	}
 	
-	public synchronized void clearDiscoveredServers(){
+	public synchronized void clearDiscoveredServers(boolean fireServerSelect){
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
 		String serversString = prefs.getString(XEBLIX_SERVERS, "[]");
+		String selectedServerName = null;
 		try{
 			JSONArray jsonServers = new JSONArray(serversString);
 			servers.clear();
@@ -138,10 +143,13 @@ public class ServersListView extends LinearLayout implements OnItemClickListener
 				
 				JSONObject jsonServer = jsonServers.getJSONObject(i);
 				
-				servers.add(jsonServer.getString(XEBLIX_SERVER_LABEL));
-				addresses.add(jsonServer.getString(XEBLIX_SERVER_ADDRESS));
+				String tempName = jsonServer.getString(XEBLIX_SERVER_LABEL);
+				servers.add(tempName);
+				String tempAddress = jsonServer.getString(XEBLIX_SERVER_ADDRESS);
+				addresses.add(tempAddress);
 				if(jsonServer.getBoolean(XEBLIX_DEFAULT_SERVER)){
-					selectedServer = jsonServer.getString(XEBLIX_SERVER_ADDRESS);
+					selectedServer = tempAddress;
+					selectedServerName = tempName;  
 				}
 				
 			}
@@ -151,6 +159,11 @@ public class ServersListView extends LinearLayout implements OnItemClickListener
 		}
 		ServerAdapter adapter = (ServerAdapter)serversListView.getAdapter();
 		adapter.notifyDataSetChanged();
+		
+		if(fireServerSelect && serverSelectListener != null && selectedServer != null){
+			serverSelectListener.onServerSelect(selectedServerName, 
+					selectedServer);
+		}
 	}
 	
 	public synchronized void addDiscoveredServer(String name, String address){
@@ -165,6 +178,51 @@ public class ServersListView extends LinearLayout implements OnItemClickListener
 			adapter.notifyDataSetChanged();
 		}
 		
+	}
+	
+	public synchronized void removedSavedServer(int position){
+		
+		if(position < 0 || position > addresses.size()){
+			Log.w(getClass().getSimpleName(), "Invalid position: " + position + 
+					". Valid range is 0 to "+ addresses.size() );
+			return;
+		}
+		String address = addresses.get(position);
+		
+		if(address == null){
+			Log.w(getClass().getSimpleName(), "Failed to find saved server with position: " + position);
+		}
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+		String serversString = prefs.getString(XEBLIX_SERVERS, "[]");
+		Editor editor = prefs.edit();
+		editor.remove("XEBLIX_SERVERS");
+		
+		try{
+			JSONArray jsonServers = new JSONArray(serversString);
+			JSONArray newJSONServers = new JSONArray();
+			for(int i=0; i < jsonServers.length(); i++){
+				
+				JSONObject jsonServer = jsonServers.getJSONObject(i);
+				
+				String tempAddress = jsonServer.getString(XEBLIX_SERVER_ADDRESS);
+				if(!address.equalsIgnoreCase(tempAddress)){
+					newJSONServers.put(jsonServer);
+				}
+			}
+		
+			editor.putString("XEBLIX_SERVERS",newJSONServers.toString());
+		
+		}catch(JSONException ex){
+			throw new RuntimeException(ex.getMessage());
+		}
+		
+		editor.commit();
+		
+		addresses.remove(position);
+		servers.remove(position);
+		ServerAdapter adapter = (ServerAdapter)serversListView.getAdapter();
+		adapter.notifyDataSetChanged();
 	}
 	
 	private Context getServersListViewContext(){
@@ -197,6 +255,35 @@ public class ServersListView extends LinearLayout implements OnItemClickListener
 		}
 	}
 
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		
+		AdapterView.AdapterContextMenuInfo info;
+        try {
+             info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        } catch (ClassCastException e) {
+            Log.e(getClass().getSimpleName(), "bad menuInfo", e);
+            return;
+        }
+		
+        String name = this.servers.get(info.position);
+        String address = this.servers.get(info.position);
+        
+        if(name != null){
+        	menu.setHeaderTitle(name);
+        }else{
+        	menu.setHeaderTitle(address);
+        }
+        menu.add(0, info.position, 0, R.string.REMOVE_XEBLIX_SERVER);
+	}
+	
+	public int getSelectedListItemPosition(){
+		
+		return this.serversListView.getSelectedItemPosition();
+		
+	}
+	
 	private final class ServerAdapter extends ArrayAdapter{
 		public ServerAdapter() {
 			super(getServersListViewContext(), R.layout.server_row, 
