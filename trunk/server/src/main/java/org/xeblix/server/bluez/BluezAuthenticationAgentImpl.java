@@ -112,6 +112,7 @@ public final class BluezAuthenticationAgentImpl implements BluezAuthenticationAg
 
 	public void setDefaultPinCode() {
 		this.pinCode = DEFAULT_PIN_CODE;
+		try{Thread.sleep(3000);}catch(Exception ex){}
 		this.available.release();
 	}
 	
