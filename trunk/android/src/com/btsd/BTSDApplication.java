@@ -13,7 +13,9 @@ import org.xeblix.configuration.ScreensEnum;
 import org.xeblix.configuration.UserInputTargetEnum;
 
 import android.app.Application;
+import android.content.IntentFilter;
 import android.util.Log;
+import backport.android.bluetooth.BluetoothIntentRedirector;
 
 import com.btsd.bluetooth.BluetoothAccessor;
 import com.btsd.bluetooth.BluetoothAdapter;
@@ -70,10 +72,25 @@ public class BTSDApplication extends Application {
 			hidHosts = new ArrayList<Pair<String,String>>();
 		}
 		
-		//for android2.0+ need to do some initialization in a thread that has 
-		//had looper.prepare called
+		if(!BluetoothAccessor.is20OrAbove()){
+			BluetoothIntentRedirector redirector = new BluetoothIntentRedirector();
+			
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.DISCOVERY_COMPLETED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.DISCOVERY_STARTED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.NAME_CHANGED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.SCAN_MODE_CHANGED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.BLUETOOTH_STATE_CHANGED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.REMOTE_DEVICE_CONNECTED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.REMOTE_DEVICE_DISCONNECTED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.REMOTE_DEVICE_DISCONNECT_REQUESTED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.BOND_STATE_CHANGED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.PAIRING_REQUEST"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.PAIRING_CANCEL"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.REMOTE_DEVICE_CLASS_UPDATED"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.REMOTE_DEVICE_FOUND"));
+			registerReceiver(redirector, new IntentFilter("android.bluetooth.intent.action.REMOTE_NAME_UPDATED"));
+		}
 		
-		//BluetoothAccessor.getInstance().getBluetoothAdapter(this);
 	}
 
 	public BTScrewDriverStateMachine getStateMachine(){

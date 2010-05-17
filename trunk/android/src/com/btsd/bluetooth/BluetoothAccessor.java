@@ -19,6 +19,16 @@ public abstract class BluetoothAccessor {
 		
 	}
 	
+	public static final boolean is20OrAbove(){
+		
+		int sdkVersion = Integer.parseInt(Build.VERSION.SDK);       // Cupcake style
+		if (sdkVersion >= ECLAIR) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
 	public synchronized static BluetoothAccessor getInstance(){
 		
 		if(instance == null){
@@ -35,12 +45,11 @@ public abstract class BluetoothAccessor {
              * resolve references to all other classes it uses. Since the pre-Eclair
              * does not have those classes, the loading of ContactAccessorSdk5 would fail.
              */
-            int sdkVersion = Integer.parseInt(Build.VERSION.SDK);       // Cupcake style
-            if (sdkVersion >= ECLAIR) {
-                className = "com.btsd.bluetooth.BluetoothAccessor5OrHigher";
-            } else {
-                className = "com.btsd.bluetooth.BluetoothAccessor4OrLower";
-            }
+			if(is20OrAbove()){
+				className = "com.btsd.bluetooth.BluetoothAccessor5OrHigher";
+			}else{
+				className = "com.btsd.bluetooth.BluetoothAccessor4OrLower";
+			}
 
             /*
              * Find the required class by name and instantiate it.
