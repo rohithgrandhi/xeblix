@@ -7,6 +7,7 @@ import static junit.framework.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -118,7 +119,8 @@ public class HIDDeviceConnectedTest {
 			//#############################################
 			//validateHIDConnection
 			mainThread.getMessages().clear();
-			deviceManager.addMessage(new ValidateHIDConnection("12345678910"));
+			deviceManager.addMessage(new ValidateHIDConnection("12345678910", 
+				(new Date()).getTime() + 1000 ));
 			
 			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
 			
@@ -497,7 +499,7 @@ public class HIDDeviceConnectedTest {
 				return true;
 			}
 			public DeviceInfo getDeviceInfo(String path) {return null;}
-		}, mainThread , hidFactory,25);
+		}, mainThread , hidFactory,25, 1000);
 		deviceManager.start();
 		return deviceManager;
 	}
