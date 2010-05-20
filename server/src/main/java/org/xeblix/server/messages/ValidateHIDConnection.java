@@ -7,12 +7,16 @@ public class ValidateHIDConnection implements Message {
 	private static final long serialVersionUID = -2799107981448213444L;
 
 	private String remoteDeviceAddress;
+	//time in ms when a validation is considered failed
+	private long failedTime;
 	
-	public ValidateHIDConnection(){
+	public ValidateHIDConnection(long failedTime){
+		this.failedTime = failedTime;
 	}
 	
-	public ValidateHIDConnection(String remoteDeviceAddress){
+	public ValidateHIDConnection(String remoteDeviceAddress, long failedTime){
 		this.remoteDeviceAddress = remoteDeviceAddress;
+		this.failedTime = failedTime;
 	}
 	
 	public String getRemoteDeviceAddress(){
@@ -23,4 +27,8 @@ public class ValidateHIDConnection implements Message {
 		return MessagesEnum.VALIDATE_HID_CONNECT;
 	}
 
+	public long getFailedTime() {
+		return failedTime;
+	}
+	
 }

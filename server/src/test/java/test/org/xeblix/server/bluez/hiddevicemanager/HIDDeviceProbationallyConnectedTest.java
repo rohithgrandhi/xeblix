@@ -366,7 +366,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			//start with no host connections, should transition to disconnected state
 			mainThread.getMessages().clear();
 			//wait for the validateMessage to be consumed
-			try{Thread.sleep(75);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(175);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDeviceDisconnectedState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
@@ -423,7 +423,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			assertEquals(0, hidFactory.getWriterCount());
 			
 			//wait for the validateMessage to be consumed
-			try{Thread.sleep(105);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(200);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDeviceDisconnectedState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
@@ -544,7 +544,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			//wait for the validateMessage to be consumed, since getting to pairmode killing
 			//any connections are recreating them , reset the hidFactory counts
 			hidFactory.resetCount();
-			try{Thread.sleep(75);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(175);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDevicePairModeState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
@@ -603,7 +603,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			//wait for the validateMessage to be consumed, since getting to pairmode killing
 			//any connections are recreating them , reset the hidFactory counts
 			hidFactory.resetCount();
-			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(200);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDevicePairModeState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());
@@ -652,7 +652,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
 				public boolean removePairedDevice(String address) {return true;}
 				public DeviceInfo getDeviceInfo(String path) {return null;}
-			}, mainThread , hidFactory,175);
+			}, mainThread , hidFactory,175, 1500);
 			deviceManager.start();
 			
 			transitionViaPairMode(mainThread, deviceManager, hidFactory);
@@ -779,7 +779,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
 				public boolean removePairedDevice(String address) {return true;}
 				public DeviceInfo getDeviceInfo(String path) {return null;}
-			}, mainThread , hidFactory,175);
+			}, mainThread , hidFactory,175, 325);
 			deviceManager.start();
 			
 			transitionViaPairMode(mainThread, deviceManager, hidFactory);
@@ -846,7 +846,7 @@ public class HIDDeviceProbationallyConnectedTest {
 	}
 
 	private HIDDeviceManager createDeviceManager(MockActiveObject mainThread,
-			MockHIDFactory hidFactory, int validateConnectionTimeout, 
+			MockHIDFactory hidFactory, int validateConnectionInterval, 
 			final List<DeviceInfo> hidHosts) {
 		HIDDeviceManager deviceManager;
 		deviceManager = new HIDDeviceManager(new DBusManager(){
@@ -872,7 +872,7 @@ public class HIDDeviceProbationallyConnectedTest {
 			public List<DeviceInfo> listDevices() {return Collections.unmodifiableList(hidHosts);}
 			public boolean removePairedDevice(String address) {return true;}
 			public DeviceInfo getDeviceInfo(String path) {return null;}
-		}, mainThread , hidFactory,validateConnectionTimeout);
+		}, mainThread , hidFactory,validateConnectionInterval, 150);
 		deviceManager.start();
 		return deviceManager;
 	}
@@ -1015,7 +1015,7 @@ public class HIDDeviceProbationallyConnectedTest {
 				deviceManager.addMessage(new HIDHostDisconnect());
 			}
 			
-			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
+			try{Thread.sleep(175);}catch(InterruptedException ex){ex.printStackTrace();}
 			
 			assertEquals(HIDDevicePairModeState.getInstance(),deviceManager.getDeviceManagerState());
 			assertEquals(1, mainThread.getMessages().size());

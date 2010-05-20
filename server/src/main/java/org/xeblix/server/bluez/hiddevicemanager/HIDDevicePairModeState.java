@@ -1,5 +1,7 @@
 package org.xeblix.server.bluez.hiddevicemanager;
 
+import java.util.Date;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xeblix.server.bluez.DeviceInfo;
@@ -126,8 +128,10 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 			//if authentication fails there is no message from HID Host, so schedule
 			//a failed message. If we have not heard from the HID Host then assume failure, 
 			//else we have heard from the HID Host and the message can be ignored.
-			deviceManager.addMessage(new ValidateHIDConnection(remoteDeviceAddress), 
-				deviceManager.getValidateConnectionTimeout());
+			Date now = new Date();
+			deviceManager.addMessage(new ValidateHIDConnection(remoteDeviceAddress, 
+				now.getTime() + deviceManager.getValidateConnectionTimeout()), 
+				deviceManager.getValidateConnectionInterval());
 			deviceManager.updateState(HIDDeviceProbationallyConnectedState.getInstance());	
 		}else{
 			//user selected cancel, send back a response
@@ -164,7 +168,6 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 			//store the hostInfo, we will need it later if we get connected
 			deviceManager.setPossibleHidHostAddress(message.getAddress());
 			
-			//asdf;
 			if(deviceManager.isReceivedPinconfirmation()){
 				//don't need to wait for a pincode response, the host just displayed
 				//a pin code to confirm. Skip past probationallyConnected as quickly as possible
@@ -174,7 +177,9 @@ public final class HIDDevicePairModeState implements HIDDeviceManagerState {
 				//if authentication fails there is no message from HID Host, so schedule
 				//a failed message. If we have not heard from the HID Host then assume failure, 
 				//else we have heard from the HID Host and the message can be ignored.
-				deviceManager.addMessage(new ValidateHIDConnection(), 100);
+				Date now = new Date();
+				deviceManager.addMessage(new ValidateHIDConnection(now.getTime() + 
+						deviceManager.getValidateConnectionTimeout()) , 100);
 				deviceManager.updateState(HIDDeviceProbationallyConnectedState.getInstance());	
 				
 			}

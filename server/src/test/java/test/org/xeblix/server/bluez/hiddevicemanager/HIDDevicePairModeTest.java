@@ -6,6 +6,7 @@ import static junit.framework.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -140,7 +141,7 @@ public class HIDDevicePairModeTest {
 			//validateHIDConnection
 			//this message will be ignored
 			mainThread.getMessages().clear();
-			deviceManager.addMessage(new ValidateHIDConnection("000000"));
+			deviceManager.addMessage(new ValidateHIDConnection("000000",(new Date()).getTime() + 1000));
 			
 			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
 			

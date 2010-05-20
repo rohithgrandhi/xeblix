@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -398,7 +399,7 @@ public class HIDDeviceDisconnectTest {
 			assertEquals(0, mainThread.getMessages().size());
 			assertEquals(0, hidFactory.getSocketCount());
 			
-			deviceManager.addMessage(new ValidateHIDConnection("1234"));
+			deviceManager.addMessage(new ValidateHIDConnection("1234",(new Date()).getTime() + 1000));
 			
 			try{Thread.sleep(50);}catch(InterruptedException ex){ex.printStackTrace();}
 			

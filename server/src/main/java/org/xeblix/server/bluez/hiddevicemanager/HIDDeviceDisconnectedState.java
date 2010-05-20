@@ -1,5 +1,6 @@
 package org.xeblix.server.bluez.hiddevicemanager;
 
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
@@ -73,8 +74,9 @@ public final class HIDDeviceDisconnectedState implements HIDDeviceManagerState {
 	private void connectoToHost(HIDDeviceManager deviceManager,
 			String remoteDeviceAddress, String hostAddress) {
 		
-		deviceManager.addMessage(new ValidateHIDConnection(remoteDeviceAddress), 
-			deviceManager.getValidateConnectionTimeout());
+		Date now = new Date();
+		deviceManager.addMessage(new ValidateHIDConnection(remoteDeviceAddress, now.getTime() + 
+			deviceManager.getValidateConnectionTimeout()),deviceManager.getValidateConnectionInterval());
 		
 		ActiveThread controlHIDSocketActiveObject = deviceManager.getHidFactory().getBluetoothHIDSocketActiveObject();
 		controlHIDSocketActiveObject.start();

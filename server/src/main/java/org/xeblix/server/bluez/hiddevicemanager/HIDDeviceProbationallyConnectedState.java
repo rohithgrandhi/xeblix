@@ -1,5 +1,7 @@
 package org.xeblix.server.bluez.hiddevicemanager;
 
+import java.util.Date;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xeblix.server.bluez.DeviceInfo;
@@ -175,7 +177,7 @@ public final class HIDDeviceProbationallyConnectedState implements
 			ValidateHIDConnection message) {
 		
 		System.out.println("Validating connection with HID Host");
-		
+		Date now = new Date();
 		if(deviceManager.getInputHIDSocketActiveObject() != null && 
 			deviceManager.getInputHIDSocketActiveObject().isAlive() && 
 			deviceManager.getControlHIDSocketActiveObject() != null && 
@@ -200,6 +202,11 @@ public final class HIDDeviceProbationallyConnectedState implements
 				HIDDeviceConnectedState.getStatus(deviceManager.getConnectedHostInfo())));
 			
 			deviceManager.updateState(HIDDeviceConnectedState.getInstance());
+		}else if(message.getFailedTime() > now.getTime()){
+			//have not reached the timeout yet, schedule the message again
+			System.out.println("HID Connection still in progress, validating again in: " +
+					deviceManager.getValidateConnectionInterval() + "MS.");
+			deviceManager.addMessage(message, deviceManager.getValidateConnectionInterval());
 		}else{
 			//validation failed
 			transitionToPreviousState(deviceManager,

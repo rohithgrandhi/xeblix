@@ -59,6 +59,7 @@ public final class HIDDeviceManager extends ActiveThread{
 	public static final int INPUT_UUID = 3453459;
 	public static final int CONTROL_UUID = 3153189;
 	
+	private int validateConnectionInterval = 0;
 	private int validateConnectionTimeout = 0;
 	//kind of a hack, using this boolean to keep from having to create a new state
 	//The new state would behave just like PairModeState except moves to connected state
@@ -67,11 +68,11 @@ public final class HIDDeviceManager extends ActiveThread{
 	private boolean receivedPinconfirmation = false;
 	
 	public HIDDeviceManager(DBusManager dbusManager, ActiveThread btsdActiveObject, HIDFactory hidFactory){
-		this(dbusManager, btsdActiveObject, hidFactory, 5000);
+		this(dbusManager, btsdActiveObject, hidFactory, 1000, 60000);
 	}
 	
 	public HIDDeviceManager(DBusManager dbusManager, ActiveThread btsdActiveObject, HIDFactory hidFactory, 
-		int validateConnectionTimeout){
+		int validateConnectionInterval, int validateConnectionTimeout){
 		
 		super();
 		
@@ -86,6 +87,7 @@ public final class HIDDeviceManager extends ActiveThread{
 		this.state = HIDDeviceDisconnectedState.getInstance();
 		this.previousState = this.state;
 		this.hidFactory = hidFactory;
+		this.validateConnectionInterval = validateConnectionInterval;
 		this.validateConnectionTimeout = validateConnectionTimeout;
 		
 		Set<String> hidHostAddresses = getHIDHostAddressesFromFile();
@@ -207,10 +209,14 @@ public final class HIDDeviceManager extends ActiveThread{
 		return hidFactory;
 	}
 
-	int getValidateConnectionTimeout() {
-		return validateConnectionTimeout;
+	int getValidateConnectionInterval() {
+		return validateConnectionInterval;
 	}
 
+	int getValidateConnectionTimeout(){
+		return validateConnectionTimeout;
+	}
+	
 	String getPossibleHidHostAddress() {
 		return possibleHidHostAddress;
 	}
@@ -368,6 +374,16 @@ public final class HIDDeviceManager extends ActiveThread{
 	
 	//TODO: recover from corrupted HIDHosts file using backup files
 	private Set<String> getHIDHostAddressesFromFile(){
+		
+		/*Set<String> newHIDHostAddresses = new HashSet<String>();
+		newHIDHostAddresses.add("000272159B71");
+		try{
+		SerializationUtils.serialize((HashSet<String>)newHIDHostAddresses, 
+				new FileOutputStream(new File("HIDHosts")));
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}*/
+		
 		Set<String> hidHostAddressess = null;
 		try{
 			hidHostAddressess = (HashSet<String>)SerializationUtils.deserialize(new FileInputStream(
