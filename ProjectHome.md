@@ -1,0 +1,5 @@
+Turn your mobile phone into a remote control and wireless keyboard/mouse. This project hosts both mobile clients (Android initial) and the server component clients communicate with. The server component is required as most phones do not have infrared ports and limited low level Bluetooth access. The client sends commands to the server, which forwards the commands to the infrared hardware (via LIRC http://www.lirc.org/) or to Bluetooth hosts (using a custom Bluetooth HID profile).
+
+The long term goals of this project are to enable as many mobile phones as possible to control home electronics, media centers, and game consoles.
+
+This project is in the early development stages. A proof of concept has been completed and the focus is now on creating a developer preview. The developer preview will consist of an Android client that communicates via Bluetooth to a Linux server written in Java. The Linux server uses LIRC to send commands to the infrared hardware and a custom Bluetooth HID profile to send keyboard commands to Bluetooth hosts.
